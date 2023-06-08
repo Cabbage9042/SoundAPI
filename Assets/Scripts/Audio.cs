@@ -19,16 +19,34 @@ public class Audio {
             return list[list.Length - 1];
         }
     }
+
+    public string NameWoExtension { get { return Name.Substring(0, Name.Length - 4); } }
     /// <summary>
     /// The total length of audio in time
     /// </summary>
     public TimeSpan TotalTime { get { return wave.TotalTime; } }
+    /// <summary>
+    /// The current position of the audio being played in bytes
+    /// </summary>
+    public long Position { get; set; }
+    /// <summary>
+    /// The total length of the audio being played in bytes
+    /// </summary>
+    public long Length { get; }
+
+    public PlaybackState State {get { return speaker.PlaybackState; }}
 
     private bool isPlaying = false;
 
     private Speaker speaker;
-
-    public event Action<Audio,bool> OnAudioStopped;
+    /// <summary>
+    /// It is called when the audio is stopped (Including manually stopped and played completely).
+    /// <para>
+    /// <param name="stoppedAudio">The audio that was stopped.</param>
+    /// <param name="hasFinishedPlaying">True if the audio reach the end.</param>
+    /// </para>
+    /// </summary>
+    public event Action<Audio, bool> OnAudioStopped;
 
     public PlaybackState currentState {
         get {
@@ -47,15 +65,15 @@ public class Audio {
     /// <summary>
     /// Play the audio. If the audio is playing, do nothing
     /// </summary>
-    public void Play() {
+    /// <param name="checkStopped">Check is the audio stopped or not</param>
+    public void Play(bool checkStopped = true) {
         //add onAudioStopped if start to play add the beginning
         if (speaker.PlaybackState == PlaybackState.Stopped)
             speaker.PlaybackStopped += Speaker_PlaybackStopped;
 
         speaker.Play();
         isPlaying = true;
-
-        Task.Run(() => CheckAudioFinished());
+        if (checkStopped) Task.Run(() => CheckAudioFinished());
     }
 
 
@@ -102,11 +120,17 @@ public class Audio {
 
     }
 
+    /// <summary>
+    /// Stop playing the audio
+    /// </summary>
     public void Stop() {
         speaker?.Stop();
-        wave.Position = 0; ;
+        wave.Position = 0;
     }
 
+    /// <summary>
+    /// Dispose (Close) the audio 
+    /// </summary>
     public void Dispose() {
         speaker?.Dispose();
         wave?.Dispose();
@@ -125,7 +149,7 @@ public class Audio {
 
     public static WaveFileReader MP3toWAV(string mp3FilePath) {
 
-        string wavFilePath = mp3FilePath.Substring(0, mp3FilePath.Length - 4);
+        string wavFilePath = mp3FilePath.Substring(0, mp3FilePath.Length - 4) + ".wav";
 
         WaveFileReader wavFile;
 
@@ -142,4 +166,7 @@ public class Audio {
 
 
     }
+
+
+
 }

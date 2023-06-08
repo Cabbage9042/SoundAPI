@@ -7,13 +7,11 @@ public class AudioPlayer : MonoBehaviour {
 
     private void Start() {  
 
-        audio = new Audio("C:/tarc/fyp/project/SoundAPI/Assets/Audio/testing3.mp3");
-        
-
+        audio = new Audio($"{Application.dataPath}/Audio/testing3.mp3");
         audio.OnAudioStopped += Audio_OnAudioStopped;
     }
 
-    private void Audio_OnAudioStopped(Audio obj, bool hasFinishedPlaying) {
+    private void Audio_OnAudioStopped(Audio stoppedAudio, bool hasFinishedPlaying) {
         if (hasFinishedPlaying) {
             print("the audio done");
         }
