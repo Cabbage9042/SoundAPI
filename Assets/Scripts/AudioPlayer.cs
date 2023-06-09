@@ -3,7 +3,7 @@ using NAudio.Wave;
 using System.Windows;
 
 public class AudioPlayer : MonoBehaviour {
-    private Audio audio = null;
+    private new Audio audio = null;
 
     private void Start() {  
 
@@ -44,7 +44,7 @@ public class AudioPlayer : MonoBehaviour {
             audio.Stop();
         }
         //print(wave.currentState.ToString());
-        
+            
     }
 
     private void OnDestroy() {

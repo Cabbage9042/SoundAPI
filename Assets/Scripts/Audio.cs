@@ -1,6 +1,7 @@
 using NAudio.Wave;
 using System;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 
 public class Audio {
@@ -34,19 +35,20 @@ public class Audio {
     /// </summary>
     public long Length { get; }
 
-    public PlaybackState State {get { return speaker.PlaybackState; }}
+    public PlaybackState State { get { return speaker.PlaybackState; } }
 
     private bool isPlaying = false;
 
     private Speaker speaker;
     /// <summary>
-    /// It is called when the audio is stopped (Including manually stopped and played completely).
+    /// It is called when the audio is stopped (Including manually stopped and played completely).<br></br>
+    /// If the audio is looping, the event is also called before continue looping.
     /// <para>
-    /// <param name="stoppedAudio">The audio that was stopped.</param>
-    /// <param name="hasFinishedPlaying">True if the audio reach the end.</param>
+    /// <param name="stoppedAudio"><b>Audio</b>: The audio that was stopped.</param><br></br>
+    /// <param name="hasFinishedPlaying"><b>bool</b>: True if the audio reach the end (not stopped by interrupt).</param>
     /// </para>
     /// </summary>
-    public event Action<Audio, bool> OnAudioStopped;
+    public Action<Audio, bool> OnAudioStopped;
 
     public PlaybackState currentState {
         get {
@@ -67,7 +69,7 @@ public class Audio {
     /// </summary>
     /// <param name="checkStopped">Check is the audio stopped or not</param>
     public void Play(bool checkStopped = true) {
-        //add onAudioStopped if start to play add the beginning
+        //add onAudioStopped if start to play at the beginning
         if (speaker.PlaybackState == PlaybackState.Stopped)
             speaker.PlaybackStopped += Speaker_PlaybackStopped;
 
@@ -77,16 +79,17 @@ public class Audio {
     }
 
 
+
+
     /// <summary>
     /// Restart the playing audio. If the audio is stopped, do nothing
     /// </summary>
     public void Restart() {
         if (speaker.PlaybackState != PlaybackState.Stopped) {
-            //just set the offset to the beginning
+            //just set the offset to the beginnin
             wave.Position = 0;
-            if (speaker.PlaybackState == PlaybackState.Paused) {
-                speaker.Play();
-            }
+            speaker.Play();
+
         }
     }
 
@@ -117,6 +120,15 @@ public class Audio {
         OnAudioStopped?.Invoke(this, !isPlaying);
         //remove the onAudioStopped
         speaker.PlaybackStopped -= Speaker_PlaybackStopped;
+
+    }
+    public void RemoveOnAudioStopped() {
+        if (OnAudioStopped == null) return;
+        Delegate[] allMethod = OnAudioStopped.GetInvocationList();
+        for (int i = allMethod.Length - 1; i >= 0; i--) {
+
+            OnAudioStopped -= (Action<Audio, bool>)OnAudioStopped.GetInvocationList()[i];
+        }
 
     }
 

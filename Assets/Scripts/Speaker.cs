@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class Speaker : WaveOutEvent {
 
+    
+
     public Speaker() : base() {
 
     }
@@ -14,7 +16,6 @@ public class Speaker : WaveOutEvent {
     public void Init(WaveFileReader audio) {
 
         Init(new WaveChannel32(audio));
-        
     }
 
 
