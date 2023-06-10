@@ -265,10 +265,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0da855b5802868741ac0896ac78fec6e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  audioClip: {fileID: 8300000, guid: 227cb8687365bab47afdf71cd577477c, type: 3}
-  functionCalled:
-  - functionOwner: {fileID: 881952075}
+  audioClip: {fileID: 8300000, guid: 035f56d3378092444b1ff6918f108fb7, type: 3}
+  loop: 0
+  onStartAudioMethod:
+  - methodOwner: {fileID: 881952078}
     allMethod:
+    - DoAfterFinish
+    - DoRestart
+    - DoBeforeFinish
+    - DoAfterFinish2
     - IsInvoking
     - CancelInvoke
     - Invoke
@@ -329,8 +334,146 @@ MonoBehaviour:
     - Equals
     - ToString
     - GetType
-    selectedFunctionIndex: 1
-  loop: 0
+    selectedMethodIndex: 2
+  onAudioStartedMethod:
+  - methodOwner: {fileID: 881952078}
+    allMethod:
+    - DoAfterFinish
+    - DoRestart
+    - DoBeforeFinish
+    - DoAfterFinish2
+    - IsInvoking
+    - CancelInvoke
+    - Invoke
+    - InvokeRepeating
+    - CancelInvoke
+    - IsInvoking
+    - StartCoroutine
+    - StartCoroutine
+    - StartCoroutine
+    - StartCoroutine_Auto
+    - StopCoroutine
+    - StopCoroutine
+    - StopCoroutine
+    - StopAllCoroutines
+    - GetComponent
+    - GetComponent
+    - TryGetComponent
+    - TryGetComponent
+    - GetComponent
+    - GetComponentInChildren
+    - GetComponentInChildren
+    - GetComponentInChildren
+    - GetComponentInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentInParent
+    - GetComponentInParent
+    - GetComponentInParent
+    - GetComponentInParent
+    - GetComponentsInParent
+    - GetComponentsInParent
+    - GetComponentsInParent
+    - GetComponentsInParent
+    - GetComponentsInParent
+    - GetComponents
+    - GetComponents
+    - GetComponents
+    - GetComponents
+    - CompareTag
+    - SendMessageUpwards
+    - SendMessageUpwards
+    - SendMessageUpwards
+    - SendMessageUpwards
+    - SendMessage
+    - SendMessage
+    - SendMessage
+    - SendMessage
+    - BroadcastMessage
+    - BroadcastMessage
+    - BroadcastMessage
+    - BroadcastMessage
+    - GetInstanceID
+    - GetHashCode
+    - Equals
+    - ToString
+    - GetType
+    selectedMethodIndex: 2
+  onAudioPausedMethod: []
+  onAudioResumedMethod: []
+  onAudioRestartedMethod:
+  - methodOwner: {fileID: 881952078}
+    allMethod:
+    - DoAfterFinish
+    - DoRestart
+    - DoBeforeFinish
+    - DoAfterFinish2
+    - IsInvoking
+    - CancelInvoke
+    - Invoke
+    - InvokeRepeating
+    - CancelInvoke
+    - IsInvoking
+    - StartCoroutine
+    - StartCoroutine
+    - StartCoroutine
+    - StartCoroutine_Auto
+    - StopCoroutine
+    - StopCoroutine
+    - StopCoroutine
+    - StopAllCoroutines
+    - GetComponent
+    - GetComponent
+    - TryGetComponent
+    - TryGetComponent
+    - GetComponent
+    - GetComponentInChildren
+    - GetComponentInChildren
+    - GetComponentInChildren
+    - GetComponentInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentInParent
+    - GetComponentInParent
+    - GetComponentInParent
+    - GetComponentInParent
+    - GetComponentsInParent
+    - GetComponentsInParent
+    - GetComponentsInParent
+    - GetComponentsInParent
+    - GetComponentsInParent
+    - GetComponents
+    - GetComponents
+    - GetComponents
+    - GetComponents
+    - CompareTag
+    - SendMessageUpwards
+    - SendMessageUpwards
+    - SendMessageUpwards
+    - SendMessageUpwards
+    - SendMessage
+    - SendMessage
+    - SendMessage
+    - SendMessage
+    - BroadcastMessage
+    - BroadcastMessage
+    - BroadcastMessage
+    - BroadcastMessage
+    - GetInstanceID
+    - GetHashCode
+    - Equals
+    - ToString
+    - GetType
+    selectedMethodIndex: 1
+  onAudioStoppedMethod: []
   playOnStart: 0
 --- !u!114 &881952078
 MonoBehaviour:

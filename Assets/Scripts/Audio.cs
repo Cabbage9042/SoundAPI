@@ -40,6 +40,79 @@ public class Audio {
     private bool isPlaying = false;
 
     private Speaker speaker;
+
+    /// <summary>
+    /// It is called before the audio has started.<br></br>
+    /// Note that OnStartAudio will also be called when OnAudioRestarted is called and sameAsPlay == true
+    /// <para>
+    /// <param name="currentAudio"><b>Audio</b>: The audio that will be played.</param>
+    /// </para>
+    /// <para>
+    /// void Your_Method_Name(Audio currentAudio){<br></br>
+    ///       //Your code here...<br></br>
+    /// } 
+    /// </para>
+    /// </summary>
+    public Action<Audio> OnStartAudio;
+
+    /// <summary>
+    /// It is called after the audio has started.<br></br>
+    /// Note that OnAudioStarted will also be called when OnAudioRestarted is called and sameAsPlay == true
+    /// <para>
+    /// <param name="currentAudio"><b>Audio</b>: The audio that was played.</param>
+    /// </para>
+    /// <para>
+    /// void Your_Method_Name(Audio currentAudio){<br></br>
+    ///       //Your code here...<br></br>
+    /// } 
+    /// </para>
+    /// </summary>
+    public Action<Audio> OnAudioStarted;
+
+    /// <summary>
+    /// It is called after the audio has been paused.
+    /// <para>
+    /// <param name="currentAudio"><b>Audio</b>: The audio that is been paused.</param>
+    /// </para>
+    /// <para>
+    /// void Your_Method_Name(Audio currentAudio){<br></br>
+    ///       //Your code here...<br></br>
+    /// } 
+    /// </para>
+    /// </summary>
+    public Action<Audio> OnAudioPaused;
+
+    /// <summary>
+    /// It is called after the audio has been resumed after pausing.
+    /// <para>
+    /// <param name="currentAudio"><b>Audio</b>: The audio that is been resumed.</param>
+    /// </para>
+    /// <para>
+    /// void Your_Method_Name(Audio currentAudio){<br></br>
+    ///       //Your code here...<br></br>
+    /// } 
+    /// </para>
+    /// </summary>
+    public Action<Audio> OnAudioResumed;
+
+    /// <summary>
+    /// It is called after the audio has been resumed after pausing.<br></br>
+    /// Note that OnStartAudio and OnAudioStarted will also be called when OnAudioRestarted is called and sameAsPlay == true
+    /// <para>
+    /// <param name="currentAudio"><b>Audio</b>: The audio that is been replayed.</param><br></br>
+    /// <param name="sameAsPlay">
+    ///     <b>bool</b>: True if the audio is stopped before.<br></br>
+    ///     False if the audio is playing or pausing before.
+    /// </param>
+    /// </para>
+    /// <para>
+    /// void Your_Method_Name(Audio currentAudio, bool sameAsPlay){<br></br>
+    ///       //Your code here...<br></br>
+    /// } 
+    /// </para>
+    /// </summary>
+    public Action<Audio, bool> OnAudioRestarted;
+
     /// <summary>
     /// It is called when the audio is stopped (Including manually stopped and played completely).<br></br>
     /// If the audio is looping, the event is also called before continue looping.
@@ -47,8 +120,28 @@ public class Audio {
     /// <param name="stoppedAudio"><b>Audio</b>: The audio that was stopped.</param><br></br>
     /// <param name="hasFinishedPlaying"><b>bool</b>: True if the audio reach the end (not stopped by interrupt).</param>
     /// </para>
+    /// <para>
+    /// void Your_Method_Name(Audio stoppedAudio, bool hasFinishedPlaying){<br></br>
+    ///       //Your code here...<br></br>
+    /// } 
+    /// </para>
     /// </summary>
     public Action<Audio, bool> OnAudioStopped;
+
+
+
+    /*What to do when adding new event:
+    clearEvent()
+    clearAllEvent()
+    Invoke()
+    
+     Basic Play() foreach
+    add new MethodCall[] 
+    
+     Editor
+    Enum
+    InitializeHeaderName
+    OnEnable serializedObject.FindProperty();*/
 
     public PlaybackState currentState {
         get {
@@ -62,6 +155,7 @@ public class Audio {
         wave = GetFileInWAV(filePath);
         speaker.Init(wave);
         FilePath = filePath;
+
     }
 
     /// <summary>
@@ -70,35 +164,50 @@ public class Audio {
     /// <param name="checkStopped">Check is the audio stopped or not</param>
     public void Play(bool checkStopped = true) {
         //add onAudioStopped if start to play at the beginning
-        if (speaker.PlaybackState == PlaybackState.Stopped)
+        if (speaker.PlaybackState == PlaybackState.Stopped) {
+            OnStartAudio?.Invoke(this);
             speaker.PlaybackStopped += Speaker_PlaybackStopped;
+        }
+        //resume
+        else if (speaker.PlaybackState == PlaybackState.Paused) {
+            OnAudioResumed?.Invoke(this);
+        }
 
         speaker.Play();
+
+        OnAudioStarted?.Invoke(this);
         isPlaying = true;
         if (checkStopped) Task.Run(() => CheckAudioFinished());
+
     }
 
 
 
 
     /// <summary>
-    /// Restart the playing audio. If the audio is stopped, do nothing
+    /// Restart the playing audio. If the audio is stopped, play from beginning
     /// </summary>
     public void Restart() {
-        if (speaker.PlaybackState != PlaybackState.Stopped) {
-            //just set the offset to the beginnin
-            wave.Position = 0;
-            speaker.Play();
+        //just set the offset to the beginning
+        wave.Position = 0;
 
-        }
+        bool sameAsPlay = State == PlaybackState.Stopped;
+
+        speaker.Play();
+        isPlaying = true;
+
+        //same as play == true in basic.play
+        OnAudioRestarted?.Invoke(this, sameAsPlay);
     }
 
     /// <summary>
     /// Pause the playing audio. If the audio is stopped, do nothing
     /// </summary>
     public void Pause() {
-        if (speaker.PlaybackState == PlaybackState.Playing)
+        if (speaker.PlaybackState == PlaybackState.Playing) {
             speaker.Pause();
+            OnAudioPaused?.Invoke(this);
+        }
     }
 
     /// <summary>
@@ -116,19 +225,81 @@ public class Audio {
         wave.Position = 0;
     }
 
-    private void Speaker_PlaybackStopped(object sender, StoppedEventArgs e) {
-        OnAudioStopped?.Invoke(this, !isPlaying);
-        //remove the onAudioStopped
-        speaker.PlaybackStopped -= Speaker_PlaybackStopped;
+    #region ClearEvent
 
-    }
-    public void RemoveOnAudioStopped() {
+    public void ClearOnAudioStopped() {
         if (OnAudioStopped == null) return;
         Delegate[] allMethod = OnAudioStopped.GetInvocationList();
         for (int i = allMethod.Length - 1; i >= 0; i--) {
 
-            OnAudioStopped -= (Action<Audio, bool>)OnAudioStopped.GetInvocationList()[i];
+            OnAudioStopped -= (Action<Audio, bool>)allMethod[i];
         }
+
+    }
+    public void ClearOnAudioStarted() {
+        if (OnAudioStarted == null) return;
+        Delegate[] allMethod = OnAudioStarted.GetInvocationList();
+        for (int i = allMethod.Length - 1; i >= 0; i--) {
+
+            OnAudioStarted -= (Action<Audio>)allMethod[i];
+        }
+
+    }
+
+    public void ClearOnAudioPaused() {
+        if (OnAudioPaused == null) return;
+        Delegate[] allMethod = OnAudioPaused.GetInvocationList();
+        for (int i = allMethod.Length - 1; i >= 0; i--) {
+
+            OnAudioPaused -= (Action<Audio>)allMethod[i];
+        }
+
+    }
+
+    public void ClearOnAudioResumed() {
+        if (OnAudioResumed == null) return;
+        Delegate[] allMethod = OnAudioResumed.GetInvocationList();
+        for (int i = allMethod.Length - 1; i >= 0; i--) {
+
+            OnAudioResumed -= (Action<Audio>)allMethod[i];
+        }
+
+    }
+
+    public void ClearOnStartAudio() {
+        if (OnStartAudio == null) return;
+        Delegate[] allMethod = OnStartAudio.GetInvocationList();
+        for (int i = allMethod.Length - 1; i >= 0; i--) {
+
+            OnStartAudio -= (Action<Audio>)OnStartAudio.GetInvocationList()[i];
+        }
+    }
+    public void ClearOnAudioRestarted() {
+        if (OnAudioRestarted == null) return;
+        Delegate[] allMethod = OnAudioRestarted.GetInvocationList();
+        for (int i = allMethod.Length - 1; i >= 0; i--) {
+
+            OnAudioRestarted -= (Action<Audio, bool>)allMethod[i];
+        }
+
+    }
+
+    public void ClearAllEvent() {
+        ClearOnStartAudio();
+        ClearOnAudioStarted();
+        ClearOnAudioPaused();
+        ClearOnAudioStopped();
+        ClearOnAudioResumed();
+        ClearOnAudioRestarted();
+    }
+
+    #endregion
+
+
+    private void Speaker_PlaybackStopped(object sender, StoppedEventArgs e) {
+        OnAudioStopped?.Invoke(this, !isPlaying);
+        //remove the onAudioStopped
+        speaker.PlaybackStopped -= Speaker_PlaybackStopped;
 
     }
 

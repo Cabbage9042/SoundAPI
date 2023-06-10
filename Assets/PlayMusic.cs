@@ -2,18 +2,31 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayMusic : MonoBehaviour
-{
+public class PlayMusic : MonoBehaviour {
     public AudioBasic audio;
-   public void DoAfterFinish(Audio stoppedAudio, bool hasPlayedFinished) {
+    public void DoAfterFinish(Audio stoppedAudio, bool hasPlayedFinished) {
         if (hasPlayedFinished) {
             print("yes");
         }
         else {
             print("no");
         }
-    }
 
+
+    }
+    public void DoRestart(Audio stoppedAudio, bool sameAsPlay) {
+        if (sameAsPlay) {
+            print("yes");
+        }
+        else {
+            print("no");
+        }
+
+
+    }
+    public void DoBeforeFinish(Audio currentAudio) {
+        print(currentAudio.Name);
+    }
 
     public void DoAfterFinish2(Audio stoppedAudio, bool hasPlayedFinished) {
         if (hasPlayedFinished) {
@@ -24,11 +37,10 @@ public class PlayMusic : MonoBehaviour
         }
     }
     private void Update() {
-               if (Input.GetKeyDown(KeyCode.Space)) {
+        if (Input.GetKeyDown(KeyCode.Space)) {
             // Start playing the audio
 
             audio.Play();
-            //output.Stop();
         }
         else if (Input.GetKeyDown(KeyCode.R)) {
             audio.Restart();
@@ -40,12 +52,12 @@ public class PlayMusic : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.S)) {
             audio.Stop();
         }
-       /* else if (Input.GetKeyDown(KeyCode.Plus)) {
-            audio.OnAudioStopped += Audio_OnAudioStopped;
-        }
-        else if (Input.GetKeyDown(KeyCode.Minus)) {
-            audio.OnAudioStopped += Audio_OnAudioStopped;
-        }*/
+        /* else if (Input.GetKeyDown(KeyCode.Plus)) {
+             audio.OnAudioStopped += Audio_OnAudioStopped;
+         }
+         else if (Input.GetKeyDown(KeyCode.Minus)) {
+             audio.OnAudioStopped += Audio_OnAudioStopped;
+         }*/
 
     }
 }

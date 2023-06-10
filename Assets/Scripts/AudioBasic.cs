@@ -12,21 +12,25 @@ using UnityEditor;
 
 public class AudioBasic : MonoBehaviour {
     public AudioClip audioClip = null;
-    public new Audio audio = null;
-    public FunctionCalled[] functionCalled;
+    private new Audio audio = null;
     public bool loop = false;
 
+    public MethodCalled[] onStartAudioMethod;
+    public MethodCalled[] onAudioStartedMethod;
+    public MethodCalled[] onAudioPausedMethod;
+    public MethodCalled[] onAudioResumedMethod;
+    public MethodCalled[] onAudioRestartedMethod;
+    public MethodCalled[] onAudioStoppedMethod;
 
-    //public MethodInfo functionCalled = null;
-    //public int functionCalledIndex = 0;
+
 
     [System.Serializable]
-    public class FunctionCalled {
-        public MonoBehaviour functionOwner = null;
+    public class MethodCalled {
+        public MonoBehaviour methodOwner = null;
         public string[] allMethod;
-        public int selectedFunctionIndex;
+        public int selectedMethodIndex;
 
-        public MethodInfo methodToCall { get { return functionOwner.GetType().GetMethod(allMethod[selectedFunctionIndex]); } }
+        public MethodInfo methodToCall { get { return methodOwner.GetType().GetMethod(allMethod[selectedMethodIndex]); } }
 
 
     }
@@ -40,22 +44,31 @@ public class AudioBasic : MonoBehaviour {
     public PlayOnStartState playOnStart;
 
     void Start() {
-        if (playOnStart == PlayOnStartState.True) {
-            if (audioClip != null) {
-                if (audio == null || audio.NameWoExtension != audioClip.name) {
-                    audio = AudioClipToAudio(audioClip);
-                    playOnStart = PlayOnStartState.Played;
-                }
+        //check need to play on start or not
+        if (playOnStart != PlayOnStartState.True) return;
 
-                Play();
+
+        //if got audio attached
+        if (audioClip != null) {
+
+            //if audio is not initialize || audio name is not same as provided audio
+            if (audio == null || audio.NameWoExtension != audioClip.name) {
+
+                //assign new audio into audio
+                audio = AudioClipToAudio(audioClip);
+                playOnStart = PlayOnStartState.Played;
             }
+
+            Play();
         }
+
     }
 
     private void OnDestroy() {
         audio?.Stop();
         audio?.Dispose();
     }
+
     public static Audio AudioClipToAudio(AudioClip audioClip) {
         string[] assetPathArray = AssetDatabase.GetAssetPath(audioClip.GetInstanceID()).Split("/");
         string path = Application.dataPath + "/";
@@ -69,15 +82,29 @@ public class AudioBasic : MonoBehaviour {
     }
 
     public void Play() {
-        audio.RemoveOnAudioStopped();
-
+        audio.ClearAllEvent();
 
         //loop
         audio.OnAudioStopped += OnAudioStopped_CheckLoop;
 
-        //assign each function by user into event
-        foreach (var function in functionCalled) {
-            audio.OnAudioStopped += (Action<Audio, bool>)Delegate.CreateDelegate(typeof(Action<Audio, bool>), null, function.methodToCall);
+        //assign each method by user into event
+        foreach (var method in onStartAudioMethod) {
+            audio.OnStartAudio += (Action<Audio>)Delegate.CreateDelegate(typeof(Action<Audio>), null, method.methodToCall);
+        }
+        foreach (var method in onAudioStartedMethod) {
+            audio.OnAudioStarted += (Action<Audio>)Delegate.CreateDelegate(typeof(Action<Audio>), null, method.methodToCall);
+        }
+        foreach (var method in onAudioPausedMethod) {
+            audio.OnAudioPaused += (Action<Audio>)Delegate.CreateDelegate(typeof(Action<Audio>), null, method.methodToCall);
+        }
+        foreach (var method in onAudioResumedMethod) {
+            audio.OnAudioResumed += (Action<Audio>)Delegate.CreateDelegate(typeof(Action<Audio>), null, method.methodToCall);
+        }
+        foreach (var method in onAudioRestartedMethod) {
+            audio.OnAudioRestarted += (Action<Audio, bool>)Delegate.CreateDelegate(typeof(Action<Audio, bool>), null, method.methodToCall);
+        }
+        foreach (var method in onAudioStoppedMethod) {
+            audio.OnAudioStopped += (Action<Audio, bool>)Delegate.CreateDelegate(typeof(Action<Audio, bool>), null, method.methodToCall);
         }
         audio?.Play();
     }
@@ -87,7 +114,12 @@ public class AudioBasic : MonoBehaviour {
     }
 
     public void Restart() {
-        audio.Restart();
+        if (audio.State == PlaybackState.Stopped) {
+            Play();
+            //same as play == false in audio.restart
+            audio.OnAudioRestarted?.Invoke(audio, true);
+        }
+        else { audio.Restart(); }
     }
 
     public void Pause() {
@@ -114,47 +146,116 @@ public class AudioBasic : MonoBehaviour {
 
         SerializedProperty audioClip;
         private SerializedProperty playOnStart;
-        private SerializedProperty functionCalled;
         private SerializedProperty loop;
-        ReorderableList listOnAudioStopped;
+        private enum EventName {
+            onStartAudio,
+            onAudioStarted,
+            onAudioPaused,
+            onAudioResumed,
+            onAudioRestarted,
+            onAudioStopped,
+            TotalEvent
+        }
+
+        private SerializedProperty[] eventArray = new SerializedProperty[(int)EventName.TotalEvent];
+        private ReorderableList[] reorderableListArray = new ReorderableList[(int)EventName.TotalEvent];
+        private Dictionary<EventName, string> headerName = new Dictionary<EventName, string>();
+
+
+
         private bool eventIsExpanded = false;
 
+
+        private GUIStyle listMargin;
+
+        struct ListHolder {
+            public ReorderableList list;
+            public string headerName;
+        }
+        ListHolder currentList;
+
+
+        private void InitializeHeaderName() {
+            headerName.Add(EventName.onStartAudio, "On Start Audio");
+            headerName.Add(EventName.onAudioStarted, "On Audio Started");
+            headerName.Add(EventName.onAudioPaused, "On Audio Paused");
+            headerName.Add(EventName.onAudioResumed, "On Audio Resumed");
+            headerName.Add(EventName.onAudioRestarted, "On Audio Restarted");
+            headerName.Add(EventName.onAudioStopped, "On Audio Stopped");
+        }
+
+        private void DrawAllEvent() {
+
+            listMargin = new GUIStyle(GUI.skin.label);
+            for (int i = 0; i < eventArray.Length; i++) {
+                currentList.list = reorderableListArray[i];
+                headerName.TryGetValue((EventName)i, out currentList.headerName);
+
+
+                EditorGUILayout.BeginVertical(listMargin);
+                currentList.list.DoLayoutList();
+                EditorGUILayout.EndVertical();
+            }
+        }
+
+        private void InitializeAllList() {
+            for (int i = 0; i < eventArray.Length; i++) {
+
+                reorderableListArray[i] = new ReorderableList(serializedObject,
+                    eventArray[i], true, true, true, true);
+
+                reorderableListArray[i].drawElementCallback = DrawListItems;
+                reorderableListArray[i].drawHeaderCallback = DrawHeader;
+
+            }
+
+        }
+
         private void OnEnable() {
+            InitializeHeaderName();
+
             audioBasic = (AudioBasic)target;
             audioClip = serializedObject.FindProperty("audioClip");
             playOnStart = serializedObject.FindProperty("playOnStart");
-            functionCalled = serializedObject.FindProperty("functionCalled");
             loop = serializedObject.FindProperty("loop");
 
+            eventArray[(int)EventName.onStartAudio] = serializedObject.FindProperty("onStartAudioMethod");
+            eventArray[(int)EventName.onAudioStarted] = serializedObject.FindProperty("onAudioStartedMethod");
+            eventArray[(int)EventName.onAudioPaused] = serializedObject.FindProperty("onAudioPausedMethod");
+            eventArray[(int)EventName.onAudioResumed] = serializedObject.FindProperty("onAudioResumedMethod");
+            eventArray[(int)EventName.onAudioRestarted] = serializedObject.FindProperty("onAudioRestartedMethod");
+            eventArray[(int)EventName.onAudioStopped] = serializedObject.FindProperty("onAudioStoppedMethod");
 
-            listOnAudioStopped = new ReorderableList(serializedObject,
-                functionCalled, true, true, true, true);
 
-            listOnAudioStopped.drawElementCallback = DrawListItems;
-            listOnAudioStopped.drawHeaderCallback = DrawHeader;
+            InitializeAllList();
+
+
+
 
 
         }
+
+
         void DrawListItems(Rect rect, int index, bool isActive, bool isFocused) {
 
 
             //this is to get the element in index n
-            SerializedProperty element = listOnAudioStopped.serializedProperty.GetArrayElementAtIndex(index);
+            SerializedProperty element = currentList.list.serializedProperty.GetArrayElementAtIndex(index);
 
             //object field
             EditorGUI.PropertyField(new Rect(rect.x, rect.y, EditorGUIUtility.currentViewWidth / 3, EditorGUIUtility.singleLineHeight),
-                element.FindPropertyRelative("functionOwner"), GUIContent.none);
+                element.FindPropertyRelative("methodOwner"), GUIContent.none);
 
 
             //get the object field item (class)
-            MonoBehaviour functionOwner = (MonoBehaviour)element.FindPropertyRelative("functionOwner").objectReferenceValue;
+            MonoBehaviour methodOwner = (MonoBehaviour)element.FindPropertyRelative("methodOwner").objectReferenceValue;
 
 
             //if got class attached
-            if (functionOwner != null) {
+            if (methodOwner != null) {
 
                 //get the possible method that can be called
-                Type type = functionOwner.GetType();
+                Type type = methodOwner.GetType();
                 MethodInfo[] allMethodInfo = type.GetMethods(BindingFlags.Instance | BindingFlags.Public);
                 List<string> methodNames = new List<string>();
                 for (int i = 0; i < allMethodInfo.Length; i++) {
@@ -177,15 +278,15 @@ public class AudioBasic : MonoBehaviour {
                 float rectX = rect.x + rect.width - popUpWidth;
 
                 //display popup
-                SerializedProperty selectedFunctionIndex = element.FindPropertyRelative("selectedFunctionIndex");
-                selectedFunctionIndex.intValue = EditorGUI.Popup(new Rect(rectX, rect.y, popUpWidth, EditorGUIUtility.singleLineHeight),
-                    selectedFunctionIndex.intValue, methodNames.ToArray());
+                SerializedProperty selectedMethodIndex = element.FindPropertyRelative("selectedMethodIndex");
+                selectedMethodIndex.intValue = EditorGUI.Popup(new Rect(rectX, rect.y, popUpWidth, EditorGUIUtility.singleLineHeight),
+                    selectedMethodIndex.intValue, methodNames.ToArray());
             }
         }
 
 
         void DrawHeader(Rect rect) {
-            string name = "On Audio Stopped";
+            string name = currentList.headerName;
             EditorGUI.LabelField(rect, name);
 
         }
@@ -211,7 +312,7 @@ public class AudioBasic : MonoBehaviour {
             //event
             eventIsExpanded = EditorGUILayout.Foldout(eventIsExpanded, "Event");
             if (eventIsExpanded) {
-                listOnAudioStopped.DoLayoutList();
+                DrawAllEvent();
             }
 
 
@@ -221,12 +322,12 @@ public class AudioBasic : MonoBehaviour {
                 if (audioClip.objectReferenceValue != null) {
 
                     //if the audio has been changed (programmer drag into field while game running)
-                    if (audioClip.objectReferenceValue.name != previousString) {
+                    if (audioClip.objectReferenceValue.name != previousString && previousString != null) {
 
                         //if the programmer drag the same audio into the field, the audio continue playing
                         if (((AudioClip)audioClip.objectReferenceValue).name == audioBasic.audio?.NameWoExtension && audioBasic.audio.State == PlaybackState.Playing) {
                             audioBasic.audio.Position = audioCurrentPosition;
-                            audioBasic.audio.Play(false);
+                            audioBasic.audio.Play(checkStopped: false);
                         }
                         //if the programmer drag the different audio into the field, the audio stop playing and the audio is changed and ready to be played
                         else {
