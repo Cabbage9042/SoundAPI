@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 public class Audio {
     private WaveFileReader wave;
+    private Speaker speaker;
 
     /// <summary>
     /// The file path of the audio
@@ -20,6 +21,7 @@ public class Audio {
             return list[list.Length - 1];
         }
     }
+
 
     public string NameWoExtension { get { return Name.Substring(0, Name.Length - 4); } }
     /// <summary>
@@ -39,25 +41,17 @@ public class Audio {
 
     private bool isPlaying = false;
 
-    private Speaker speaker;
 
-    /// <summary>
-    /// It is called before the audio has started.<br></br>
-    /// Note that OnStartAudio will also be called when OnAudioRestarted is called and sameAsPlay == true
-    /// <para>
-    /// <param name="currentAudio"><b>Audio</b>: The audio that will be played.</param>
-    /// </para>
-    /// <para>
-    /// void Your_Method_Name(Audio currentAudio){<br></br>
-    ///       //Your code here...<br></br>
-    /// } 
-    /// </para>
-    /// </summary>
-    public Action<Audio> OnStartAudio;
+    public float Volume { get { return speaker.Volume; } set { speaker.Volume = value; } }
+
+
+
+
+
 
     /// <summary>
     /// It is called after the audio has started.<br></br>
-    /// Note that OnAudioStarted will also be called when OnAudioRestarted is called and sameAsPlay == true
+    /// Note that OnAudioStarted will also be called when OnAudioRestarted is called and sameAsPlay == true (Audio is stopped before)
     /// <para>
     /// <param name="currentAudio"><b>Audio</b>: The audio that was played.</param>
     /// </para>
@@ -97,7 +91,7 @@ public class Audio {
 
     /// <summary>
     /// It is called after the audio has been resumed after pausing.<br></br>
-    /// Note that OnStartAudio and OnAudioStarted will also be called when OnAudioRestarted is called and sameAsPlay == true
+    /// Note that OnAudioStarted will also be called when OnAudioRestarted is called and sameAsPlay == true (Audio is stopped before)
     /// <para>
     /// <param name="currentAudio"><b>Audio</b>: The audio that is been replayed.</param><br></br>
     /// <param name="sameAsPlay">
@@ -165,7 +159,6 @@ public class Audio {
     public void Play(bool checkStopped = true) {
         //add onAudioStopped if start to play at the beginning
         if (speaker.PlaybackState == PlaybackState.Stopped) {
-            OnStartAudio?.Invoke(this);
             speaker.PlaybackStopped += Speaker_PlaybackStopped;
         }
         //resume
@@ -191,6 +184,7 @@ public class Audio {
         //just set the offset to the beginning
         wave.Position = 0;
 
+        //if audio is not playing, 
         bool sameAsPlay = State == PlaybackState.Stopped;
 
         speaker.Play();
@@ -266,14 +260,6 @@ public class Audio {
 
     }
 
-    public void ClearOnStartAudio() {
-        if (OnStartAudio == null) return;
-        Delegate[] allMethod = OnStartAudio.GetInvocationList();
-        for (int i = allMethod.Length - 1; i >= 0; i--) {
-
-            OnStartAudio -= (Action<Audio>)OnStartAudio.GetInvocationList()[i];
-        }
-    }
     public void ClearOnAudioRestarted() {
         if (OnAudioRestarted == null) return;
         Delegate[] allMethod = OnAudioRestarted.GetInvocationList();
@@ -285,7 +271,6 @@ public class Audio {
     }
 
     public void ClearAllEvent() {
-        ClearOnStartAudio();
         ClearOnAudioStarted();
         ClearOnAudioPaused();
         ClearOnAudioStopped();

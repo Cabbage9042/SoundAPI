@@ -15,13 +15,116 @@ public class AudioBasic : MonoBehaviour {
     private new Audio audio = null;
     public bool loop = false;
 
-    public MethodCalled[] onStartAudioMethod;
     public MethodCalled[] onAudioStartedMethod;
     public MethodCalled[] onAudioPausedMethod;
     public MethodCalled[] onAudioResumedMethod;
     public MethodCalled[] onAudioRestartedMethod;
     public MethodCalled[] onAudioStoppedMethod;
 
+    #region Add Remove OnEvent
+
+    #region Started
+    public void AddOnAudioStarted(MethodCalled methodCalled) {
+        AddOnEvent(ref onAudioStartedMethod, methodCalled);
+    }
+
+    public bool RemoveOnAudioStarted(MethodCalled methodCalled) {
+        return RemoveOnEvent(ref onAudioStartedMethod, methodCalled);
+    }
+
+    public void RemoveAllOnAudioStarted() {
+        onAudioStartedMethod = null;
+    }
+    #endregion
+
+    #region Pause
+    public void AddOnAudioPaused(MethodCalled methodCalled) {
+        AddOnEvent(ref onAudioPausedMethod, methodCalled);
+    }
+
+    public bool RemoveOnAudioPaused(MethodCalled methodCalled) {
+        return RemoveOnEvent(ref onAudioPausedMethod, methodCalled);
+    }
+
+    public void RemoveAllOnAudioPaused() {
+        onAudioPausedMethod = null;
+    }
+    #endregion
+
+    #region Resumed
+    public void AddOnAudioResumed(MethodCalled methodCalled) {
+        AddOnEvent(ref onAudioResumedMethod, methodCalled);
+    }
+
+    public bool RemoveOnAudioResumed(MethodCalled methodCalled) {
+        return RemoveOnEvent(ref onAudioResumedMethod, methodCalled);
+    }
+
+    public void RemoveAllOnAudioResumed() {
+        onAudioResumedMethod = null;
+    }
+
+    #endregion
+
+    #region Restarted
+    public void AddOnAudioRestarted(MethodCalled methodCalled) {
+        AddOnEvent(ref onAudioRestartedMethod, methodCalled);
+    }
+
+    public bool RemoveOnAudioRestarted(MethodCalled methodCalled) {
+        return RemoveOnEvent(ref onAudioRestartedMethod, methodCalled);
+    }
+
+    public void RemoveAllOnAudioRestarted() {
+        onAudioRestartedMethod = null;
+    }
+
+    #endregion
+
+    #region Stopped
+    public void AddOnAudioStopped(MethodCalled methodCalled) {
+        AddOnEvent(ref onAudioStoppedMethod, methodCalled);
+    }
+
+    public bool RemoveOnAudioStopped(MethodCalled methodCalled) {
+        return RemoveOnEvent(ref onAudioStoppedMethod, methodCalled);
+    }
+
+    public void RemoveAllOnAudioStopped() {
+        onAudioStoppedMethod = null;
+    }
+
+    #endregion
+
+    #region Base
+    //return true if found and removed, false if not found
+    private bool RemoveOnEvent(ref MethodCalled[] onEvent, MethodCalled methodCalled) {
+
+        for (int i = 0; i < onEvent.Length; i++) {
+            if (onEvent[i].Equals(methodCalled)) {
+                for (int j = i; j < onEvent.Length - 1; j++) {
+                    onEvent[j] = onEvent[j + 1];
+                }
+
+                Array.Resize(ref onEvent,onEvent.Length - 1);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void AddOnEvent(ref MethodCalled[] onEvent, MethodCalled methodCalled) {
+        if (onEvent == null || onEvent.Length == 0) {
+            onEvent = new MethodCalled[] { methodCalled };
+        }
+        else {
+            Array.Resize(ref onEvent, onEvent.Length + 1);
+            onEvent[onEvent.Length - 1] = methodCalled;
+        }
+    }
+    #endregion
+
+    #endregion
 
 
     [System.Serializable]
@@ -32,6 +135,41 @@ public class AudioBasic : MonoBehaviour {
 
         public MethodInfo methodToCall { get { return methodOwner.GetType().GetMethod(allMethod[selectedMethodIndex]); } }
 
+        public MethodCalled(MonoBehaviour methodOwner, string methodName) {
+            this.methodOwner = methodOwner;
+            allMethod = GetPossibleMethods(methodOwner);
+
+            selectedMethodIndex = Array.IndexOf(allMethod, methodName);
+            if (selectedMethodIndex == -1) {
+                Debug.LogError($"Method {methodName} not found in class {methodOwner.GetType().Name}!");
+            }
+
+        }
+
+        public override bool Equals(object obj) {
+
+            if (obj == null || GetType() != obj.GetType()) {
+                return false;
+            }
+
+            if (((MethodCalled)obj).methodToCall == methodToCall) {
+                return true;
+            }
+            return false;
+        }
+
+
+
+        public static string[] GetPossibleMethods(MonoBehaviour methodOwner) {
+            MethodInfo[] allMethodInfo = methodOwner.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public);
+            List<string> methodNames = new List<string>();
+            for (int i = 0; i < allMethodInfo.Length; i++) {
+                if (!allMethodInfo[i].Name.StartsWith("get_") && !allMethodInfo[i].Name.StartsWith("set_")) {
+                    methodNames.Add(allMethodInfo[i].Name);
+                }
+            }
+            return methodNames.ToArray();
+        }
 
     }
 
@@ -87,25 +225,30 @@ public class AudioBasic : MonoBehaviour {
         //loop
         audio.OnAudioStopped += OnAudioStopped_CheckLoop;
 
-        //assign each method by user into event
-        foreach (var method in onStartAudioMethod) {
-            audio.OnStartAudio += (Action<Audio>)Delegate.CreateDelegate(typeof(Action<Audio>), null, method.methodToCall);
+        try {
+            foreach (var method in onAudioStartedMethod) {
+                audio.OnAudioStarted += (Action<Audio>)Delegate.CreateDelegate(typeof(Action<Audio>), null, method.methodToCall);
+            }
+            foreach (var method in onAudioPausedMethod) {
+                audio.OnAudioPaused += (Action<Audio>)Delegate.CreateDelegate(typeof(Action<Audio>), null, method.methodToCall);
+            }
+            foreach (var method in onAudioResumedMethod) {
+                audio.OnAudioResumed += (Action<Audio>)Delegate.CreateDelegate(typeof(Action<Audio>), null, method.methodToCall);
+            }
+            foreach (var method in onAudioRestartedMethod) {
+                audio.OnAudioRestarted += (Action<Audio, bool>)Delegate.CreateDelegate(typeof(Action<Audio, bool>), null, method.methodToCall);
+            }
+            foreach (var method in onAudioStoppedMethod) {
+                audio.OnAudioStopped += (Action<Audio, bool>)Delegate.CreateDelegate(typeof(Action<Audio, bool>), null, method.methodToCall);
+            }
         }
-        foreach (var method in onAudioStartedMethod) {
-            audio.OnAudioStarted += (Action<Audio>)Delegate.CreateDelegate(typeof(Action<Audio>), null, method.methodToCall);
+        catch (TargetParameterCountException ex) {
+            Debug.LogError("Parameter mismatch. Please change your parameter variable, or change your method");
+            return;
         }
-        foreach (var method in onAudioPausedMethod) {
-            audio.OnAudioPaused += (Action<Audio>)Delegate.CreateDelegate(typeof(Action<Audio>), null, method.methodToCall);
-        }
-        foreach (var method in onAudioResumedMethod) {
-            audio.OnAudioResumed += (Action<Audio>)Delegate.CreateDelegate(typeof(Action<Audio>), null, method.methodToCall);
-        }
-        foreach (var method in onAudioRestartedMethod) {
-            audio.OnAudioRestarted += (Action<Audio, bool>)Delegate.CreateDelegate(typeof(Action<Audio, bool>), null, method.methodToCall);
-        }
-        foreach (var method in onAudioStoppedMethod) {
-            audio.OnAudioStopped += (Action<Audio, bool>)Delegate.CreateDelegate(typeof(Action<Audio, bool>), null, method.methodToCall);
-        }
+
+
+
         audio?.Play();
     }
 
@@ -148,7 +291,6 @@ public class AudioBasic : MonoBehaviour {
         private SerializedProperty playOnStart;
         private SerializedProperty loop;
         private enum EventName {
-            onStartAudio,
             onAudioStarted,
             onAudioPaused,
             onAudioResumed,
@@ -176,7 +318,6 @@ public class AudioBasic : MonoBehaviour {
 
 
         private void InitializeHeaderName() {
-            headerName.Add(EventName.onStartAudio, "On Start Audio");
             headerName.Add(EventName.onAudioStarted, "On Audio Started");
             headerName.Add(EventName.onAudioPaused, "On Audio Paused");
             headerName.Add(EventName.onAudioResumed, "On Audio Resumed");
@@ -219,7 +360,6 @@ public class AudioBasic : MonoBehaviour {
             playOnStart = serializedObject.FindProperty("playOnStart");
             loop = serializedObject.FindProperty("loop");
 
-            eventArray[(int)EventName.onStartAudio] = serializedObject.FindProperty("onStartAudioMethod");
             eventArray[(int)EventName.onAudioStarted] = serializedObject.FindProperty("onAudioStartedMethod");
             eventArray[(int)EventName.onAudioPaused] = serializedObject.FindProperty("onAudioPausedMethod");
             eventArray[(int)EventName.onAudioResumed] = serializedObject.FindProperty("onAudioResumedMethod");
@@ -255,22 +395,14 @@ public class AudioBasic : MonoBehaviour {
             if (methodOwner != null) {
 
                 //get the possible method that can be called
-                Type type = methodOwner.GetType();
-                MethodInfo[] allMethodInfo = type.GetMethods(BindingFlags.Instance | BindingFlags.Public);
-                List<string> methodNames = new List<string>();
-                for (int i = 0; i < allMethodInfo.Length; i++) {
-                    if (!allMethodInfo[i].Name.StartsWith("get_") && !allMethodInfo[i].Name.StartsWith("set_")) {
-                        methodNames.Add(allMethodInfo[i].Name);
-                    }
-                }
-
+                string[] methodNames = MethodCalled.GetPossibleMethods(methodOwner);
 
                 //get the reference to the all method in class
                 SerializedProperty allMethod = element.FindPropertyRelative("allMethod");
-                allMethod.arraySize = methodNames.Count;
+                allMethod.arraySize = methodNames.Length;
 
                 //set each name into the all method
-                for (int i = 0; i < methodNames.Count; i++) {
+                for (int i = 0; i < methodNames.Length; i++) {
                     allMethod.GetArrayElementAtIndex(i).stringValue = methodNames[i];
                 }
 
@@ -280,7 +412,7 @@ public class AudioBasic : MonoBehaviour {
                 //display popup
                 SerializedProperty selectedMethodIndex = element.FindPropertyRelative("selectedMethodIndex");
                 selectedMethodIndex.intValue = EditorGUI.Popup(new Rect(rectX, rect.y, popUpWidth, EditorGUIUtility.singleLineHeight),
-                    selectedMethodIndex.intValue, methodNames.ToArray());
+                    selectedMethodIndex.intValue, methodNames);
             }
         }
 

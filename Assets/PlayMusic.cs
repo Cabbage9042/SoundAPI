@@ -27,6 +27,12 @@ public class PlayMusic : MonoBehaviour {
     public void DoBeforeFinish(Audio currentAudio) {
         print(currentAudio.Name);
     }
+    public void DoBeforeFinish2(Audio currentAudio) {
+        print(currentAudio.Name + "2");
+    }
+    public void DoBeforeFinish3(Audio currentAudio) {
+        print(currentAudio.Name + "3");
+    }
 
     public void DoAfterFinish2(Audio stoppedAudio, bool hasPlayedFinished) {
         if (hasPlayedFinished) {
@@ -52,12 +58,19 @@ public class PlayMusic : MonoBehaviour {
         else if (Input.GetKeyDown(KeyCode.S)) {
             audio.Stop();
         }
-        /* else if (Input.GetKeyDown(KeyCode.Plus)) {
-             audio.OnAudioStopped += Audio_OnAudioStopped;
-         }
-         else if (Input.GetKeyDown(KeyCode.Minus)) {
-             audio.OnAudioStopped += Audio_OnAudioStopped;
-         }*/
+        else if (Input.GetKeyDown(KeyCode.A)) {
+
+            audio.AddOnAudioStarted(new AudioBasic.MethodCalled(this, "DoBeforeFinish"));
+            audio.AddOnAudioStarted(new AudioBasic.MethodCalled(this, "DoBeforeFinish2"));
+        }
+        else if (Input.GetKeyDown(KeyCode.M)) {
+
+            print(audio.RemoveOnAudioStarted(new AudioBasic.MethodCalled(this, "DoBeforeFinish")));
+        }
+        else if (Input.GetKeyDown(KeyCode.L)) {
+
+            audio.RemoveAllOnAudioStarted();
+        }
 
     }
 }
