@@ -219,6 +219,8 @@ GameObject:
   - component: {fileID: 881952075}
   - component: {fileID: 881952077}
   - component: {fileID: 881952078}
+  - component: {fileID: 881952079}
+  - component: {fileID: 881952080}
   m_Layer: 0
   m_Name: Audio
   m_TagString: Untagged
@@ -233,7 +235,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 881952074}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 923c64be3757498469bad189418ec96f, type: 3}
   m_Name: 
@@ -266,12 +268,84 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   audioClip: {fileID: 8300000, guid: 035f56d3378092444b1ff6918f108fb7, type: 3}
-  loop: 0
+  loop: 1
+  pitchFactor: 1
+  volume: 1
   onAudioStartedMethod: []
   onAudioPausedMethod: []
   onAudioResumedMethod: []
   onAudioRestartedMethod: []
-  onAudioStoppedMethod: []
+  onAudioStoppedMethod:
+  - methodOwner: {fileID: 881952078}
+    allMethod:
+    - DoAfterFinish
+    - DoRestart
+    - DoBeforeFinish
+    - DoBeforeFinish2
+    - DoBeforeFinish3
+    - DoAfterFinish2
+    - IsInvoking
+    - CancelInvoke
+    - Invoke
+    - InvokeRepeating
+    - CancelInvoke
+    - IsInvoking
+    - StartCoroutine
+    - StartCoroutine
+    - StartCoroutine
+    - StartCoroutine_Auto
+    - StopCoroutine
+    - StopCoroutine
+    - StopCoroutine
+    - StopAllCoroutines
+    - GetComponent
+    - GetComponent
+    - TryGetComponent
+    - TryGetComponent
+    - GetComponent
+    - GetComponentInChildren
+    - GetComponentInChildren
+    - GetComponentInChildren
+    - GetComponentInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentInParent
+    - GetComponentInParent
+    - GetComponentInParent
+    - GetComponentInParent
+    - GetComponentsInParent
+    - GetComponentsInParent
+    - GetComponentsInParent
+    - GetComponentsInParent
+    - GetComponentsInParent
+    - GetComponents
+    - GetComponents
+    - GetComponents
+    - GetComponents
+    - CompareTag
+    - SendMessageUpwards
+    - SendMessageUpwards
+    - SendMessageUpwards
+    - SendMessageUpwards
+    - SendMessage
+    - SendMessage
+    - SendMessage
+    - SendMessage
+    - BroadcastMessage
+    - BroadcastMessage
+    - BroadcastMessage
+    - BroadcastMessage
+    - GetInstanceID
+    - GetHashCode
+    - Equals
+    - ToString
+    - GetType
+    selectedMethodIndex: 0
+  speakerDeviceNumber: 0
   playOnStart: 0
 --- !u!114 &881952078
 MonoBehaviour:
@@ -280,9 +354,40 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 881952074}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d2c7bfd2b17f3b64294b11fff140ca4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   audio: {fileID: 881952077}
+--- !u!114 &881952079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 881952074}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d46e1a34a1e5e9441bc2014133374071, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  audioClipArray:
+  - {fileID: 8300000, guid: 38e697e516b67014c932a87dd67032ae, type: 3}
+  - {fileID: 8300000, guid: 5ad10b4d3f0e96c43b5d08e0b9c9e85b, type: 3}
+  - {fileID: 8300000, guid: 6e2e825079c2fa049b6e7845a88638d2, type: 3}
+  mode: 2
+  playOnStart: 0
+--- !u!114 &881952080
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 881952074}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c26f20124749ea44ca3b5eb9416900b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  audioList: {fileID: 881952079}

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static AudioBasic;
 
 public class PlayMusic : MonoBehaviour {
     public AudioBasic audio;
@@ -12,8 +13,10 @@ public class PlayMusic : MonoBehaviour {
             print("no");
         }
 
-
     }
+
+
+
     public void DoRestart(Audio stoppedAudio, bool sameAsPlay) {
         if (sameAsPlay) {
             print("yes");
@@ -60,16 +63,17 @@ public class PlayMusic : MonoBehaviour {
         }
         else if (Input.GetKeyDown(KeyCode.A)) {
 
-            audio.AddOnAudioStarted(new AudioBasic.MethodCalled(this, "DoBeforeFinish"));
-            audio.AddOnAudioStarted(new AudioBasic.MethodCalled(this, "DoBeforeFinish2"));
+            audio.AddOnAudioStarted(new MethodCalled(this, "DoBeforeFinish"));
+            audio.AddOnAudioStarted(new MethodCalled(this, "DoBeforeFinish2"));
         }
         else if (Input.GetKeyDown(KeyCode.M)) {
 
-            print(audio.RemoveOnAudioStarted(new AudioBasic.MethodCalled(this, "DoBeforeFinish")));
+            print(audio.RemoveOnAudioStarted(new MethodCalled(this, "DoBeforeFinish")));
         }
         else if (Input.GetKeyDown(KeyCode.L)) {
 
             audio.RemoveAllOnAudioStarted();
+        }else if (Input.GetKeyDown(KeyCode.C)) {
         }
 
     }

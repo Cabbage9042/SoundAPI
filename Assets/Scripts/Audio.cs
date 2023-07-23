@@ -3,15 +3,25 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using NAudio.Wave.SampleProviders;
+using UnityEditor;
+
+#if UNITY_EDITOR
+
+using UnityEngine;
+#endif
 
 public class Audio {
     private WaveFileReader wave;
     private Speaker speaker;
+    public float pitchFactor = 1.0f;
+    public float volume = 1.0f;
 
     /// <summary>
     /// The file path of the audio
     /// </summary>
-    public string FilePath { get; }
+    public string FilePath { get; private set; }
+
     /// <summary>
     /// The file name of the audio with extension
     /// </summary>
@@ -20,10 +30,13 @@ public class Audio {
             string[] list = FilePath.Split("/");
             return list[list.Length - 1];
         }
+        private set { Name = value; }
     }
 
-
-    public string NameWoExtension { get { return Name.Substring(0, Name.Length - 4); } }
+    public string NameWoExtension {
+        get { return Name.Substring(0, Name.Length - 4); }
+        private set { NameWoExtension = value; }
+    }
     /// <summary>
     /// The total length of audio in time
     /// </summary>
@@ -41,12 +54,25 @@ public class Audio {
 
     private bool isPlaying = false;
 
-
     public float Volume { get { return speaker.Volume; } set { speaker.Volume = value; } }
 
 
+    #region Device
+    public static WaveOutCapabilities[] speakerDevices { get { return Speaker.GetSpeakerDevices(); } }
+    public static string[] speakerDevicesName { get { return Speaker.GetSpeakerDevicesName(); } }
 
+    public bool SetSpeakerNumber(int id) {
+        if (id < 0 || id >= WaveOut.DeviceCount) {
+            return false;
+        }
+        speaker.DeviceNumber = id;
+        speaker.Init(wave);
+        return true;
+    }
 
+    #endregion
+
+    #region Event
 
 
     /// <summary>
@@ -122,7 +148,7 @@ public class Audio {
     /// </summary>
     public Action<Audio, bool> OnAudioStopped;
 
-
+    #endregion
 
     /*What to do when adding new event:
     clearEvent()
@@ -147,10 +173,37 @@ public class Audio {
     public Audio(string filePath) {
         speaker = new Speaker();
         wave = GetFileInWAV(filePath);
+        wave.ToSampleProvider().ToWaveProvider();
         speaker.Init(wave);
         FilePath = filePath;
 
+        //new NAudio.Wave.Wave32To16Stream();
+        //var h = new WaveFileReader(new SmbPitchShiftingSampleProvider(wave.ToSampleProvider()));
     }
+
+    /// <summary>
+    /// This constructor is used when changing pitch
+    /// </summary>
+    /// <param name="newAudio"></param>
+    /// <param name="newWave"></param>
+    private Audio(Audio newAudio, WaveFileReader newWave) {
+        this.wave = newWave;
+        this.speaker = newAudio.speaker;
+        FilePath = newAudio.FilePath;
+        Position = newAudio.Position;
+        Length = newAudio.Length;
+        this.isPlaying = newAudio.isPlaying;
+        Volume = newAudio.Volume;
+        OnAudioStarted = newAudio.OnAudioStarted;
+        OnAudioPaused = newAudio.OnAudioPaused;
+        OnAudioResumed = newAudio.OnAudioResumed;
+        OnAudioRestarted = newAudio.OnAudioRestarted;
+        OnAudioStopped = newAudio.OnAudioStopped;
+    }
+
+
+
+    #region Action
 
     /// <summary>
     /// Play the audio. If the audio is playing, do nothing
@@ -165,6 +218,16 @@ public class Audio {
         else if (speaker.PlaybackState == PlaybackState.Paused) {
             OnAudioResumed?.Invoke(this);
         }
+
+        //get pitch factor and change
+        if(pitchFactor != 1.0f) {
+            var pitch = new SmbPitchShiftingSampleProvider(wave.ToSampleProvider());
+            pitch.PitchFactor = pitchFactor;
+            speaker.Init(pitch);
+        }
+
+        //change volume
+        speaker.Volume = volume;
 
         speaker.Play();
 
@@ -218,6 +281,25 @@ public class Audio {
         Stop();
         wave.Position = 0;
     }
+
+    /// <summary>
+    /// Stop playing the audio
+    /// </summary>
+    public void Stop() {
+        speaker?.Stop();
+        wave.Position = 0;
+    }
+
+    /// <summary>
+    /// Dispose (Close) the audio 
+    /// </summary>
+    public void Dispose() {
+        speaker?.Dispose();
+        wave?.Dispose();
+    }
+
+
+    #endregion
 
     #region ClearEvent
 
@@ -288,21 +370,20 @@ public class Audio {
 
     }
 
-    /// <summary>
-    /// Stop playing the audio
-    /// </summary>
-    public void Stop() {
-        speaker?.Stop();
-        wave.Position = 0;
-    }
+
+
+
+    #region Pitch
 
     /// <summary>
-    /// Dispose (Close) the audio 
+    /// Change the pitch by the given factor.
+    /// 0.5f means an octave down.
+    /// 1.0f means no pitch change.
+    /// 2.0f means an octiv
     /// </summary>
-    public void Dispose() {
-        speaker?.Dispose();
-        wave?.Dispose();
-    }
+    /// <param name="pitchFactor"></param>
+    
+    #endregion
 
     public static WaveFileReader GetFileInWAV(string filePath) {
         if (filePath.EndsWith(".mp3")) {
@@ -334,6 +415,22 @@ public class Audio {
 
 
     }
+
+
+#if UNITY_EDITOR
+    public static Audio AudioClipToAudio(AudioClip audioClip) {
+        string[] assetPathArray = AssetDatabase.GetAssetPath(audioClip.GetInstanceID()).Split("/");
+        string path = Application.dataPath + "/";
+        for (int i = 1; i < assetPathArray.Length; i++) {
+            path += (assetPathArray[i] + "/");
+        }
+
+        path = path.Remove(path.Length - 1);
+        return new Audio(path);
+
+    }
+
+#endif
 
 
 
