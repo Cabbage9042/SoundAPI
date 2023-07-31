@@ -26,50 +26,50 @@ public enum PlayOnStartState {
 }
 
 [System.Serializable]
-    public class MethodCalled {
-        public MonoBehaviour methodOwner = null;
-        public string[] allMethod;
-        public int selectedMethodIndex;
+public class MethodCalled {
+    public MonoBehaviour methodOwner = null;
+    public string[] allMethod;
+    public int selectedMethodIndex;
 
-        public MethodInfo methodToCall { get { return methodOwner.GetType().GetMethod(allMethod[selectedMethodIndex]); } }
+    public MethodInfo methodToCall { get { return methodOwner.GetType().GetMethod(allMethod[selectedMethodIndex]); } }
 
-        public MethodCalled(MonoBehaviour methodOwner, string methodName) {
-            this.methodOwner = methodOwner;
-            allMethod = GetPossibleMethods(methodOwner);
+    public MethodCalled(MonoBehaviour methodOwner, string methodName) {
+        this.methodOwner = methodOwner;
+        allMethod = GetPossibleMethods(methodOwner);
 
-            selectedMethodIndex = Array.IndexOf(allMethod, methodName);
-            if (selectedMethodIndex == -1) {
-                Debug.LogError($"Method {methodName} not found in class {methodOwner.GetType().Name}!");
-            }
-
-        }
-
-        public override bool Equals(object obj) {
-
-            if (obj == null || GetType() != obj.GetType()) {
-                return false;
-            }
-
-            if (((MethodCalled)obj).methodToCall == methodToCall) {
-                return true;
-            }
-            return false;
-        }
-
-
-
-        public static string[] GetPossibleMethods(MonoBehaviour methodOwner) {
-            MethodInfo[] allMethodInfo = methodOwner.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public);
-            List<string> methodNames = new List<string>();
-            for (int i = 0; i < allMethodInfo.Length; i++) {
-                if (!allMethodInfo[i].Name.StartsWith("get_") && !allMethodInfo[i].Name.StartsWith("set_")) {
-                    methodNames.Add(allMethodInfo[i].Name);
-                }
-            }
-            return methodNames.ToArray();
+        selectedMethodIndex = Array.IndexOf(allMethod, methodName);
+        if (selectedMethodIndex == -1) {
+            Debug.LogError($"Method {methodName} not found in class {methodOwner.GetType().Name}!");
         }
 
     }
+
+    public override bool Equals(object obj) {
+
+        if (obj == null || GetType() != obj.GetType()) {
+            return false;
+        }
+
+        if (((MethodCalled)obj).methodToCall == methodToCall) {
+            return true;
+        }
+        return false;
+    }
+
+
+
+    public static string[] GetPossibleMethods(MonoBehaviour methodOwner) {
+        MethodInfo[] allMethodInfo = methodOwner.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public);
+        List<string> methodNames = new List<string>();
+        for (int i = 0; i < allMethodInfo.Length; i++) {
+            if (!allMethodInfo[i].Name.StartsWith("get_") && !allMethodInfo[i].Name.StartsWith("set_")) {
+                methodNames.Add(allMethodInfo[i].Name);
+            }
+        }
+        return methodNames.ToArray();
+    }
+
+}
 public class AudioBasic : MonoBehaviour {
     public AudioClip audioClip = null;
     private new Audio audio = null;
@@ -88,7 +88,7 @@ public class AudioBasic : MonoBehaviour {
     public static string[] speakerDevicesName { get { return Audio.speakerDevicesName; } }
 
 
-    
+
 
     #region Add Remove OnEvent
 
@@ -229,7 +229,7 @@ public class AudioBasic : MonoBehaviour {
 
 
 
-    public void Play() {
+    public void Play(bool sameAsRestart = false) {
 
 
         audio.ClearAllEvent();
@@ -261,9 +261,10 @@ public class AudioBasic : MonoBehaviour {
 
         //only do action if not playing
         if (audio.State != PlaybackState.Playing) {
-            audio.pitchFactor = this.pitchFactor;
+            audio.PitchFactor = this.pitchFactor;
             audio.volume = volume;
-            audio.SetSpeakerNumber(speakerDeviceNumber);
+            if(audio.State == PlaybackState.Stopped)
+                audio.SetSpeakerNumber(speakerDeviceNumber);
             audio?.Play();
         }
 
@@ -296,7 +297,7 @@ public class AudioBasic : MonoBehaviour {
     }
 
     public void ChangePitch(float pitchFactor) {
-        audio.pitchFactor = pitchFactor;
+        audio.PitchFactor = pitchFactor;
     }
 
     public void ChangeVolume(float volume) {
@@ -394,10 +395,6 @@ public class AudioBasic : MonoBehaviour {
 
             InitializeAllList();
 
-
-
-
-
         }
 
 
@@ -405,8 +402,6 @@ public class AudioBasic : MonoBehaviour {
 
             //this is to get the element in index n
             SerializedProperty element = currentList.list.serializedProperty.GetArrayElementAtIndex(index);
-
-            
 
             //object field
             EditorGUI.PropertyField(new Rect(rect.x, rect.y, EditorGUIUtility.currentViewWidth / 3, EditorGUIUtility.singleLineHeight),

@@ -7,7 +7,6 @@ using UnityEngine;
 
 public class Speaker : WaveOutEvent {
 
-
     public static WaveOutCapabilities[] GetSpeakerDevices() {
 
         WaveOutCapabilities[] speakerDevices = new WaveOutCapabilities[WaveOut.DeviceCount];
@@ -18,7 +17,6 @@ public class Speaker : WaveOutEvent {
 
     }
 
-
     public static string[] GetSpeakerDevicesName() {
         WaveOutCapabilities[] speakerDevices = GetSpeakerDevices();
 
@@ -26,27 +24,13 @@ public class Speaker : WaveOutEvent {
         for (int i = 0; i < speakerDevicesName.Length; i++) {
             speakerDevicesName[i] = speakerDevices[i].ProductName;
         }
-
         return speakerDevicesName;
-
     }
 
-
-
-    public Speaker() : base() {
-
-    }
-
+    public Speaker() : base() { }
 
     public void Init(WaveFileReader audio) {
-            Init(new WaveChannel32(audio));
-        
-       
+        Init(new WaveChannel32(audio));
     }
-
-
-
-
-
 
 }

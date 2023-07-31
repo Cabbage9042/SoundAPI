@@ -27,6 +27,28 @@ public class PlayMusic : MonoBehaviour {
 
 
     }
+
+    public void OnStart(Audio audio) {
+        print("Start");
+    }
+    
+    public void OnPause(Audio audio) {
+        print("Pause");
+    }
+    
+    public void OnResume(Audio audio) {
+        print("Resume");
+    }
+    public void OnRestart(Audio audio, bool sameAsPlay) {
+        print("Restart " + (sameAsPlay?"Same as play": "Not same as play"));
+    }
+
+
+
+    public void OnStop(Audio audio, bool ReachEnd) {
+        print("Stop " + (ReachEnd ? "Reach End" : "Not reach end"));
+    }
+
     public void DoBeforeFinish(Audio currentAudio) {
         print(currentAudio.Name);
     }

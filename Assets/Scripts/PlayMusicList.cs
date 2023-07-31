@@ -14,7 +14,12 @@ public class PlayMusicList : MonoBehaviour {
         }
     }
 
+    public void AudioStart(Audio audio) {
+        print(audio.NameWoExtension);
+    }
 
-
+    public void AudioStop(Audio audio, bool hasFinishedPlaying) {
+        print(audio.NameWoExtension + " " + hasFinishedPlaying);
+    }
 
 }

@@ -12,10 +12,11 @@ using UnityEngine;
 #endif
 
 public class Audio {
-    private WaveFileReader wave;
+    private WaveFileReader Wave;
     private Speaker speaker;
-    public float pitchFactor = 1.0f;
+    public float PitchFactor = 1.0f;
     public float volume = 1.0f;
+    private bool AudioHasFinished = true;
 
     /// <summary>
     /// The file path of the audio
@@ -40,7 +41,7 @@ public class Audio {
     /// <summary>
     /// The total length of audio in time
     /// </summary>
-    public TimeSpan TotalTime { get { return wave.TotalTime; } }
+    public TimeSpan TotalTime { get { return Wave.TotalTime; } }
     /// <summary>
     /// The current position of the audio being played in bytes
     /// </summary>
@@ -52,7 +53,6 @@ public class Audio {
 
     public PlaybackState State { get { return speaker.PlaybackState; } }
 
-    private bool isPlaying = false;
 
     public float Volume { get { return speaker.Volume; } set { speaker.Volume = value; } }
 
@@ -66,7 +66,7 @@ public class Audio {
             return false;
         }
         speaker.DeviceNumber = id;
-        speaker.Init(wave);
+        speaker.Init(Wave);
         return true;
     }
 
@@ -80,6 +80,7 @@ public class Audio {
     /// Note that OnAudioStarted will also be called when OnAudioRestarted is called and sameAsPlay == true (Audio is stopped before)
     /// <para>
     /// <param name="currentAudio"><b>Audio</b>: The audio that was played.</param>
+    /// <param name="sameAsRestart"><b>bool</b>: The  </param>
     /// </para>
     /// <para>
     /// void Your_Method_Name(Audio currentAudio){<br></br>
@@ -163,18 +164,12 @@ public class Audio {
     InitializeHeaderName
     OnEnable serializedObject.FindProperty();*/
 
-    public PlaybackState currentState {
-        get {
-            return speaker.PlaybackState;
-        }
-    }
-
 
     public Audio(string filePath) {
         speaker = new Speaker();
-        wave = GetFileInWAV(filePath);
-        wave.ToSampleProvider().ToWaveProvider();
-        speaker.Init(wave);
+        Wave = GetFileInWAV(filePath);
+        Wave.ToSampleProvider().ToWaveProvider();
+        speaker.Init(Wave);
         FilePath = filePath;
 
         //new NAudio.Wave.Wave32To16Stream();
@@ -187,12 +182,11 @@ public class Audio {
     /// <param name="newAudio"></param>
     /// <param name="newWave"></param>
     private Audio(Audio newAudio, WaveFileReader newWave) {
-        this.wave = newWave;
+        this.Wave = newWave;
         this.speaker = newAudio.speaker;
         FilePath = newAudio.FilePath;
         Position = newAudio.Position;
         Length = newAudio.Length;
-        this.isPlaying = newAudio.isPlaying;
         Volume = newAudio.Volume;
         OnAudioStarted = newAudio.OnAudioStarted;
         OnAudioPaused = newAudio.OnAudioPaused;
@@ -209,7 +203,7 @@ public class Audio {
     /// Play the audio. If the audio is playing, do nothing
     /// </summary>
     /// <param name="checkStopped">Check is the audio stopped or not</param>
-    public void Play(bool checkStopped = true) {
+    public void Play(bool checkStopped = true, bool sameAsRestart = false) {
         //add onAudioStopped if start to play at the beginning
         if (speaker.PlaybackState == PlaybackState.Stopped) {
             speaker.PlaybackStopped += Speaker_PlaybackStopped;
@@ -220,9 +214,9 @@ public class Audio {
         }
 
         //get pitch factor and change
-        if(pitchFactor != 1.0f) {
-            var pitch = new SmbPitchShiftingSampleProvider(wave.ToSampleProvider());
-            pitch.PitchFactor = pitchFactor;
+        if (PitchFactor != 1.0f) {
+            var pitch = new SmbPitchShiftingSampleProvider(Wave.ToSampleProvider());
+            pitch.PitchFactor = PitchFactor;
             speaker.Init(pitch);
         }
 
@@ -230,9 +224,9 @@ public class Audio {
         speaker.Volume = volume;
 
         speaker.Play();
+        AudioHasFinished = false;
 
         OnAudioStarted?.Invoke(this);
-        isPlaying = true;
         if (checkStopped) Task.Run(() => CheckAudioFinished());
 
     }
@@ -245,13 +239,13 @@ public class Audio {
     /// </summary>
     public void Restart() {
         //just set the offset to the beginning
-        wave.Position = 0;
+        Wave.Position = 0;
 
         //if audio is not playing, 
         bool sameAsPlay = State == PlaybackState.Stopped;
 
         speaker.Play();
-        isPlaying = true;
+        AudioHasFinished = false;
 
         //same as play == true in basic.play
         OnAudioRestarted?.Invoke(this, sameAsPlay);
@@ -272,14 +266,23 @@ public class Audio {
     /// </summary>
     private void CheckAudioFinished() {
         //if havent yet, sleep for a while
-        while (wave.Position < wave.Length) {
+        while (Wave.Position < Wave.Length) {
             System.Threading.Thread.Sleep(100);
         }
 
+        AudioHasFinished = true;
+
         //stop if finish, and reset the offset
-        isPlaying = false;
         Stop();
-        wave.Position = 0;
+
+        Wave.Position = 0;
+    }
+
+    private void Speaker_PlaybackStopped(object sender, StoppedEventArgs e) {
+        OnAudioStopped?.Invoke(this,AudioHasFinished);
+        //remove the onAudioStopped
+        speaker.PlaybackStopped -= Speaker_PlaybackStopped;
+
     }
 
     /// <summary>
@@ -287,7 +290,7 @@ public class Audio {
     /// </summary>
     public void Stop() {
         speaker?.Stop();
-        wave.Position = 0;
+        Wave.Position = 0;
     }
 
     /// <summary>
@@ -295,7 +298,7 @@ public class Audio {
     /// </summary>
     public void Dispose() {
         speaker?.Dispose();
-        wave?.Dispose();
+        Wave?.Dispose();
     }
 
 
@@ -363,13 +366,6 @@ public class Audio {
     #endregion
 
 
-    private void Speaker_PlaybackStopped(object sender, StoppedEventArgs e) {
-        OnAudioStopped?.Invoke(this, !isPlaying);
-        //remove the onAudioStopped
-        speaker.PlaybackStopped -= Speaker_PlaybackStopped;
-
-    }
-
 
 
 
@@ -382,7 +378,7 @@ public class Audio {
     /// 2.0f means an octiv
     /// </summary>
     /// <param name="pitchFactor"></param>
-    
+
     #endregion
 
     public static WaveFileReader GetFileInWAV(string filePath) {
