@@ -72,6 +72,7 @@ public class PlayMusic : MonoBehaviour {
             // Start playing the audio
 
             audio.Play();
+           //audioSpeaker.Play();
         }
         else if (Input.GetKeyDown(KeyCode.R)) {
             audio.Restart();

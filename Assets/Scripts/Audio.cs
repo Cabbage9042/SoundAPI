@@ -12,7 +12,9 @@ using UnityEngine;
 #endif
 
 public class Audio {
-    private WaveFileReader Wave;
+
+
+    private WaveStream Wave;
     private Speaker speaker;
     public float PitchFactor = 1.0f;
     public float volume = 1.0f;
@@ -55,6 +57,8 @@ public class Audio {
 
 
     public float Volume { get { return speaker.Volume; } set { speaker.Volume = value; } }
+
+    private bool errorOccuredAndStopped = false;
 
 
     #region Device
@@ -168,31 +172,11 @@ public class Audio {
     public Audio(string filePath) {
         speaker = new Speaker();
         Wave = GetFileInWAV(filePath);
-        Wave.ToSampleProvider().ToWaveProvider();
         speaker.Init(Wave);
         FilePath = filePath;
 
         //new NAudio.Wave.Wave32To16Stream();
         //var h = new WaveFileReader(new SmbPitchShiftingSampleProvider(wave.ToSampleProvider()));
-    }
-
-    /// <summary>
-    /// This constructor is used when changing pitch
-    /// </summary>
-    /// <param name="newAudio"></param>
-    /// <param name="newWave"></param>
-    private Audio(Audio newAudio, WaveFileReader newWave) {
-        this.Wave = newWave;
-        this.speaker = newAudio.speaker;
-        FilePath = newAudio.FilePath;
-        Position = newAudio.Position;
-        Length = newAudio.Length;
-        Volume = newAudio.Volume;
-        OnAudioStarted = newAudio.OnAudioStarted;
-        OnAudioPaused = newAudio.OnAudioPaused;
-        OnAudioResumed = newAudio.OnAudioResumed;
-        OnAudioRestarted = newAudio.OnAudioRestarted;
-        OnAudioStopped = newAudio.OnAudioStopped;
     }
 
 
@@ -221,7 +205,15 @@ public class Audio {
         }
 
         //change volume
-        speaker.Volume = volume;
+        try {
+            speaker.Volume = volume;
+        }
+        catch (ArgumentOutOfRangeException e) {
+            errorOccuredAndStopped = true;
+            speaker.Stop();
+
+            throw e;
+        }
 
         speaker.Play();
         AudioHasFinished = false;
@@ -279,7 +271,13 @@ public class Audio {
     }
 
     private void Speaker_PlaybackStopped(object sender, StoppedEventArgs e) {
-        OnAudioStopped?.Invoke(this,AudioHasFinished);
+        if (errorOccuredAndStopped == false) {
+            OnAudioStopped?.Invoke(this, AudioHasFinished);
+
+        }
+        else {
+            errorOccuredAndStopped = false;
+        }
         //remove the onAudioStopped
         speaker.PlaybackStopped -= Speaker_PlaybackStopped;
 
@@ -361,6 +359,7 @@ public class Audio {
         ClearOnAudioStopped();
         ClearOnAudioResumed();
         ClearOnAudioRestarted();
+
     }
 
     #endregion
@@ -381,7 +380,7 @@ public class Audio {
 
     #endregion
 
-    public static WaveFileReader GetFileInWAV(string filePath) {
+    public static WaveStream GetFileInWAV(string filePath) {
         if (filePath.EndsWith(".mp3")) {
             return MP3toWAV(filePath);
         }

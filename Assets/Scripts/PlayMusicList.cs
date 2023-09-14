@@ -12,6 +12,7 @@ public class PlayMusicList : MonoBehaviour {
         else if (Input.GetKeyDown(KeyCode.S)) {
             audioList.Stop();
         }
+        
     }
 
     public void AudioStart(Audio audio) {

@@ -4,27 +4,27 @@ using UnityEngine;
 using System;
 using UnityEditorInternal;
 using System.Reflection;
+using NAudio.Wave;
 
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
 
-public class AudioList : MonoBehaviour {
+public class AudioList : AudioBase {
+
+
     public AudioClip[] audioClipArray;
     public List<Audio> audioList;
+
     public int currentPosition = 0;
     public LoopMode mode = LoopMode.Sequence;
 
-    public MethodCalled[] onAudioStartedMethod;
-    public MethodCalled[] onAudioPausedMethod;
-    public MethodCalled[] onAudioResumedMethod;
-    public MethodCalled[] onAudioRestartedMethod;
-    public MethodCalled[] onAudioStoppedMethod;
+    private bool audioIsPlaying = false;
 
-    public int speakerDeviceNumber = 0;
 
-    public static string[] speakerDevicesName { get { return Audio.speakerDevicesName; } }
+
+
 
     public enum LoopMode {
         Sequence,
@@ -32,7 +32,6 @@ public class AudioList : MonoBehaviour {
         Single
     }
 
-    public PlayOnStartState playOnStart;
 
     private void CheckAudioListAndRefresh() {
         if (audioList == null) {
@@ -118,7 +117,11 @@ public class AudioList : MonoBehaviour {
 
     }
 
-    public void Play(int position) {
+    private void PlaySameList() {
+        PlaySameList(currentPosition);
+    }
+
+    private void PlaySameList(int position) {
 
         CheckAudioListAndRefresh();
 
@@ -157,13 +160,30 @@ public class AudioList : MonoBehaviour {
 
         audioList[position].OnAudioStopped += DefaultOnAudioStopped;
 
-        audioList[position].SetSpeakerNumber(speakerDeviceNumber);
-        audioList[position].Play();
+
+
+        //only do action if not playing
+
+        if (audioList[position].State != PlaybackState.Playing) {
+            audioList[position].PitchFactor = this.pitchFactor;
+            audioList[position].volume = volume;
+            if (audioList[position].State == PlaybackState.Stopped)
+                audioList[position].SetSpeakerNumber(SpeakerDeviceMonoNumber);
+            audioList[position].Play();
+        }
+        audioIsPlaying = true;
+
+    }
+
+    public void Play(int position) {
+        if (audioIsPlaying) return;
+        PlaySameList(currentPosition);
 
     }
 
     public void Play() {
-        Play(currentPosition);
+        if (audioIsPlaying) return;
+        PlaySameList(currentPosition);
     }
 
 
@@ -171,11 +191,12 @@ public class AudioList : MonoBehaviour {
     private void DefaultOnAudioStopped(Audio stoppedAudio, bool hasPlayedFinished) {
         if (hasPlayedFinished) {
             ChangeNextSong();
-            Play();
+            PlaySameList();
         }
     }
     public void Stop() {
         audioList[currentPosition].Stop();
+        audioIsPlaying = false;
     }
 
 
@@ -240,16 +261,16 @@ public class AudioList : MonoBehaviour {
                 audio?.Dispose();
             }
         }
+        audioIsPlaying = false;
     }
 
     private void Start() {
 
         if (audioClipArray == null || audioClipArray.Length == 0) return;
 
-        if (playOnStart != PlayOnStartState.True) return;
+        if (playOnStart == false) return;
 
         Play();
-        playOnStart = PlayOnStartState.Played;
 
     }
 
@@ -284,7 +305,10 @@ public class AudioList : MonoBehaviour {
         SerializedProperty audioClipArray;
         SerializedProperty mode;
         SerializedProperty playOnStart;
-        private SerializedProperty speakerDeviceNumber;
+        private SerializedProperty SpeakerDeviceMonoNumber;
+
+        private SerializedProperty pitchFactor;
+        private SerializedProperty volume;
 
         private void OnEnable() {
 
@@ -295,8 +319,10 @@ public class AudioList : MonoBehaviour {
             mode = serializedObject.FindProperty("mode");
             playOnStart = serializedObject.FindProperty("playOnStart");
 
-            speakerDeviceNumber = serializedObject.FindProperty("speakerDeviceNumber");
+            SpeakerDeviceMonoNumber = serializedObject.FindProperty("SpeakerDeviceMonoNumber");
             labelStyle.normal.textColor = Color.yellow;
+            pitchFactor = serializedObject.FindProperty("pitchFactor");
+            volume = serializedObject.FindProperty("volume");
 
             eventArray[(int)EventName.onAudioStarted] = serializedObject.FindProperty("onAudioStartedMethod");
             eventArray[(int)EventName.onAudioPaused] = serializedObject.FindProperty("onAudioPausedMethod");
@@ -322,18 +348,9 @@ public class AudioList : MonoBehaviour {
 
             //play on start
             EditorGUI.BeginDisabledGroup(Application.isPlaying); // Disable the EnumPopup
-            playOnStart.enumValueIndex = (int)(PlayOnStartState)EditorGUILayout.EnumPopup("Play On Start", (PlayOnStartState)playOnStart.enumValueIndex);
+            EditorGUILayout.PropertyField(playOnStart, true);
             EditorGUI.EndDisabledGroup();
 
-            if (Application.isPlaying) {
-
-            }
-            else {
-                //dont allow user to select played
-                if (playOnStart.enumValueIndex == (int)PlayOnStartState.Played) {
-                    audioList.playOnStart = PlayOnStartState.False;
-                }
-            }
 
 
             //event
@@ -343,8 +360,12 @@ public class AudioList : MonoBehaviour {
             }
 
             //select speaker device
-            speakerDeviceNumber.intValue = EditorGUILayout.Popup("Speaker Device", speakerDeviceNumber.intValue, speakerDevicesName);
+            SpeakerDeviceMonoNumber.intValue = EditorGUILayout.Popup("Speaker Device", SpeakerDeviceMonoNumber.intValue, speakerDevicesName);
 
+            //select pitch factor
+            EditorGUILayout.PropertyField(pitchFactor);
+
+            EditorGUILayout.PropertyField(volume);
 
             serializedObject.ApplyModifiedProperties();
         }

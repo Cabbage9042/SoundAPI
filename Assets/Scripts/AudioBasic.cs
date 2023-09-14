@@ -10,84 +10,10 @@ using UnityEditorInternal;
 using UnityEditor;
 #endif
 
-public enum EventName {
-    onAudioStarted,
-    onAudioPaused,
-    onAudioResumed,
-    onAudioRestarted,
-    onAudioStopped,
-    TotalEvent
-}
-
-public enum PlayOnStartState {
-    True,
-    False,
-    Played
-}
-
-[System.Serializable]
-public class MethodCalled {
-    public MonoBehaviour methodOwner = null;
-    public string[] allMethod;
-    public int selectedMethodIndex;
-
-    public MethodInfo methodToCall { get { return methodOwner.GetType().GetMethod(allMethod[selectedMethodIndex]); } }
-
-    public MethodCalled(MonoBehaviour methodOwner, string methodName) {
-        this.methodOwner = methodOwner;
-        allMethod = GetPossibleMethods(methodOwner);
-
-        selectedMethodIndex = Array.IndexOf(allMethod, methodName);
-        if (selectedMethodIndex == -1) {
-            Debug.LogError($"Method {methodName} not found in class {methodOwner.GetType().Name}!");
-        }
-
-    }
-
-    public override bool Equals(object obj) {
-
-        if (obj == null || GetType() != obj.GetType()) {
-            return false;
-        }
-
-        if (((MethodCalled)obj).methodToCall == methodToCall) {
-            return true;
-        }
-        return false;
-    }
-
-
-
-    public static string[] GetPossibleMethods(MonoBehaviour methodOwner) {
-        MethodInfo[] allMethodInfo = methodOwner.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public);
-        List<string> methodNames = new List<string>();
-        for (int i = 0; i < allMethodInfo.Length; i++) {
-            if (!allMethodInfo[i].Name.StartsWith("get_") && !allMethodInfo[i].Name.StartsWith("set_")) {
-                methodNames.Add(allMethodInfo[i].Name);
-            }
-        }
-        return methodNames.ToArray();
-    }
-
-}
-public class AudioBasic : MonoBehaviour {
+public class AudioBasic : AudioBase {
     public AudioClip audioClip = null;
-    private new Audio audio = null;
+
     public bool loop = false;
-    public float pitchFactor = 1.0f;
-    public float volume = 1.0f;
-
-    public MethodCalled[] onAudioStartedMethod;
-    public MethodCalled[] onAudioPausedMethod;
-    public MethodCalled[] onAudioResumedMethod;
-    public MethodCalled[] onAudioRestartedMethod;
-    public MethodCalled[] onAudioStoppedMethod;
-
-    public int speakerDeviceNumber = 0;
-
-    public static string[] speakerDevicesName { get { return Audio.speakerDevicesName; } }
-
-
 
 
     #region Add Remove OnEvent
@@ -198,7 +124,6 @@ public class AudioBasic : MonoBehaviour {
 
 
 
-    public PlayOnStartState playOnStart;
 
     void Start() {
 
@@ -209,13 +134,8 @@ public class AudioBasic : MonoBehaviour {
             //assign new audio into audio
             audio = Audio.AudioClipToAudio(audioClip);
             //check need to play on start or not
-            if (playOnStart != PlayOnStartState.True) return;
+            if (playOnStart == false) return;
 
-            //if audio is not initialize || audio name is not same as provided audio
-            if (audio == null || audio.NameWoExtension != audioClip.name) {
-
-                playOnStart = PlayOnStartState.Played;
-            }
 
             Play();
         }
@@ -263,8 +183,8 @@ public class AudioBasic : MonoBehaviour {
         if (audio.State != PlaybackState.Playing) {
             audio.PitchFactor = this.pitchFactor;
             audio.volume = volume;
-            if(audio.State == PlaybackState.Stopped)
-                audio.SetSpeakerNumber(speakerDeviceNumber);
+            if (audio.State == PlaybackState.Stopped)
+                audio.SetSpeakerNumber(SpeakerDeviceMonoNumber);
             audio?.Play();
         }
 
@@ -316,9 +236,13 @@ public class AudioBasic : MonoBehaviour {
         SerializedProperty audioClip;
         private SerializedProperty playOnStart;
         private SerializedProperty loop;
-        private SerializedProperty speakerDeviceNumber;
+        private SerializedProperty SpeakerDeviceMonoNumber;
         private SerializedProperty pitchFactor;
         private SerializedProperty volume;
+
+        private SerializedProperty stereo;
+        private SerializedProperty SpeakerDeviceLeftNumber;
+        private SerializedProperty SpeakerDeviceRightNumber;
 
 
         private SerializedProperty[] eventArray = new SerializedProperty[(int)EventName.TotalEvent];
@@ -381,9 +305,13 @@ public class AudioBasic : MonoBehaviour {
             audioClip = serializedObject.FindProperty("audioClip");
             playOnStart = serializedObject.FindProperty("playOnStart");
             loop = serializedObject.FindProperty("loop");
-            speakerDeviceNumber = serializedObject.FindProperty("speakerDeviceNumber");
+            SpeakerDeviceMonoNumber = serializedObject.FindProperty("SpeakerDeviceMonoNumber");
             pitchFactor = serializedObject.FindProperty("pitchFactor");
             volume = serializedObject.FindProperty("volume");
+
+            stereo = serializedObject.FindProperty("Stereo");
+            SpeakerDeviceLeftNumber = serializedObject.FindProperty("SpeakerDeviceLeftNumber");
+            SpeakerDeviceRightNumber = serializedObject.FindProperty("SpeakerDeviceRightNumber");
 
 
             eventArray[(int)EventName.onAudioStarted] = serializedObject.FindProperty("onAudioStartedMethod");
@@ -458,7 +386,7 @@ public class AudioBasic : MonoBehaviour {
 
             //play on start 
             EditorGUI.BeginDisabledGroup(Application.isPlaying); // Disable the EnumPopup
-            playOnStart.enumValueIndex = (int)(PlayOnStartState)EditorGUILayout.EnumPopup("Play On Start", (PlayOnStartState)playOnStart.enumValueIndex);
+            EditorGUILayout.PropertyField(playOnStart);
             EditorGUI.EndDisabledGroup();
 
             //loop
@@ -495,22 +423,28 @@ public class AudioBasic : MonoBehaviour {
 
                 }
             }
-            else {
-                //dont allow user to select played
-                if (playOnStart.enumValueIndex == (int)PlayOnStartState.Played) {
-                    audioBasic.playOnStart = PlayOnStartState.False;
-                }
-            }
 
             //disable the audio.name != string checking, the audio will immediately change when a new audio drag into the field
             previousString = ((AudioClip)audioClip.objectReferenceValue)?.name;
 
-            //select speaker device
-            speakerDeviceNumber.intValue = EditorGUILayout.Popup("Speaker Device", speakerDeviceNumber.intValue, speakerDevicesName);
+            //select stereo
+            EditorGUILayout.PropertyField(stereo);
+
+            if (stereo.boolValue == true) {
+
+                SpeakerDeviceLeftNumber.intValue = EditorGUILayout.Popup("Left Device", SpeakerDeviceLeftNumber.intValue, speakerDevicesName);
+                SpeakerDeviceRightNumber.intValue = EditorGUILayout.Popup("Right Device", SpeakerDeviceRightNumber.intValue, speakerDevicesName);
+            }
+            else {
+                //select speaker device
+                SpeakerDeviceMonoNumber.intValue = EditorGUILayout.Popup("Speaker Device", SpeakerDeviceMonoNumber.intValue, speakerDevicesName);
+
+            }
 
             //select pitch factor
             EditorGUILayout.PropertyField(pitchFactor);
 
+            //volume
             EditorGUILayout.PropertyField(volume);
 
             serializedObject.ApplyModifiedProperties();
