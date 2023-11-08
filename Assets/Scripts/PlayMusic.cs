@@ -29,7 +29,7 @@ public class PlayMusic : MonoBehaviour {
     }
 
     public void OnStart(Audio audio) {
-        print("Start");
+        print(audio.Channels);
     }
     
     public void OnPause(Audio audio) {

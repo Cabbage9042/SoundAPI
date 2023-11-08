@@ -12,10 +12,14 @@ using UnityEditor;
 
 public class AudioBasic : AudioBase {
     public AudioClip audioClip = null;
+    public int SampleRate { get { return audio.WaveFormat.SampleRate; } }
 
     public bool loop = false;
+    public double[] GetAmplitude() {
+        return audio?.GetAmplitude();
+    }
 
-
+    public PlaybackState State { get { return audio.State; } }
     #region Add Remove OnEvent
 
     #region Started
@@ -123,7 +127,15 @@ public class AudioBasic : AudioBase {
 
 
 
-
+    public void setAudioClip(AudioClip audioClip, string path) {
+        this.audioClip = audioClip;
+        audio =new  Audio(path);
+        onAudioStartedMethod = new MethodCalled[0];
+        onAudioPausedMethod = new MethodCalled[0];
+        onAudioResumedMethod = new MethodCalled[0];
+        onAudioRestartedMethod = new MethodCalled[0];
+        onAudioStoppedMethod = new MethodCalled[0];
+    }
 
     void Start() {
 
@@ -141,6 +153,12 @@ public class AudioBasic : AudioBase {
         }
 
     }
+
+    private void Update() {
+        //audio?.GetAmplitude();
+    }
+
+    
 
     private void OnDestroy() {
         audio?.Stop();
@@ -452,6 +470,7 @@ public class AudioBasic : AudioBase {
 
 
         }
+
 
     }
 

@@ -14,11 +14,6 @@ public enum EventName {
     TotalEvent
 }
 
-public enum PlayOnStartState {
-    True,
-    False,
-    Played
-}
 
 
 [System.Serializable]

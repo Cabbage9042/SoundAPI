@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using NAudio.Wave.SampleProviders;
 using UnityEditor;
+using NAudio.Dsp;
 
 #if UNITY_EDITOR
 
@@ -14,12 +15,20 @@ using UnityEngine;
 public class Audio {
 
 
-    private WaveStream Wave;
+    private WaveStream OriginalWave;
+    private WaveStream EqualizedWave;
+
+    private EqualizedAudio privateEqualizer;
+    public WaveFormat WaveFormat => OriginalWave.WaveFormat;
+    public EqualizedAudio equalizer {
+        get { return privateEqualizer; }
+        set { privateEqualizer = new EqualizedAudio(value.equalizerBands, OriginalWave.ToSampleProvider()); }
+    }
     private Speaker speaker;
     public float PitchFactor = 1.0f;
     public float volume = 1.0f;
     private bool AudioHasFinished = true;
-
+    public int Channels { get { return OriginalWave.WaveFormat.Channels; } }
     /// <summary>
     /// The file path of the audio
     /// </summary>
@@ -43,7 +52,7 @@ public class Audio {
     /// <summary>
     /// The total length of audio in time
     /// </summary>
-    public TimeSpan TotalTime { get { return Wave.TotalTime; } }
+    public TimeSpan TotalTime { get { return OriginalWave.TotalTime; } }
     /// <summary>
     /// The current position of the audio being played in bytes
     /// </summary>
@@ -65,12 +74,13 @@ public class Audio {
     public static WaveOutCapabilities[] speakerDevices { get { return Speaker.GetSpeakerDevices(); } }
     public static string[] speakerDevicesName { get { return Speaker.GetSpeakerDevicesName(); } }
 
+
     public bool SetSpeakerNumber(int id) {
         if (id < 0 || id >= WaveOut.DeviceCount) {
             return false;
         }
         speaker.DeviceNumber = id;
-        speaker.Init(Wave);
+        speaker.Init(OriginalWave);
         return true;
     }
 
@@ -171,9 +181,21 @@ public class Audio {
 
     public Audio(string filePath) {
         speaker = new Speaker();
-        Wave = GetFileInWAV(filePath);
-        speaker.Init(Wave);
+        OriginalWave = GetFileInWAV(filePath);
+        EqualizedWave = OriginalWave;
+        /*
+        if (OriginalWave.WaveFormat.Channels >= 2) {
+          //  OriginalWave = (WaveStream)new StereoToMonoSampleProvider(OriginalWave.ToSampleProvider()).ToWaveProvider();
+            //var cOriginalWave = new StereoToMonoProvider16(OriginalWave);
+            OriginalWave = (WaveStream)OriginalWave.ToSampleProvider().ToMono().ToWaveProvider();
+
+
+        }*/
+
+        privateEqualizer = new EqualizedAudio(OriginalWave.ToSampleProvider());
         FilePath = filePath;
+
+
 
         //new NAudio.Wave.Wave32To16Stream();
         //var h = new WaveFileReader(new SmbPitchShiftingSampleProvider(wave.ToSampleProvider()));
@@ -197,11 +219,15 @@ public class Audio {
             OnAudioResumed?.Invoke(this);
         }
 
+
         //get pitch factor and change
         if (PitchFactor != 1.0f) {
-            var pitch = new SmbPitchShiftingSampleProvider(Wave.ToSampleProvider());
+            var pitch = new SmbPitchShiftingSampleProvider(EqualizedWave.ToSampleProvider());
             pitch.PitchFactor = PitchFactor;
             speaker.Init(pitch);
+        }
+        else {
+            speaker.Init(EqualizedWave);
         }
 
         //change volume
@@ -223,7 +249,9 @@ public class Audio {
 
     }
 
+    private void DoEqualizeAudio() {
 
+    }
 
 
     /// <summary>
@@ -231,7 +259,7 @@ public class Audio {
     /// </summary>
     public void Restart() {
         //just set the offset to the beginning
-        Wave.Position = 0;
+        EqualizedWave.Position = 0;
 
         //if audio is not playing, 
         bool sameAsPlay = State == PlaybackState.Stopped;
@@ -258,7 +286,7 @@ public class Audio {
     /// </summary>
     private void CheckAudioFinished() {
         //if havent yet, sleep for a while
-        while (Wave.Position < Wave.Length) {
+        while (EqualizedWave.Position < EqualizedWave.Length) {
             System.Threading.Thread.Sleep(100);
         }
 
@@ -267,7 +295,7 @@ public class Audio {
         //stop if finish, and reset the offset
         Stop();
 
-        Wave.Position = 0;
+        EqualizedWave.Position = 0;
     }
 
     private void Speaker_PlaybackStopped(object sender, StoppedEventArgs e) {
@@ -288,7 +316,7 @@ public class Audio {
     /// </summary>
     public void Stop() {
         speaker?.Stop();
-        Wave.Position = 0;
+        EqualizedWave.Position = 0;
     }
 
     /// <summary>
@@ -296,7 +324,7 @@ public class Audio {
     /// </summary>
     public void Dispose() {
         speaker?.Dispose();
-        Wave?.Dispose();
+        EqualizedWave?.Dispose();
     }
 
 
@@ -411,6 +439,44 @@ public class Audio {
 
     }
 
+    #region Amplitude
+
+
+    public double[] GetAmplitude() {
+        if (speaker.PlaybackState == PlaybackState.Playing) {
+
+            int frameSize = 2048;
+            byte[] byteBuffer = new byte[frameSize];
+            long oriPosition = EqualizedWave.Position;
+
+            EqualizedWave.Read(byteBuffer, 0, frameSize);
+            EqualizedWave.Position = oriPosition;
+            return SpectrumAnalyzer.GetAmplitude(               
+                byteBuffer, 300, EqualizedWave.WaveFormat.SampleRate);
+        }
+        return null;
+    }
+
+    /*public float GetAmplitudeAtFrequency(int[] targetFrequency, int frameSize)
+    {
+        var audioData = new byte[frameSize]; // Adjust the size as needed
+
+        // Read audio data into the audioData array
+        EqualizedWave.Read(audioData, 0, frameSize);
+        var buffer = new WaveBuffer(audioData);
+        int m = (int)Math.Log(timeDomain.Length, 2);
+        NAudio.Dsp.Complex[] values = new NAudio.Dsp.Complex[len];
+        for (int i = 0; i < len; i++) {
+            values[i].Y = 0;
+            values[i].X = buffer.FloatBuffer[i];
+        }
+        FastFourierTransform.FFT(true, 6, values);
+
+
+    }*/
+
+    #endregion
+
 
 #if UNITY_EDITOR
     public static Audio AudioClipToAudio(AudioClip audioClip) {
@@ -424,6 +490,7 @@ public class Audio {
         return new Audio(path);
 
     }
+
 
 #endif
 
