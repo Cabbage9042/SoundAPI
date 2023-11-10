@@ -7,10 +7,10 @@ using UnityEngine;
 
 public class SpectrumAnalyzer {
 
-        static int BYTES_PER_POINT = 2;
+    static int BYTES_PER_POINT = 2;
 
-    public static double[] GetAmplitude( byte[] buffer, int[] targetFrequencies, int sampleRate) {
-        int frameSize  = buffer.Length;
+    public static double[] GetAmplitude(byte[] buffer) {
+        int frameSize = buffer.Length;
         int graphPointCount = frameSize / BYTES_PER_POINT;
         double[] fftReal = new double[graphPointCount / 2];
 
@@ -19,20 +19,20 @@ public class SpectrumAnalyzer {
 
         for (int i = 0; i < graphPointCount; i++) {
 
-            int val = BitConverter.ToInt16(buffer, i *2);
+            int val = BitConverter.ToInt16(buffer, i * 2);
 
             double temp = ((float)(val) / Math.Pow(2, 16) * 200.0);
 
             values[i] = new Accord.Compat.Complex(temp, 0);
         }
-        
-        Accord.Math.FourierTransform.FFT(values, Accord.Math.FourierTransform.Direction.Forward);
-        
 
-        for(int i = 0; i < fftReal.Length; i++) {
+        Accord.Math.FourierTransform.FFT(values, Accord.Math.FourierTransform.Direction.Forward);
+
+
+        for (int i = 0; i < fftReal.Length; i++) {
             fftReal[i] = values[i].Magnitude;
         }
-        
+
         /*
         int n = values.Length / 2;
         for (int i = 0; i < targetFrequencies.Length; i++) {
@@ -50,10 +50,15 @@ public class SpectrumAnalyzer {
         return fftReal;
     }
 
-    public static double[] GetAmplitude(byte[] buffer, int targetFrequency, int sampleRate) {
+    public static double[] GetAmplitude(byte[] buffer, int[] targetFrequencies, int sampleRate) {
 
-        int[] targetFrequencyArray = { targetFrequency };
-        return GetAmplitude(buffer, targetFrequencyArray, sampleRate);
+        var fft = GetAmplitude(buffer);
+        double[] returnedFFT = new double[targetFrequencies.Length];
+        for (int i = 0; i < returnedFFT.Length; i++) {
+            int index = (int)((targetFrequencies[i] * (buffer.Length / 4) / (double)sampleRate) + 0.5);
+            returnedFFT[i] = fft[index];
+        }
+        return returnedFFT;
 
 
     }

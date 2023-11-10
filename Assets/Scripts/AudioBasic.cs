@@ -18,8 +18,15 @@ public class AudioBasic : AudioBase {
     public double[] GetAmplitude() {
         return audio?.GetAmplitude();
     }
+    public double[] GetAmplitude(int[] targetAmplitudes) {
+        return audio?.GetAmplitude(targetAmplitudes);
+    }
 
-    public PlaybackState State { get { return audio.State; } }
+    public PlaybackState State {
+        get {
+            return audio == null ? PlaybackState.Stopped : audio.State;
+        }
+    }
     #region Add Remove OnEvent
 
     #region Started
@@ -129,7 +136,7 @@ public class AudioBasic : AudioBase {
 
     public void setAudioClip(AudioClip audioClip, string path) {
         this.audioClip = audioClip;
-        audio =new  Audio(path);
+        audio = new Audio(path);
         onAudioStartedMethod = new MethodCalled[0];
         onAudioPausedMethod = new MethodCalled[0];
         onAudioResumedMethod = new MethodCalled[0];
@@ -158,7 +165,7 @@ public class AudioBasic : AudioBase {
         //audio?.GetAmplitude();
     }
 
-    
+
 
     private void OnDestroy() {
         audio?.Stop();

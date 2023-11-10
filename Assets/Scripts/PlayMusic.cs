@@ -31,16 +31,16 @@ public class PlayMusic : MonoBehaviour {
     public void OnStart(Audio audio) {
         print(audio.Channels);
     }
-    
+
     public void OnPause(Audio audio) {
         print("Pause");
     }
-    
+
     public void OnResume(Audio audio) {
         print("Resume");
     }
     public void OnRestart(Audio audio, bool sameAsPlay) {
-        print("Restart " + (sameAsPlay?"Same as play": "Not same as play"));
+        print("Restart " + (sameAsPlay ? "Same as play" : "Not same as play"));
     }
 
 
@@ -72,7 +72,7 @@ public class PlayMusic : MonoBehaviour {
             // Start playing the audio
 
             audio.Play();
-           //audioSpeaker.Play();
+            //audioSpeaker.Play();
         }
         else if (Input.GetKeyDown(KeyCode.R)) {
             audio.Restart();
@@ -96,7 +96,14 @@ public class PlayMusic : MonoBehaviour {
         else if (Input.GetKeyDown(KeyCode.L)) {
 
             audio.RemoveAllOnAudioStarted();
-        }else if (Input.GetKeyDown(KeyCode.C)) {
+        }
+        else if (Input.GetKeyDown(KeyCode.C)) {
+        }
+
+        if (audio?.State == NAudio.Wave.PlaybackState.Playing) {
+             var fft = audio.GetAmplitude();
+            var targetFFT = audio.GetAmplitude(new int[] { 1000 });
+
         }
 
     }

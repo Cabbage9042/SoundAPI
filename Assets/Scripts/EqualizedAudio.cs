@@ -5,85 +5,78 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EqualizedAudio : WaveStream {
+public class EqualizedAudio : ISampleProvider {
 
     public static int NUMBER_OF_BANDS = 10;
 
 
-    public EqualizerBand[] equalizerBands ;
+    public Equalizer equalizer;
     private BiQuadFilter[] filter;
-    private WaveStream wave;
-    public override WaveFormat WaveFormat { get { return wave.WaveFormat; } }
+    private ISampleProvider sampleProvider;
+    private bool updated = false;
 
-
-    public override long Length => throw new NotImplementedException();
-
-    public override long Position { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    public WaveFormat WaveFormat => sampleProvider.WaveFormat;
 
     public EqualizedAudio(ISampleProvider sampleProvider = null) {
-        /*equalizerBands = new EqualizerBand[NUMBER_OF_BANDS];
-
+       // equalizer = new Equalizer(NUMBER_OF_BANDS);
+        
         if (sampleProvider != null) {
             this.sampleProvider = sampleProvider;
-        }
+        }/*
 
         //foreach(FrequencyBand bandFrequency in System.Enum.GetValues(typeof(FrequencyBand))) {
-        for (int i = 0; i < equalizerBands.Length; i++) {
-            equalizerBands[i] = new EqualizerBand(GetFrequencyByIndex(i), 0.8f,  0.0f);
+        for (int i = 0; i < equalizer.Length; i++) {
+            equalizer[i] = new EqualizerBand(GetFrequencyByIndex(i), 0.8f, 0.0f);
 
         }
 
-        filter = new BiQuadFilter[equalizerBands.Length];
+        filter = new BiQuadFilter[equalizer.Length];
         CreateFilter();
         */
 
     }
 
-    public EqualizedAudio(EqualizerBand[] equalizerBands, ISampleProvider sampleProvider = null) {
-/*
-        if (sampleProvider != null) {
-            this.sampleProvider = sampleProvider;
-        }
-        this.equalizerBands = equalizerBands;
-
-        filter = new BiQuadFilter[equalizerBands.Length];
-        CreateFilter();*/
-    }
 
     private void CreateFilter() {
-        for (int i = 0; i < equalizerBands.Length; i++) {
+        for (int i = 0; i < equalizer.Length; i++) {
             if (filter[i] == null) {
-                filter[i] = BiQuadFilter.PeakingEQ(wave.WaveFormat.SampleRate,
-                    equalizerBands[i].CenterFrequency, equalizerBands[i].QFactor,
-                    equalizerBands[i].Gain);
+                filter[i] = BiQuadFilter.PeakingEQ(sampleProvider.WaveFormat.SampleRate,
+                    equalizer[i].CenterFrequency, equalizer[i].QFactor,
+                    equalizer[i].Gain);
             }
             else {
-                filter[i].SetPeakingEq(wave.WaveFormat.SampleRate,
-                    equalizerBands[i].CenterFrequency, equalizerBands[i].QFactor,
-                    equalizerBands[i].Gain);
+                filter[i].SetPeakingEq(sampleProvider.WaveFormat.SampleRate,
+                    equalizer[i].CenterFrequency, equalizer[i].QFactor,
+                    equalizer[i].Gain);
             }
 
         }
+    }
+    public void Update() {
+        updated = true;
+        CreateFilter();
     }
 
 
     public void ChangeGain(Frequency frequency, float Gain) {
         int index = GetIndexByFrequency(frequency);
-        equalizerBands[index].Gain = Gain;
+        if (equalizer[index].Gain == Gain) return;
+        equalizer[index].Gain = Gain;
+        Update();
 
     }
 
 
     public static int GetIndexByFrequency(Frequency frequency) {
         Frequency[] values = (Frequency[])Enum.GetValues(typeof(Frequency));
-        int x =Array.IndexOf(values, frequency);
+        int x = Array.IndexOf(values, frequency);
         return x;
     }
 
     public ISampleProvider ApplyEqualization(ISampleProvider input) {
         var output = new SampleToWaveProvider16(input);
 
-        foreach (var band in equalizerBands) {
+        foreach (var band in equalizer) {
             var filter = BiQuadFilter.PeakingEQ(
                 input.WaveFormat.SampleRate,
                 band.CenterFrequency,
@@ -102,19 +95,22 @@ public class EqualizedAudio : WaveStream {
     }
 
 
- 
 
-    
-    public override int Read(byte[] buffer, int offset, int count) {
-        int sampleRead = wave.Read(buffer, offset, count);
-        //float[] floatBuffer = BitConverter.ToSingle(buffer, 0);
 
+
+    public int Read(float[] buffer, int offset, int count) {
+        int sampleRead = sampleProvider.Read(buffer, offset, count);
         /*
+        if (updated) {
+            CreateFilter();
+            updated = false;
+        }
+        
         for (int i = 0; i < sampleRead; i++) {
-            for (int band = 0; band < equalizerBands.Length; band++) {
+            for (int band = 0; band < equalizer.Length; band++) {
                 buffer[offset + i] = filter[band].Transform(buffer[offset + i]);
             }
-        }*/
+        }**/
         return sampleRead;
     }
 }

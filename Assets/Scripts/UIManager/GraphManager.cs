@@ -70,11 +70,11 @@ public class GraphManager : MonoBehaviour {
         if (currentAudioRate == this.currentAudioRate) return;
         this.currentAudioRate = currentAudioRate;
 
-
+        int labelCount = currentAudioRate / 1000;
         if (labels == null) {
             labels = new List<GameObject>();
 
-            for (int i = 0; i < currentAudioRate / 1000; i++) {
+            for (int i = 0; i < labelCount; i++) {
 
 
                 labels.Add(Instantiate(labelPrefab, graph.transform));
@@ -83,13 +83,21 @@ public class GraphManager : MonoBehaviour {
 
             }
         }
-        else if (labels.Count < currentAudioRate / 1000) {
+        else if (labels.Count < labelCount) {
+            int oriCount = labels.Count;
+            for (int i = 0; i < labelCount - oriCount; i++) {
 
+                labels.Add(Instantiate(labelPrefab, graph.transform));
+                labels[i].transform.localPosition = new Vector3(0, -30);
+            }
 
         }
-        else if (labels.Count > currentAudioRate / 1000) { 
-        
-        
+        else if (labels.Count > labelCount) {
+            for(int i = labels.Count-1;i >= labelCount; i--) {
+                Destroy(labels[i]);
+                labels.RemoveAt(i);
+            }
+
         }
 
         LabelHz();
@@ -106,7 +114,7 @@ public class GraphManager : MonoBehaviour {
         float left = 0;
         for (int i = 0; i < labels.Count; i++) {
             labels[i].transform.localPosition = new Vector3(left, labels[i].transform.localPosition.y, labels[i].transform.localPosition.z);
-            labels[i].GetComponent<TextMeshProUGUI>().text = (i + 1).ToString();
+            labels[i].GetComponent<TextMeshProUGUI>().text = i.ToString();
             left += spaceBetween2Label;
         }
     }

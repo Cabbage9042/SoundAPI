@@ -345,7 +345,81 @@ MonoBehaviour:
     - ToString
     - GetType
     selectedMethodIndex: 2
-  onAudioPausedMethod: []
+  onAudioPausedMethod:
+  - methodOwner: {fileID: 881952077}
+    allMethod:
+    - DoAfterFinish
+    - DoRestart
+    - OnStart
+    - OnPause
+    - OnResume
+    - OnRestart
+    - OnStop
+    - DoBeforeFinish
+    - DoBeforeFinish2
+    - DoBeforeFinish3
+    - DoAfterFinish2
+    - IsInvoking
+    - CancelInvoke
+    - Invoke
+    - InvokeRepeating
+    - CancelInvoke
+    - IsInvoking
+    - StartCoroutine
+    - StartCoroutine
+    - StartCoroutine
+    - StartCoroutine_Auto
+    - StopCoroutine
+    - StopCoroutine
+    - StopCoroutine
+    - StopAllCoroutines
+    - GetComponent
+    - GetComponent
+    - TryGetComponent
+    - TryGetComponent
+    - GetComponent
+    - GetComponentInChildren
+    - GetComponentInChildren
+    - GetComponentInChildren
+    - GetComponentInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentInParent
+    - GetComponentInParent
+    - GetComponentInParent
+    - GetComponentInParent
+    - GetComponentsInParent
+    - GetComponentsInParent
+    - GetComponentsInParent
+    - GetComponentsInParent
+    - GetComponentsInParent
+    - GetComponents
+    - GetComponents
+    - GetComponents
+    - GetComponents
+    - CompareTag
+    - SendMessageUpwards
+    - SendMessageUpwards
+    - SendMessageUpwards
+    - SendMessageUpwards
+    - SendMessage
+    - SendMessage
+    - SendMessage
+    - SendMessage
+    - BroadcastMessage
+    - BroadcastMessage
+    - BroadcastMessage
+    - BroadcastMessage
+    - GetInstanceID
+    - GetHashCode
+    - Equals
+    - ToString
+    - GetType
+    selectedMethodIndex: 3
   onAudioResumedMethod: []
   onAudioRestartedMethod: []
   onAudioStoppedMethod: []

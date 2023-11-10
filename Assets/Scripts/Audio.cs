@@ -16,14 +16,9 @@ public class Audio {
 
 
     private WaveStream OriginalWave;
-    private WaveStream EqualizedWave;
-
-    private EqualizedAudio privateEqualizer;
+    //private EqualizedAudio EqualizedWave;
+    private Equalizer equalizer;
     public WaveFormat WaveFormat => OriginalWave.WaveFormat;
-    public EqualizedAudio equalizer {
-        get { return privateEqualizer; }
-        set { privateEqualizer = new EqualizedAudio(value.equalizerBands, OriginalWave.ToSampleProvider()); }
-    }
     private Speaker speaker;
     public float PitchFactor = 1.0f;
     public float volume = 1.0f;
@@ -182,7 +177,8 @@ public class Audio {
     public Audio(string filePath) {
         speaker = new Speaker();
         OriginalWave = GetFileInWAV(filePath);
-        EqualizedWave = OriginalWave;
+        //EqualizedWave = OriginalWave.ToSampleProvider();
+        //EqualizedWave = new(OriginalWave.ToSampleProvider());
         /*
         if (OriginalWave.WaveFormat.Channels >= 2) {
           //  OriginalWave = (WaveStream)new StereoToMonoSampleProvider(OriginalWave.ToSampleProvider()).ToWaveProvider();
@@ -192,7 +188,7 @@ public class Audio {
 
         }*/
 
-        privateEqualizer = new EqualizedAudio(OriginalWave.ToSampleProvider());
+        //privateEqualizer = new EqualizedAudio(OriginalWave.ToSampleProvider());
         FilePath = filePath;
 
 
@@ -210,6 +206,9 @@ public class Audio {
     /// </summary>
     /// <param name="checkStopped">Check is the audio stopped or not</param>
     public void Play(bool checkStopped = true, bool sameAsRestart = false) {
+
+        
+
         //add onAudioStopped if start to play at the beginning
         if (speaker.PlaybackState == PlaybackState.Stopped) {
             speaker.PlaybackStopped += Speaker_PlaybackStopped;
@@ -219,15 +218,19 @@ public class Audio {
             OnAudioResumed?.Invoke(this);
         }
 
+        //equalizer
+        
 
-        //get pitch factor and change
-        if (PitchFactor != 1.0f) {
-            var pitch = new SmbPitchShiftingSampleProvider(EqualizedWave.ToSampleProvider());
-            pitch.PitchFactor = PitchFactor;
-            speaker.Init(pitch);
-        }
-        else {
-            speaker.Init(EqualizedWave);
+        if (speaker.PlaybackState != PlaybackState.Paused) {
+            //get pitch factor and change
+            if (PitchFactor != 1.0f) {
+                var pitch = new SmbPitchShiftingSampleProvider(OriginalWave.ToSampleProvider());
+                pitch.PitchFactor = PitchFactor;
+                speaker.Init(pitch);
+            }
+            else {
+                speaker.Init(OriginalWave);
+            }
         }
 
         //change volume
@@ -240,16 +243,11 @@ public class Audio {
 
             throw e;
         }
-
         speaker.Play();
         AudioHasFinished = false;
 
         OnAudioStarted?.Invoke(this);
         if (checkStopped) Task.Run(() => CheckAudioFinished());
-
-    }
-
-    private void DoEqualizeAudio() {
 
     }
 
@@ -259,7 +257,7 @@ public class Audio {
     /// </summary>
     public void Restart() {
         //just set the offset to the beginning
-        EqualizedWave.Position = 0;
+        OriginalWave.Position = 0;
 
         //if audio is not playing, 
         bool sameAsPlay = State == PlaybackState.Stopped;
@@ -286,7 +284,7 @@ public class Audio {
     /// </summary>
     private void CheckAudioFinished() {
         //if havent yet, sleep for a while
-        while (EqualizedWave.Position < EqualizedWave.Length) {
+        while (OriginalWave.Position < OriginalWave.Length) {
             System.Threading.Thread.Sleep(100);
         }
 
@@ -295,7 +293,7 @@ public class Audio {
         //stop if finish, and reset the offset
         Stop();
 
-        EqualizedWave.Position = 0;
+        OriginalWave.Position = 0;
     }
 
     private void Speaker_PlaybackStopped(object sender, StoppedEventArgs e) {
@@ -316,7 +314,7 @@ public class Audio {
     /// </summary>
     public void Stop() {
         speaker?.Stop();
-        EqualizedWave.Position = 0;
+        OriginalWave.Position = 0;
     }
 
     /// <summary>
@@ -324,7 +322,7 @@ public class Audio {
     /// </summary>
     public void Dispose() {
         speaker?.Dispose();
-        EqualizedWave?.Dispose();
+        OriginalWave?.Dispose();
     }
 
 
@@ -447,14 +445,28 @@ public class Audio {
 
             int frameSize = 2048;
             byte[] byteBuffer = new byte[frameSize];
-            long oriPosition = EqualizedWave.Position;
+            long oriPosition = OriginalWave.Position;
 
-            EqualizedWave.Read(byteBuffer, 0, frameSize);
-            EqualizedWave.Position = oriPosition;
-            return SpectrumAnalyzer.GetAmplitude(               
-                byteBuffer, 300, EqualizedWave.WaveFormat.SampleRate);
+            OriginalWave.Read(byteBuffer, 0, frameSize);
+            OriginalWave.Position = oriPosition;
+            return SpectrumAnalyzer.GetAmplitude(byteBuffer);
         }
         return null;
+    }
+
+    public double[] GetAmplitude(int[] targetFrequencies) {
+        if (speaker.PlaybackState == PlaybackState.Playing) {
+            int frameSize = 2048;
+            byte[] byteBuffer = new byte[frameSize];
+            long oriPosition = OriginalWave.Position;
+
+            OriginalWave.Read(byteBuffer, 0, frameSize);
+            OriginalWave.Position = oriPosition;
+
+            return SpectrumAnalyzer.GetAmplitude(byteBuffer,targetFrequencies, OriginalWave.WaveFormat.SampleRate);
+        }
+        return null;
+
     }
 
     /*public float GetAmplitudeAtFrequency(int[] targetFrequency, int frameSize)

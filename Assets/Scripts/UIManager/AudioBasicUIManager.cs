@@ -57,8 +57,8 @@ public class AudioBasicUIManager : MonoBehaviour {
             Audio.MP3toWAV(path);
             path = path.Replace(".mp3",".wav");
         }
-
-        audioBasic.setAudioClip(await LoadAudioClip(), path);
+        if(path != "")
+            audioBasic.setAudioClip(await LoadAudioClip(), path);
         audioBasic.loop = loopToggle.GetComponent<Toggle>().isOn;
 
     }
