@@ -422,14 +422,120 @@ MonoBehaviour:
     selectedMethodIndex: 3
   onAudioResumedMethod: []
   onAudioRestartedMethod: []
-  onAudioStoppedMethod: []
+  onAudioStoppedMethod:
+  - methodOwner: {fileID: 881952077}
+    allMethod:
+    - DoAfterFinish
+    - DoRestart
+    - OnStart
+    - OnPause
+    - OnResume
+    - OnRestart
+    - OnStop
+    - DoBeforeFinish
+    - DoBeforeFinish2
+    - DoBeforeFinish3
+    - DoAfterFinish2
+    - IsInvoking
+    - CancelInvoke
+    - Invoke
+    - InvokeRepeating
+    - CancelInvoke
+    - IsInvoking
+    - StartCoroutine
+    - StartCoroutine
+    - StartCoroutine
+    - StartCoroutine_Auto
+    - StopCoroutine
+    - StopCoroutine
+    - StopCoroutine
+    - StopAllCoroutines
+    - GetComponent
+    - GetComponent
+    - TryGetComponent
+    - TryGetComponent
+    - GetComponent
+    - GetComponentInChildren
+    - GetComponentInChildren
+    - GetComponentInChildren
+    - GetComponentInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentInParent
+    - GetComponentInParent
+    - GetComponentInParent
+    - GetComponentInParent
+    - GetComponentsInParent
+    - GetComponentsInParent
+    - GetComponentsInParent
+    - GetComponentsInParent
+    - GetComponentsInParent
+    - GetComponents
+    - GetComponents
+    - GetComponents
+    - GetComponents
+    - CompareTag
+    - SendMessageUpwards
+    - SendMessageUpwards
+    - SendMessageUpwards
+    - SendMessageUpwards
+    - SendMessage
+    - SendMessage
+    - SendMessage
+    - SendMessage
+    - BroadcastMessage
+    - BroadcastMessage
+    - BroadcastMessage
+    - BroadcastMessage
+    - GetInstanceID
+    - GetHashCode
+    - Equals
+    - ToString
+    - GetType
+    selectedMethodIndex: 6
   SpeakerDeviceMonoNumber: 0
   SpeakerDeviceLeftNumber: 0
   SpeakerDeviceRightNumber: 1
   Stereo: 1
   Panning: 0
-  audioClip: {fileID: 8300000, guid: 227cb8687365bab47afdf71cd577477c, type: 3}
-  loop: 0
+  audioClip: {fileID: 8300000, guid: 035f56d3378092444b1ff6918f108fb7, type: 3}
+  equalizer:
+    equalizerBands:
+    - CenterFrequency: 31
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 63
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 125
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 250
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 500
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 1000
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 2000
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 4000
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 8000
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 16000
+      QFactor: 0.8
+      Gain: 0
+  loop: 1
 --- !u!114 &881952079
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -458,7 +564,73 @@ MonoBehaviour:
   playOnStart: 0
   pitchFactor: 1
   volume: 1
-  onAudioStartedMethod: []
+  onAudioStartedMethod:
+  - methodOwner: {fileID: 881952079}
+    allMethod:
+    - Update
+    - AudioStart
+    - AudioStop
+    - IsInvoking
+    - CancelInvoke
+    - Invoke
+    - InvokeRepeating
+    - CancelInvoke
+    - IsInvoking
+    - StartCoroutine
+    - StartCoroutine
+    - StartCoroutine
+    - StartCoroutine_Auto
+    - StopCoroutine
+    - StopCoroutine
+    - StopCoroutine
+    - StopAllCoroutines
+    - GetComponent
+    - GetComponent
+    - TryGetComponent
+    - TryGetComponent
+    - GetComponent
+    - GetComponentInChildren
+    - GetComponentInChildren
+    - GetComponentInChildren
+    - GetComponentInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentsInChildren
+    - GetComponentInParent
+    - GetComponentInParent
+    - GetComponentInParent
+    - GetComponentInParent
+    - GetComponentsInParent
+    - GetComponentsInParent
+    - GetComponentsInParent
+    - GetComponentsInParent
+    - GetComponentsInParent
+    - GetComponents
+    - GetComponents
+    - GetComponents
+    - GetComponents
+    - CompareTag
+    - SendMessageUpwards
+    - SendMessageUpwards
+    - SendMessageUpwards
+    - SendMessageUpwards
+    - SendMessage
+    - SendMessage
+    - SendMessage
+    - SendMessage
+    - BroadcastMessage
+    - BroadcastMessage
+    - BroadcastMessage
+    - BroadcastMessage
+    - GetInstanceID
+    - GetHashCode
+    - Equals
+    - ToString
+    - GetType
+    selectedMethodIndex: 1
   onAudioPausedMethod: []
   onAudioResumedMethod: []
   onAudioRestartedMethod: []
@@ -469,9 +641,8 @@ MonoBehaviour:
   Stereo: 0
   Panning: 0
   audioClipArray:
-  - {fileID: 8300000, guid: 38e697e516b67014c932a87dd67032ae, type: 3}
-  - {fileID: 8300000, guid: 699051342b8f1be4986a2680414479ee, type: 3}
-  - {fileID: 8300000, guid: 5f1b9ec02568cea4eb816e2d69f9fcb5, type: 3}
-  - {fileID: 8300000, guid: e8ff9c17878b0c04d981410e23d1c2ac, type: 3}
+  - {fileID: 8300000, guid: 53086f2ed5913e4488c470c5aa37cf7d, type: 3}
+  - {fileID: 8300000, guid: e33292baad070df4da4b0f85132022e2, type: 3}
+  - {fileID: 8300000, guid: 227cb8687365bab47afdf71cd577477c, type: 3}
   currentPosition: 0
-  mode: 2
+  mode: 0

@@ -16,8 +16,14 @@ public class Audio {
 
 
     private WaveStream OriginalWave;
-    //private EqualizedAudio EqualizedWave;
-    private Equalizer equalizer;
+    private EqualizedAudio EqualizedWave;
+  /*  public Equalizer equalizer {
+        get { return EqualizedWave.equalizer; }
+        set {
+            EqualizedWave.equalizer = value;
+           
+        }
+    }*/
     public WaveFormat WaveFormat => OriginalWave.WaveFormat;
     private Speaker speaker;
     public float PitchFactor = 1.0f;
@@ -63,6 +69,7 @@ public class Audio {
     public float Volume { get { return speaker.Volume; } set { speaker.Volume = value; } }
 
     private bool errorOccuredAndStopped = false;
+
 
 
     #region Device
@@ -178,7 +185,7 @@ public class Audio {
         speaker = new Speaker();
         OriginalWave = GetFileInWAV(filePath);
         //EqualizedWave = OriginalWave.ToSampleProvider();
-        //EqualizedWave = new(OriginalWave.ToSampleProvider());
+        EqualizedWave = new(OriginalWave.ToSampleProvider());
         /*
         if (OriginalWave.WaveFormat.Channels >= 2) {
           //  OriginalWave = (WaveStream)new StereoToMonoSampleProvider(OriginalWave.ToSampleProvider()).ToWaveProvider();
@@ -207,7 +214,7 @@ public class Audio {
     /// <param name="checkStopped">Check is the audio stopped or not</param>
     public void Play(bool checkStopped = true, bool sameAsRestart = false) {
 
-        
+
 
         //add onAudioStopped if start to play at the beginning
         if (speaker.PlaybackState == PlaybackState.Stopped) {
@@ -219,7 +226,7 @@ public class Audio {
         }
 
         //equalizer
-        
+
 
         if (speaker.PlaybackState != PlaybackState.Paused) {
             //get pitch factor and change
@@ -229,7 +236,7 @@ public class Audio {
                 speaker.Init(pitch);
             }
             else {
-                speaker.Init(OriginalWave);
+                speaker.Init(EqualizedWave);
             }
         }
 
@@ -390,10 +397,6 @@ public class Audio {
 
     #endregion
 
-
-
-
-
     #region Pitch
 
     /// <summary>
@@ -440,52 +443,55 @@ public class Audio {
     #region Amplitude
 
 
-    public double[] GetAmplitude() {
+    public double[] GetAmplitude(int frameSize = 1024) {
+        if (!IsPowerOfTwo(frameSize)) {
+            throw new Exception("Frame Size should be power of two!");
+        }
         if (speaker.PlaybackState == PlaybackState.Playing) {
+            return GetFFT(null, frameSize);
+        }
+        return null;
+    }
 
-            int frameSize = 2048;
-            byte[] byteBuffer = new byte[frameSize];
-            long oriPosition = OriginalWave.Position;
+    public double[] GetAmplitude(int[] targetFrequencies, int frameSize = 1024) {
+        if (!IsPowerOfTwo(frameSize)) {
+            throw new Exception("Frame Size should be power of two!");
+        }
+        if (speaker.PlaybackState == PlaybackState.Playing) {
+            return GetFFT(targetFrequencies, frameSize);
+        }
+        return null;
 
-            OriginalWave.Read(byteBuffer, 0, frameSize);
-            OriginalWave.Position = oriPosition;
+    }
+    private double[] GetFFT(int[] targetFrequencies, int frameSize = 2048) {
+        byte[] byteBuffer = new byte[frameSize];
+        long oriPosition = OriginalWave.Position;
+
+        OriginalWave.Read(byteBuffer, 0, frameSize);
+        OriginalWave.Position = oriPosition;
+        if (targetFrequencies != null) {
+            return SpectrumAnalyzer.GetAmplitude(byteBuffer, targetFrequencies, OriginalWave.WaveFormat.SampleRate);
+        }
+        else {
             return SpectrumAnalyzer.GetAmplitude(byteBuffer);
         }
-        return null;
     }
 
-    public double[] GetAmplitude(int[] targetFrequencies) {
-        if (speaker.PlaybackState == PlaybackState.Playing) {
-            int frameSize = 2048;
-            byte[] byteBuffer = new byte[frameSize];
-            long oriPosition = OriginalWave.Position;
-
-            OriginalWave.Read(byteBuffer, 0, frameSize);
-            OriginalWave.Position = oriPosition;
-
-            return SpectrumAnalyzer.GetAmplitude(byteBuffer,targetFrequencies, OriginalWave.WaveFormat.SampleRate);
-        }
-        return null;
-
+    public static bool IsPowerOfTwo(int x) {
+        return (x != 0) && ((x & (x - 1)) == 0);
     }
 
-    /*public float GetAmplitudeAtFrequency(int[] targetFrequency, int frameSize)
-    {
-        var audioData = new byte[frameSize]; // Adjust the size as needed
+    #endregion
 
-        // Read audio data into the audioData array
-        EqualizedWave.Read(audioData, 0, frameSize);
-        var buffer = new WaveBuffer(audioData);
-        int m = (int)Math.Log(timeDomain.Length, 2);
-        NAudio.Dsp.Complex[] values = new NAudio.Dsp.Complex[len];
-        for (int i = 0; i < len; i++) {
-            values[i].Y = 0;
-            values[i].X = buffer.FloatBuffer[i];
-        }
-        FastFourierTransform.FFT(true, 6, values);
+    #region Equalizer
 
+    public void ChangeGain(Frequency frequency, float Gain) {
+        EqualizedWave.ChangeGain(frequency, Gain);
+    }
 
-    }*/
+    public void ChangeGains(Frequency[] frequencies, float[] Gains) {
+        EqualizedWave.ChangeGains(frequencies, Gains);
+    }
 
     #endregion
 

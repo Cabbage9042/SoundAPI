@@ -12,6 +12,9 @@ using UnityEditor;
 
 public class AudioBasic : AudioBase {
     public AudioClip audioClip = null;
+    public Equalizer equalizer = new();
+
+
     public int SampleRate { get { return audio.WaveFormat.SampleRate; } }
 
     public bool loop = false;
@@ -163,6 +166,7 @@ public class AudioBasic : AudioBase {
 
     private void Update() {
         //audio?.GetAmplitude();
+        //print(audio?.volume);
     }
 
 
@@ -268,6 +272,7 @@ public class AudioBasic : AudioBase {
         private SerializedProperty stereo;
         private SerializedProperty SpeakerDeviceLeftNumber;
         private SerializedProperty SpeakerDeviceRightNumber;
+        private SerializedProperty equalizer;
 
 
         private SerializedProperty[] eventArray = new SerializedProperty[(int)EventName.TotalEvent];
@@ -277,6 +282,11 @@ public class AudioBasic : AudioBase {
 
 
         private bool eventIsExpanded = false;
+        private bool equalizerIsExpanded = false;
+
+        private string[] frequencyList = {
+            "31Hz","63Hz","125Hz","250Hz","500Hz","1kHz","2kHz","4kHz","8kHz","16kHz"
+        };
 
 
         private GUIStyle listMargin;
@@ -337,6 +347,7 @@ public class AudioBasic : AudioBase {
             stereo = serializedObject.FindProperty("Stereo");
             SpeakerDeviceLeftNumber = serializedObject.FindProperty("SpeakerDeviceLeftNumber");
             SpeakerDeviceRightNumber = serializedObject.FindProperty("SpeakerDeviceRightNumber");
+            equalizer = serializedObject.FindProperty("equalizer");
 
 
             eventArray[(int)EventName.onAudioStarted] = serializedObject.FindProperty("onAudioStartedMethod");
@@ -472,8 +483,59 @@ public class AudioBasic : AudioBase {
             //volume
             EditorGUILayout.PropertyField(volume);
 
-            serializedObject.ApplyModifiedProperties();
 
+            //equalizer
+
+            /*if(equalizerbands.arraySize == 0) {
+                audioBasic.equalizerbands = EqualizerBand.DefaultEqualizerBands();
+            }*/
+
+
+
+
+            //   Debug.Log($"Bands property path: {bands.arraySize}");
+            //   Debug.Log($"Band property path: {band.propertyPath}");
+            //  Debug.Log($"QFactor property path: {la.propertyPath}");
+            //q = !q;
+            //equalizer.FindPropertyRelative("equalizerBands").GetArrayElementAtIndex(0).FindPropertyRelative("Gain").floatValue =  
+
+            PrintEqualizer();
+
+
+            serializedObject.ApplyModifiedProperties();
+        }
+
+        private void PrintEqualizer() {
+            equalizerIsExpanded = EditorGUILayout.Foldout(equalizerIsExpanded, "Equalizer");
+            if (!equalizerIsExpanded) return;
+
+
+
+            for (int i = 0; i < frequencyList.Length; i++) {
+                EditorGUILayout.BeginHorizontal();
+                var gain = equalizer.FindPropertyRelative("equalizerBands").GetArrayElementAtIndex(i).FindPropertyRelative("Gain");
+                var oriGain = gain.floatValue;
+                EditorGUILayout.LabelField(frequencyList[i], GUILayout.Width(50));
+                gain.floatValue = EditorGUILayout.Slider(gain.floatValue, Equalizer.MIN_GAIN, Equalizer.MAX_GAIN);
+                if (oriGain != gain.floatValue) {
+                    Frequency frequency = EqualizedAudio.GetFrequencyByIndex(i);
+                    audioBasic.audio.ChangeGain(frequency, gain.floatValue);
+                }
+                EditorGUILayout.EndHorizontal();
+            }
+
+            //reset button
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+
+            bool resetIsPressed = GUILayout.Button("Reset To Default", GUILayout.Width(EditorGUIUtility.currentViewWidth / 2));
+
+            EditorGUILayout.EndHorizontal();
+            if (resetIsPressed) {
+                for (int i = 0; i < frequencyList.Length; i++) {
+                    equalizer.FindPropertyRelative("equalizerBands").GetArrayElementAtIndex(i).FindPropertyRelative("Gain").floatValue = 0.0f;
+                }
+            }
 
 
         }

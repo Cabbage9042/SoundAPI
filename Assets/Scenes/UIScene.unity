@@ -2031,7 +2031,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 76, y: 75.54999}
+  m_AnchoredPosition: {x: 76, y: 76}
   m_SizeDelta: {x: 1000, y: 500}
   m_Pivot: {x: 0, y: 0}
 --- !u!1 &858477224
@@ -2949,6 +2949,7 @@ MonoBehaviour:
   dotList: []
   audioManager: {fileID: 697160760}
   labelPrefab: {fileID: 7901506425760308641, guid: 3ecc4e3e707277449b786a0980f8b05e, type: 3}
+  labelCount: 0
 --- !u!1 &1521142141
 GameObject:
   m_ObjectHideFlags: 0
