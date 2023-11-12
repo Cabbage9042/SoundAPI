@@ -101,7 +101,7 @@ public class PlayMusic : MonoBehaviour {
         }
 
         if (audio?.State == NAudio.Wave.PlaybackState.Playing) {
-             //var fft = audio.GetAmplitude();
+             var fft = audio.GetAmplitude();
             var targetFFT = audio.GetAmplitude(new int[] { 1000 });
 
         }

@@ -8,7 +8,6 @@ using UnityEngine;
 public class SpectrumAnalyzer {
 
     static int BYTES_PER_POINT = 2;
-    
 
     public static double[] GetAmplitude(byte[] buffer) {
         int frameSize = buffer.Length;
@@ -50,21 +49,12 @@ public class SpectrumAnalyzer {
 
         return fftReal;
     }
- 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="buffer"></param>
-    /// <param name="targetFrequencies"></param>
-    /// <param name="sampleRate"></param>
-    /// <param name="frameSize"></param>
-    /// <returns></returns>
+
     public static double[] GetAmplitude(byte[] buffer, int[] targetFrequencies, int sampleRate) {
 
         var fft = GetAmplitude(buffer);
         double[] returnedFFT = new double[targetFrequencies.Length];
         for (int i = 0; i < returnedFFT.Length; i++) {
-            //+0.5 is to make the float round up or down depends on the demical point
             int index = (int)((targetFrequencies[i] * (buffer.Length / 4) / (double)sampleRate) + 0.5);
             returnedFFT[i] = fft[index];
         }
