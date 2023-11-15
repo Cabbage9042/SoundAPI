@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -16,7 +17,8 @@ public class AudioBasicUIManager : MonoBehaviour {
     public GameObject pitchSlider;
     public GameObject volumeSlider;
     public GameObject loopToggle;
- public double[] getAmplitude() {
+    public GameObject audioNameText;
+    public double[] getAmplitude() {
         return audioBasic?.GetAmplitude();
     }
 
@@ -35,12 +37,12 @@ public class AudioBasicUIManager : MonoBehaviour {
         }
     }
 
-   
+
 
     //select your audio2
     public async void addAudioBasic() {
 
-        
+
         audioBasic = GameObject.Find("Audio").GetComponent<AudioBasic>();// GetComponent<AudioBasic>();
         if (audioBasic == null) {
             audioBasic = GameObject.Find("Audio").AddComponent(typeof(AudioBasic)) as AudioBasic;
@@ -53,12 +55,19 @@ public class AudioBasicUIManager : MonoBehaviour {
         else {
             audioBasic.Stop();
         }
-        if(path.EndsWith(".mp3")) {
+        if (path.EndsWith(".mp3")) {
             Audio.MP3toWAV(path);
-            path = path.Replace(".mp3",".wav");
+            path = path.Replace(".mp3", ".wav");
         }
-        if(path != "")
-            audioBasic.setAudioClip(await LoadAudioClip(), path);
+        if (path != "")
+            audioBasic.setAudioClip(this, await LoadAudioClip(), path);
+
+        audioBasic.AddOnAudioStarted(new MethodCalled(this, "AudioStarted"));
+        audioBasic.AddOnAudioPaused(new MethodCalled(this, "AudioPaused"));
+        audioBasic.AddOnAudioRestarted(new MethodCalled(this, "AudioRestarted"));
+        audioBasic.AddOnAudioResumed(new MethodCalled(this, "AudioResumed"));
+        audioBasic.AddOnAudioStopped(new MethodCalled(this, "AudioStopped"));
+        
         audioBasic.loop = loopToggle.GetComponent<Toggle>().isOn;
 
     }
@@ -95,6 +104,37 @@ public class AudioBasicUIManager : MonoBehaviour {
         return clip;
     }
 
+    public void ChangeAudioName(AudioBasicUIManager audioManager, string status) {
+
+        var name = audioManager.audioNameText.GetComponent<TextMeshProUGUI>();
+        if (audioManager.audioBasic == null) {
+            name.text = "No audio is selected!";
+        }
+        else {
+            name.text = status;
+        }
+    }
+
+    public void AudioStarted(MonoBehaviour audioManager, Audio audio) {
+        ChangeAudioName((AudioBasicUIManager)audioManager, "Now playing: " + audio.Name);
+
+    }
+    public void AudioPaused(MonoBehaviour audioManager, Audio audio) {
+        ChangeAudioName((AudioBasicUIManager)audioManager, "Paused: " + audio.Name);
+    }
+
+    public void AudioRestarted(MonoBehaviour audioManager, Audio audio, bool sameAsPlay) {
+        ChangeAudioName((AudioBasicUIManager)audioManager, "Restarted: " + audio.Name);
+
+    }
+
+    public void AudioResumed(MonoBehaviour audioManager, Audio audio) {
+        ChangeAudioName((AudioBasicUIManager)audioManager, "Resumed: " + audio.Name);
+    }
+    public void AudioStopped(MonoBehaviour audioManager, Audio audio, bool hasFinishedPlaying) {
+        ChangeAudioName((AudioBasicUIManager)audioManager, (hasFinishedPlaying ? "Finished playing: " : "Stopped: ") + audio.Name);
+
+    }
 
     public string getDirectory(string path) {
 

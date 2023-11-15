@@ -648,7 +648,7 @@ MonoBehaviour:
   SpeakerDeviceMonoNumber: 0
   SpeakerDeviceLeftNumber: 1
   SpeakerDeviceRightNumber: 0
-  Stereo: 1
+  Stereo: 0
   Panning: 0
   audioClip: {fileID: 8300000, guid: 227cb8687365bab47afdf71cd577477c, type: 3}
   privateEqualizer:

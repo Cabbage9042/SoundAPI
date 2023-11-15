@@ -40,8 +40,8 @@ public class AudioBasic : AudioBase {
     public double[] GetAmplitude(int[] targetAmplitudes) {
         return audio?.GetAmplitude(targetAmplitudes);
     }
-    public bool MonoIsPlaying { get { return audio.State == PlaybackState.Playing; } }
-    public bool StereoIsPlaying { get { return audioStereo[0].State == PlaybackState.Playing; } }
+    public bool MonoIsPlaying { get { return audio?.State == PlaybackState.Playing; } }
+    public bool StereoIsPlaying { get { return audioStereo[0]?.State == PlaybackState.Playing; } }
 
     public PlaybackState State {
         get {
@@ -169,9 +169,9 @@ public class AudioBasic : AudioBase {
         }
     }
 
-    public void setAudioClip(AudioClip audioClip, string path) {
+    public void setAudioClip(MonoBehaviour methodOwner, AudioClip audioClip, string path) {
         this.audioClip = audioClip;
-        audio = new Audio(path, this);
+        audio = new Audio(path, methodOwner);
         audioStereo[0] = new Audio(path, this);
         audioStereo[1] = new Audio(path, this);
 
@@ -218,7 +218,7 @@ public class AudioBasic : AudioBase {
 
 
 
-    public void Play(bool sameAsRestart = false) {
+    public void Play() {
 
 
 
@@ -233,19 +233,19 @@ public class AudioBasic : AudioBase {
 
         try {
             foreach (var method in onAudioStartedMethod) {
-                GetMonoOrStereoAudio().OnAudioStarted += (Action<AudioBase, Audio>)Delegate.CreateDelegate(typeof(Action<AudioBase, Audio>), null, method.methodToCall);
+                GetMonoOrStereoAudio().OnAudioStarted += (Action<MonoBehaviour, Audio>)Delegate.CreateDelegate(typeof(Action<MonoBehaviour, Audio>), null, method.methodToCall);
             }
             foreach (var method in onAudioPausedMethod) {
-                GetMonoOrStereoAudio().OnAudioPaused += (Action<AudioBase, Audio>)Delegate.CreateDelegate(typeof(Action<AudioBase, Audio>), null, method.methodToCall);
+                GetMonoOrStereoAudio().OnAudioPaused += (Action<MonoBehaviour, Audio>)Delegate.CreateDelegate(typeof(Action<MonoBehaviour, Audio>), null, method.methodToCall);
             }
             foreach (var method in onAudioResumedMethod) {
-                GetMonoOrStereoAudio().OnAudioResumed += (Action<AudioBase, Audio>)Delegate.CreateDelegate(typeof(Action<AudioBase, Audio>), null, method.methodToCall);
+                GetMonoOrStereoAudio().OnAudioResumed += (Action<MonoBehaviour, Audio>)Delegate.CreateDelegate(typeof(Action<MonoBehaviour, Audio>), null, method.methodToCall);
             }
             foreach (var method in onAudioRestartedMethod) {
-                GetMonoOrStereoAudio().OnAudioRestarted += (Action<AudioBase, Audio, bool>)Delegate.CreateDelegate(typeof(Action<AudioBase, Audio, bool>), null, method.methodToCall);
+                GetMonoOrStereoAudio().OnAudioRestarted += (Action<MonoBehaviour, Audio, bool>)Delegate.CreateDelegate(typeof(Action<MonoBehaviour, Audio, bool>), null, method.methodToCall);
             }
             foreach (var method in onAudioStoppedMethod) {
-                GetMonoOrStereoAudio().OnAudioStopped += (Action<AudioBase, Audio, bool>)Delegate.CreateDelegate(typeof(Action<AudioBase, Audio, bool>), null, method.methodToCall);
+                GetMonoOrStereoAudio().OnAudioStopped += (Action<MonoBehaviour, Audio, bool>)Delegate.CreateDelegate(typeof(Action<MonoBehaviour, Audio, bool>), null, method.methodToCall);
             }
         }
         catch (TargetParameterCountException) {
@@ -256,6 +256,8 @@ public class AudioBasic : AudioBase {
         //only do action if not playing
         if (GetMonoOrStereoAudio().State != PlaybackState.Playing) {
             if (Stereo) {
+                audio.Stop(true);
+
                 audioStereo[0].PitchFactor = this.pitchFactor;
                 audioStereo[1].PitchFactor = this.pitchFactor;
                 float left, right;
@@ -270,6 +272,9 @@ public class AudioBasic : AudioBase {
                 audioStereo[1].equalizer = EqualizerProperty;
             }
             else {
+                audioStereo[0].Stop(true);
+                audioStereo[1].Stop(true);
+
                 audio.PitchFactor = this.pitchFactor;
                 audio.Volume = volume;
                 audio.SetSpeakerNumber(SpeakerDeviceMonoNumber);
@@ -343,7 +348,7 @@ public class AudioBasic : AudioBase {
         }
     }
 
-    private void OnAudioStopped_CheckLoop(AudioBase audioBase, Audio stoppedAudio, bool hasFinishedPlaying) {
+    private void OnAudioStopped_CheckLoop(MonoBehaviour audioBase, Audio stoppedAudio, bool hasFinishedPlaying) {
         if (hasFinishedPlaying) {
             if (loop) {
                 Play();
@@ -358,6 +363,14 @@ public class AudioBasic : AudioBase {
 
     public void ChangeVolume(float volume) {
         audio.Volume = volume;
+    }
+
+    public void ChangeMonoToStereo() {
+        if (MonoIsPlaying != false) return;
+
+        long position = audio.Position;
+        
+
     }
 
     private void UpdateLatestAudio() {
@@ -395,8 +408,9 @@ public class AudioBasic : AudioBase {
 
         private bool updateAudio = false;
 
-        private float lastFramePanning = 0.0f;
-        private float lastFrameVolume = 1.0f;
+        private float lastFramePanning;
+        private float lastFrameVolume;
+        private float lastFramePitch;
 
         private bool eventIsExpanded = false;
         private bool equalizerIsExpanded = false;
@@ -590,13 +604,25 @@ public class AudioBasic : AudioBase {
             //disable the audio.name != string checking, the audio will immediately change when a new audio drag into the field
             previousString = ((AudioClip)audioClip.objectReferenceValue)?.name;
 
+
             //select stereo
             EditorGUILayout.PropertyField(stereo);
 
             if (stereo.boolValue == true) {
 
+                int oriSpeakerLeft = SpeakerDeviceLeftNumber.intValue;
+                int oriSpeakerRight = SpeakerDeviceRightNumber.intValue;
+
                 SpeakerDeviceLeftNumber.intValue = EditorGUILayout.Popup("Left Device", SpeakerDeviceLeftNumber.intValue, speakerDevicesName);
                 SpeakerDeviceRightNumber.intValue = EditorGUILayout.Popup("Right Device", SpeakerDeviceRightNumber.intValue, speakerDevicesName);
+                if (oriSpeakerLeft != SpeakerDeviceLeftNumber.intValue) {
+                    audioBasic.audioStereo[0]?.SetSpeakerNumber(SpeakerDeviceLeftNumber.intValue);
+                }
+                if (oriSpeakerRight != SpeakerDeviceRightNumber.intValue) {
+                    audioBasic.audioStereo[1]?.SetSpeakerNumber(SpeakerDeviceRightNumber.intValue);
+                }
+
+                lastFramePanning = Panning.floatValue;
 
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField("Panning", GUILayout.Width(EditorGUIUtility.labelWidth));
@@ -613,12 +639,27 @@ public class AudioBasic : AudioBase {
             }
             else {
                 //select speaker device
+                int oriSpeakerMono = SpeakerDeviceMonoNumber.intValue;
                 SpeakerDeviceMonoNumber.intValue = EditorGUILayout.Popup("Speaker Device", SpeakerDeviceMonoNumber.intValue, speakerDevicesName);
+                if (oriSpeakerMono != SpeakerDeviceMonoNumber.intValue) {
+                    audioBasic.audio?.SetSpeakerNumber(SpeakerDeviceMonoNumber.intValue);
+                }
 
             }
 
             //select pitch factor
+            lastFramePitch = pitchFactor.floatValue;
             EditorGUILayout.PropertyField(pitchFactor);
+            if (lastFramePitch != pitchFactor.floatValue) {
+                if (audioBasic.StereoIsPlaying) {
+                    audioBasic.audioStereo[0].ChangePitch(pitchFactor.floatValue);
+                    audioBasic.audioStereo[1].ChangePitch(pitchFactor.floatValue);
+                }
+                else if (audioBasic.MonoIsPlaying) {
+                    audioBasic.audio.ChangePitch(pitchFactor.floatValue);
+                }
+
+            }
 
             //volume
 
@@ -628,7 +669,12 @@ public class AudioBasic : AudioBase {
             EditorGUILayout.EndHorizontal();
 
             if (volume.floatValue != lastFrameVolume) {
-                audioBasic.UpdatePanning();
+                if (audioBasic.StereoIsPlaying) {
+                    audioBasic.UpdatePanning();
+                }
+                else if (audioBasic.MonoIsPlaying) {
+                    audioBasic.ChangeVolume(audioBasic.volume);
+                }
             }
 
             lastFrameVolume = volume.floatValue;
@@ -670,7 +716,8 @@ public class AudioBasic : AudioBase {
                     audioBasic.EqualizerProperty.equalizerBands[i].Gain = gain.floatValue;
                     if (audioBasic.MonoIsPlaying) {
                         audioBasic.audio.UpdateEquilizer();
-                    }else if (audioBasic.StereoIsPlaying) {
+                    }
+                    else if (audioBasic.StereoIsPlaying) {
                         audioBasic.audioStereo[0].UpdateEquilizer();
                         audioBasic.audioStereo[1].UpdateEquilizer();
                     }

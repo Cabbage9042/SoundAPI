@@ -143,19 +143,19 @@ public class AudioList : AudioBase {
 
         try {
             foreach (var method in onAudioStartedMethod) {
-                audioList[position].OnAudioStarted += (Action<AudioBase, Audio>)Delegate.CreateDelegate(typeof(Action<AudioBase, Audio>), null, method.methodToCall);
+                audioList[position].OnAudioStarted += (Action<MonoBehaviour, Audio>)Delegate.CreateDelegate(typeof(Action<MonoBehaviour, Audio>), null, method.methodToCall);
             }
             foreach (var method in onAudioPausedMethod) {
-                audioList[position].OnAudioPaused += (Action<AudioBase, Audio>)Delegate.CreateDelegate(typeof(Action<AudioBase, Audio>), null, method.methodToCall);
+                audioList[position].OnAudioPaused += (Action<MonoBehaviour, Audio>)Delegate.CreateDelegate(typeof(Action<MonoBehaviour, Audio>), null, method.methodToCall);
             }
             foreach (var method in onAudioResumedMethod) {
-                audioList[position].OnAudioResumed += (Action<AudioBase, Audio>)Delegate.CreateDelegate(typeof(Action<AudioBase, Audio>), null, method.methodToCall);
+                audioList[position].OnAudioResumed += (Action<MonoBehaviour, Audio>)Delegate.CreateDelegate(typeof(Action<MonoBehaviour, Audio>), null, method.methodToCall);
             }
             foreach (var method in onAudioRestartedMethod) {
-                audioList[position].OnAudioRestarted += (Action<AudioBase, Audio, bool>)Delegate.CreateDelegate(typeof(Action<AudioBase, Audio, bool>), null, method.methodToCall);
+                audioList[position].OnAudioRestarted += (Action<MonoBehaviour, Audio, bool>)Delegate.CreateDelegate(typeof(Action<MonoBehaviour, Audio, bool>), null, method.methodToCall);
             }
             foreach (var method in onAudioStoppedMethod) {
-                audioList[position].OnAudioStopped += (Action<AudioBase, Audio, bool>)Delegate.CreateDelegate(typeof(Action<AudioBase, Audio, bool>), null, method.methodToCall);
+                audioList[position].OnAudioStopped += (Action<MonoBehaviour, Audio, bool>)Delegate.CreateDelegate(typeof(Action<MonoBehaviour, Audio, bool>), null, method.methodToCall);
             }
         }
         catch (TargetParameterCountException) {
@@ -193,7 +193,7 @@ public class AudioList : AudioBase {
 
 
 
-    private void DefaultOnAudioStopped(AudioBase audioBase, Audio stoppedAudio, bool hasPlayedFinished) {
+    private void DefaultOnAudioStopped(MonoBehaviour audioBase, Audio stoppedAudio, bool hasPlayedFinished) {
         if (hasPlayedFinished && PlayNextAudio == true) {
             ChangeNextSong();
             PlaySameList();

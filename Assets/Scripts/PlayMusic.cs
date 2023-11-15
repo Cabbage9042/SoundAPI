@@ -5,7 +5,7 @@ using static AudioBasic;
 
 public class PlayMusic : MonoBehaviour {
     public AudioBasic audio;
-    public void DoAfterFinish(AudioBase audioBase, Audio stoppedAudio, bool hasPlayedFinished) {
+    public void DoAfterFinish(MonoBehaviour audioBase, Audio stoppedAudio, bool hasPlayedFinished) {
         if (hasPlayedFinished) {
             print("yes");
         }
@@ -17,7 +17,7 @@ public class PlayMusic : MonoBehaviour {
 
 
 
-    public void DoRestart(AudioBase audioBase, Audio stoppedAudio, bool sameAsPlay) {
+    public void DoRestart(MonoBehaviour audioBase, Audio stoppedAudio, bool sameAsPlay) {
         if (sameAsPlay) {
             print("yes");
         }
@@ -28,38 +28,38 @@ public class PlayMusic : MonoBehaviour {
 
     }
 
-    public void OnStart(AudioBase audioBase, Audio audio) {
+    public void OnStart(MonoBehaviour audioBase, Audio audio) {
         print(audio.Channels);
     }
 
-    public void OnPause(AudioBase audioBase, Audio audio) {
+    public void OnPause(MonoBehaviour audioBase, Audio audio) {
         print("Pause");
     }
 
-    public void OnResume(AudioBase audioBase, Audio audio) {
+    public void OnResume(MonoBehaviour audioBase, Audio audio) {
         print("Resume");
     }
-    public void OnRestart(AudioBase audioBase, Audio audio, bool sameAsPlay) {
+    public void OnRestart(MonoBehaviour audioBase, Audio audio, bool sameAsPlay) {
         print("Restart " + (sameAsPlay ? "Same as play" : "Not same as play"));
     }
 
 
 
-    public void OnStop(AudioBase audioBase, Audio audio, bool ReachEnd) {
+    public void OnStop(MonoBehaviour audioBase, Audio audio, bool ReachEnd) {
         print("Stop " + (ReachEnd ? "Reach End" : "Not reach end"));
     }
 
-    public void DoBeforeFinish(AudioBase audioBase, Audio currentAudio) {
+    public void DoBeforeFinish(MonoBehaviour audioBase, Audio currentAudio) {
         print(currentAudio.Name);
     }
-    public void DoBeforeFinish2(AudioBase audioBase, Audio currentAudio) {
+    public void DoBeforeFinish2(MonoBehaviour audioBase, Audio currentAudio) {
         print(currentAudio.Name + "2");
     }
-    public void DoBeforeFinish3(AudioBase audioBase, Audio currentAudio) {
+    public void DoBeforeFinish3(MonoBehaviour audioBase, Audio currentAudio) {
         print(currentAudio.Name + "3");
     }
 
-    public void DoAfterFinish2(AudioBase audioBase, Audio stoppedAudio, bool hasPlayedFinished) {
+    public void DoAfterFinish2(MonoBehaviour audioBase, Audio stoppedAudio, bool hasPlayedFinished) {
         if (hasPlayedFinished) {
             print("yes2");
         }

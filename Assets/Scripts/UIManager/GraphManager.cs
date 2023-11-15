@@ -12,6 +12,7 @@ public class GraphManager : MonoBehaviour {
     public static int DOT_COUNT = 512;
     public static float SPECTRUM_VISUALIZER_SCALE = 25;
     private float dotOriginY;
+    private static int LABEL_COUNT = 24;
 
     private int currentAudioRate = 0;
     private List<GameObject> labels;
@@ -110,7 +111,7 @@ public class GraphManager : MonoBehaviour {
 
         int fftMaxHz = audioManager.audioBasic.SampleRate / 2;
 
-        float spaceBetween2Label = graph.GetComponent<RectTransform>().rect.width / labels.Count;
+        float spaceBetween2Label = graph.GetComponent<RectTransform>().rect.width / labels.Count ;
         float left = 0;
         for (int i = 0; i < labels.Count; i++) {
             labels[i].transform.localPosition = new Vector3(left, labels[i].transform.localPosition.y, labels[i].transform.localPosition.z);

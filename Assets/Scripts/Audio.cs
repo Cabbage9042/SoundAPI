@@ -17,15 +17,16 @@ public class Audio {
 
     private WaveStream OriginalWave;
     private EqualizedAudio EqualizedWave;
-    private AudioBase audioBase;
+    private MonoBehaviour audioBase;
 
 
     public WaveFormat WaveFormat => OriginalWave.WaveFormat;
     private Speaker speaker;
     public float PitchFactor = 1.0f;
-    public Equalizer equalizer { 
+    public Equalizer equalizer {
         get { return EqualizedWave.equalizer; }
-        set { EqualizedWave.equalizer = value;
+        set {
+            EqualizedWave.equalizer = value;
             EqualizedWave.Update();
         }
     }
@@ -69,7 +70,7 @@ public class Audio {
 
     public float Volume { get { return speaker.Volume; } set { speaker.Volume = value; } }
 
-    private bool errorOccuredAndStopped = false;
+    private bool IgnoreAudioOnStopped = false;
 
 
 
@@ -79,21 +80,24 @@ public class Audio {
 
 
     public bool SetSpeakerNumber(int id) {
-        if(id == speaker.DeviceNumber) {
+        if (id == speaker.DeviceNumber) {
             return true;
         }
         if (id < 0 || id >= WaveOut.DeviceCount) {
             return false;
         }
         speaker.DeviceNumber = id;
-        if (speaker.PlaybackState == PlaybackState.Paused) {
+
+        if (State == PlaybackState.Playing) {
+            float Volume = speaker.Volume;
+
             long currentPosition = OriginalWave.Position;
-            speaker.Stop();
+            IgnoreAudioOnStopped = true;
+            Stop();
             speaker.Init(EqualizedWave);
             OriginalWave.Position = currentPosition;
-        }
-        else {
-            speaker.Init(EqualizedWave);
+            speaker.Volume = Volume;
+            speaker.Play();
         }
         return true;
     }
@@ -108,7 +112,6 @@ public class Audio {
     /// Note that OnAudioStarted will also be called when OnAudioRestarted is called and sameAsPlay == true (Audio is stopped before)
     /// <para>
     /// <param name="currentAudio"><b>Audio</b>: The audio that was played.</param>
-    /// <param name="sameAsRestart"><b>bool</b>: The  </param>
     /// </para>
     /// <para>
     /// void Your_Method_Name(Audio currentAudio){<br></br>
@@ -116,7 +119,7 @@ public class Audio {
     /// } 
     /// </para>
     /// </summary>
-    public Action<AudioBase,Audio> OnAudioStarted;
+    public Action<MonoBehaviour, Audio> OnAudioStarted;
 
     /// <summary>
     /// It is called after the audio has been paused.
@@ -129,7 +132,7 @@ public class Audio {
     /// } 
     /// </para>
     /// </summary>
-    public Action<AudioBase, Audio> OnAudioPaused;
+    public Action<MonoBehaviour, Audio> OnAudioPaused;
 
     /// <summary>
     /// It is called after the audio has been resumed after pausing.
@@ -142,7 +145,7 @@ public class Audio {
     /// } 
     /// </para>
     /// </summary>
-    public Action<AudioBase, Audio> OnAudioResumed;
+    public Action<MonoBehaviour, Audio> OnAudioResumed;
 
     /// <summary>
     /// It is called after the audio has been resumed after pausing.<br></br>
@@ -160,7 +163,7 @@ public class Audio {
     /// } 
     /// </para>
     /// </summary>
-    public Action<AudioBase, Audio, bool> OnAudioRestarted;
+    public Action<MonoBehaviour, Audio, bool> OnAudioRestarted;
 
     /// <summary>
     /// It is called when the audio is stopped (Including manually stopped and played completely).<br></br>
@@ -175,7 +178,7 @@ public class Audio {
     /// } 
     /// </para>
     /// </summary>
-    public Action<AudioBase, Audio, bool> OnAudioStopped;
+    public Action<MonoBehaviour, Audio, bool> OnAudioStopped;
 
     #endregion
 
@@ -193,7 +196,7 @@ public class Audio {
     OnEnable serializedObject.FindProperty();*/
 
 
-    public Audio(string filePath, AudioBase audioBase) {
+    public Audio(string filePath, MonoBehaviour audioBase) {
         speaker = new Speaker();
         OriginalWave = GetFileInWAV(filePath);
         //EqualizedWave = OriginalWave.ToSampleProvider();
@@ -217,7 +220,7 @@ public class Audio {
         //add onAudioStopped if start to play at the beginning
         if (speaker.PlaybackState == PlaybackState.Stopped) {
             speaker.PlaybackStopped += Speaker_PlaybackStopped;
-        OnAudioStarted?.Invoke(audioBase,this);
+            OnAudioStarted?.Invoke(audioBase, this);
         }
         //resume
         else if (speaker.PlaybackState == PlaybackState.Paused) {
@@ -303,22 +306,23 @@ public class Audio {
     }
 
     private void Speaker_PlaybackStopped(object sender, StoppedEventArgs e) {
-        if (errorOccuredAndStopped == false) {
+        if (IgnoreAudioOnStopped == false) {
             OnAudioStopped?.Invoke(audioBase, this, AudioHasFinished);
 
+            //remove the onAudioStopped
+            speaker.PlaybackStopped -= Speaker_PlaybackStopped;
         }
         else {
-            errorOccuredAndStopped = false;
+            IgnoreAudioOnStopped = false;
         }
-        //remove the onAudioStopped
-        speaker.PlaybackStopped -= Speaker_PlaybackStopped;
 
     }
 
     /// <summary>
     /// Stop playing the audio
     /// </summary>
-    public void Stop() {
+    public void Stop(bool IgnoreAudioOnStopped = false) {
+        if (IgnoreAudioOnStopped) { this.IgnoreAudioOnStopped = true; }
         speaker?.Stop();
         OriginalWave.Position = 0;
     }
@@ -341,7 +345,7 @@ public class Audio {
         Delegate[] allMethod = OnAudioStopped.GetInvocationList();
         for (int i = allMethod.Length - 1; i >= 0; i--) {
 
-            OnAudioStopped -= (Action<AudioBase, Audio, bool>)allMethod[i];
+            OnAudioStopped -= (Action<MonoBehaviour, Audio, bool>)allMethod[i];
         }
 
     }
@@ -350,7 +354,7 @@ public class Audio {
         Delegate[] allMethod = OnAudioStarted.GetInvocationList();
         for (int i = allMethod.Length - 1; i >= 0; i--) {
 
-            OnAudioStarted -= (Action<AudioBase, Audio>)allMethod[i];
+            OnAudioStarted -= (Action<MonoBehaviour, Audio>)allMethod[i];
         }
 
     }
@@ -360,7 +364,7 @@ public class Audio {
         Delegate[] allMethod = OnAudioPaused.GetInvocationList();
         for (int i = allMethod.Length - 1; i >= 0; i--) {
 
-            OnAudioPaused -= (Action<AudioBase, Audio>)allMethod[i];
+            OnAudioPaused -= (Action<MonoBehaviour, Audio>)allMethod[i];
         }
 
     }
@@ -370,7 +374,7 @@ public class Audio {
         Delegate[] allMethod = OnAudioResumed.GetInvocationList();
         for (int i = allMethod.Length - 1; i >= 0; i--) {
 
-            OnAudioResumed -= (Action<AudioBase, Audio>)allMethod[i];
+            OnAudioResumed -= (Action<MonoBehaviour, Audio>)allMethod[i];
         }
 
     }
@@ -380,7 +384,7 @@ public class Audio {
         Delegate[] allMethod = OnAudioRestarted.GetInvocationList();
         for (int i = allMethod.Length - 1; i >= 0; i--) {
 
-            OnAudioRestarted -= (Action<AudioBase, Audio, bool>)allMethod[i];
+            OnAudioRestarted -= (Action<MonoBehaviour, Audio, bool>)allMethod[i];
         }
 
     }
@@ -405,6 +409,28 @@ public class Audio {
     /// 2.0f means an octiv
     /// </summary>
     /// <param name="pitchFactor"></param>
+    public void ChangePitch(float pitchFactor) {
+        if (pitchFactor == this.PitchFactor) return;
+
+        this.PitchFactor = pitchFactor;
+
+        long OriginalPosition = OriginalWave.Position;
+        IgnoreAudioOnStopped = true;
+        Stop();
+
+        if (pitchFactor != 1.0f) {
+            var pitch = new SmbPitchShiftingSampleProvider(EqualizedWave);
+            pitch.PitchFactor = PitchFactor;
+            speaker.Init(pitch);
+        }
+        else {
+            speaker.Init(EqualizedWave);
+        }
+        OriginalWave.Position = OriginalPosition;
+        speaker.Volume = Volume;
+        speaker.Play();
+
+    }
 
     #endregion
 
@@ -497,7 +523,7 @@ public class Audio {
 
 
 #if UNITY_EDITOR
-    public static Audio AudioClipToAudio(AudioClip audioClip,AudioBase audioBase) {
+    public static Audio AudioClipToAudio(AudioClip audioClip, AudioBase audioBase) {
         string[] assetPathArray = AssetDatabase.GetAssetPath(audioClip.GetInstanceID()).Split("/");
         string path = Application.dataPath + "/";
         for (int i = 1; i < assetPathArray.Length; i++) {

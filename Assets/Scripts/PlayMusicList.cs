@@ -15,11 +15,11 @@ public class PlayMusicList : MonoBehaviour {
         
     }
 
-    public void AudioStart(AudioBase audioBase, Audio audio) {
+    public void AudioStart(MonoBehaviour audioBase, Audio audio) {
         print(audio.NameWoExtension);
     }
 
-    public void AudioStop(AudioBase audioBase, Audio audio, bool hasFinishedPlaying) {
+    public void AudioStop(MonoBehaviour audioBase, Audio audio, bool hasFinishedPlaying) {
         // print(audio.NameWoExtension + " " + hasFinishedPlaying);
         if (hasFinishedPlaying) {
             ((AudioList)audioBase).StopNextAudio();
