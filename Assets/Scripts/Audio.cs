@@ -413,6 +413,7 @@ public class Audio {
         if (pitchFactor == this.PitchFactor) return;
 
         this.PitchFactor = pitchFactor;
+        bool isPlaying = speaker.PlaybackState == PlaybackState.Playing;
 
         long OriginalPosition = OriginalWave.Position;
         IgnoreAudioOnStopped = true;
@@ -428,7 +429,9 @@ public class Audio {
         }
         OriginalWave.Position = OriginalPosition;
         speaker.Volume = Volume;
-        speaker.Play();
+        if (isPlaying) {
+            speaker.Play();
+        }
 
     }
 

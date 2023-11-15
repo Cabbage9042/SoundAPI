@@ -18,6 +18,11 @@ public class AudioBasicUIManager : MonoBehaviour {
     public GameObject volumeSlider;
     public GameObject loopToggle;
     public GameObject audioNameText;
+    public GameObject monoDropDown;
+    public GameObject leftDropDown;
+    public GameObject rightDropDown;
+    public GameObject stereo;
+
     public double[] getAmplitude() {
         return audioBasic?.GetAmplitude();
     }
@@ -37,6 +42,13 @@ public class AudioBasicUIManager : MonoBehaviour {
         }
     }
 
+    private void Start() {
+        List<string> speakerList = new(AudioBasic.speakerDevicesName);
+
+        monoDropDown.GetComponent<TMP_Dropdown>().AddOptions(speakerList);
+        leftDropDown.GetComponent<TMP_Dropdown>().AddOptions(speakerList);
+        rightDropDown.GetComponent<TMP_Dropdown>().AddOptions(speakerList);
+    }
 
 
     //select your audio2
@@ -67,8 +79,35 @@ public class AudioBasicUIManager : MonoBehaviour {
         audioBasic.AddOnAudioRestarted(new MethodCalled(this, "AudioRestarted"));
         audioBasic.AddOnAudioResumed(new MethodCalled(this, "AudioResumed"));
         audioBasic.AddOnAudioStopped(new MethodCalled(this, "AudioStopped"));
-        
+
+        pitchSlider.GetComponent<Slider>().onValueChanged.AddListener(delegate { audioBasic.ChangePitch(pitchSlider.GetComponent<Slider>().value); });
+        volumeSlider.GetComponent<Slider>().onValueChanged.AddListener(delegate { audioBasic.ChangeVolume(volumeSlider.GetComponent<Slider>().value); });
+
+        monoDropDown.GetComponent<TMP_Dropdown>().onValueChanged.AddListener(delegate { audioBasic.SetMonoSpeakerNumber(monoDropDown.GetComponent<TMP_Dropdown>().value); });
+
+
         audioBasic.loop = loopToggle.GetComponent<Toggle>().isOn;
+
+    }
+
+    public void ChangePitch() {
+        audioBasic.ChangePitch(pitchSlider.GetComponent<Slider>().value);
+    }
+    public void ToggleStereo() {
+        var toggle = stereo.GetComponent<Toggle>();
+        if (toggle.isOn) {//stereo
+            leftDropDown.SetActive(true);
+            rightDropDown.SetActive(true);
+            monoDropDown.SetActive(false);
+        }
+        else { // mono
+
+            leftDropDown.SetActive(false);
+            rightDropDown.SetActive(false);
+            monoDropDown.SetActive(true);
+        }
+
+        audioBasic.Stereo = toggle.isOn;
 
     }
 

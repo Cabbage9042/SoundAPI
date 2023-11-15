@@ -358,20 +358,20 @@ public class AudioBasic : AudioBase {
     }
 
     public void ChangePitch(float pitchFactor) {
-        audio.PitchFactor = pitchFactor;
+        this.pitchFactor = pitchFactor;
+        audio?.ChangePitch(pitchFactor);
     }
 
     public void ChangeVolume(float volume) {
+        this.volume = volume;
         audio.Volume = volume;
     }
 
-    public void ChangeMonoToStereo() {
-        if (MonoIsPlaying != false) return;
-
-        long position = audio.Position;
-        
-
+    public void SetMonoSpeakerNumber(int id) {
+        audio.SetSpeakerNumber(id);
     }
+
+   
 
     private void UpdateLatestAudio() {
         audio = Audio.AudioClipToAudio(audioClip, this);
@@ -656,7 +656,7 @@ public class AudioBasic : AudioBase {
                     audioBasic.audioStereo[1].ChangePitch(pitchFactor.floatValue);
                 }
                 else if (audioBasic.MonoIsPlaying) {
-                    audioBasic.audio.ChangePitch(pitchFactor.floatValue);
+                    audioBasic.ChangePitch(pitchFactor.floatValue);
                 }
 
             }
