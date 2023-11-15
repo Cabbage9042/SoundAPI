@@ -3,11 +3,11 @@ using NAudio.Wave;
 using System.Windows;
 
 public class AudioPlayer : MonoBehaviour {
-    private new Audio audio = null;
+   /* private new Audio audio = null;
 
     private void Start() {  
 
-        audio = new Audio($"{Application.dataPath}/Audio/testing3.mp3");
+        audio = new Audio($"{Application.dataPath}/Audio/testing3.mp3", this);
         audio.OnAudioStopped += Audio_OnAudioStopped;
     }
 
@@ -51,5 +51,5 @@ public class AudioPlayer : MonoBehaviour {
         // Stop and dispose the WaveOut instance when the script is destroyed
         audio?.Stop();
         audio?.Dispose();
-    }
+    }*/
 }

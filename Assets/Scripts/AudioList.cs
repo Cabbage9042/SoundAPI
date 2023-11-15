@@ -19,7 +19,7 @@ public class AudioList : AudioBase {
 
     public int currentPosition = 0;
     public LoopMode mode = LoopMode.Sequence;
-
+    private bool PlayNextAudio = true;
     private bool audioIsPlaying = false;
 
 
@@ -48,6 +48,11 @@ public class AudioList : AudioBase {
 
     }
 
+
+    public void StopNextAudio() {
+        PlayNextAudio = false;
+    }
+
     private void UpdateAudios(string index) {
 
         int audioIndex = int.Parse(index.Split(' ')[0]);
@@ -63,7 +68,7 @@ public class AudioList : AudioBase {
                 }
             }
 
-            audioList.Add(Audio.AudioClipToAudio(audioClipArray[i]));
+            audioList.Add(Audio.AudioClipToAudio(audioClipArray[i], this));
 
         }
     }
@@ -77,7 +82,7 @@ public class AudioList : AudioBase {
             while (audioClipArray[i] == null) {
                 i++;
             }
-            audioList.Add(Audio.AudioClipToAudio(audioClipArray[i]));
+            audioList.Add(Audio.AudioClipToAudio(audioClipArray[i], this));
 
         }
     }
@@ -138,19 +143,19 @@ public class AudioList : AudioBase {
 
         try {
             foreach (var method in onAudioStartedMethod) {
-                audioList[position].OnAudioStarted += (Action<Audio>)Delegate.CreateDelegate(typeof(Action<Audio>), null, method.methodToCall);
+                audioList[position].OnAudioStarted += (Action<AudioBase, Audio>)Delegate.CreateDelegate(typeof(Action<AudioBase, Audio>), null, method.methodToCall);
             }
             foreach (var method in onAudioPausedMethod) {
-                audioList[position].OnAudioPaused += (Action<Audio>)Delegate.CreateDelegate(typeof(Action<Audio>), null, method.methodToCall);
+                audioList[position].OnAudioPaused += (Action<AudioBase, Audio>)Delegate.CreateDelegate(typeof(Action<AudioBase, Audio>), null, method.methodToCall);
             }
             foreach (var method in onAudioResumedMethod) {
-                audioList[position].OnAudioResumed += (Action<Audio>)Delegate.CreateDelegate(typeof(Action<Audio>), null, method.methodToCall);
+                audioList[position].OnAudioResumed += (Action<AudioBase, Audio>)Delegate.CreateDelegate(typeof(Action<AudioBase, Audio>), null, method.methodToCall);
             }
             foreach (var method in onAudioRestartedMethod) {
-                audioList[position].OnAudioRestarted += (Action<Audio, bool>)Delegate.CreateDelegate(typeof(Action<Audio, bool>), null, method.methodToCall);
+                audioList[position].OnAudioRestarted += (Action<AudioBase, Audio, bool>)Delegate.CreateDelegate(typeof(Action<AudioBase, Audio, bool>), null, method.methodToCall);
             }
             foreach (var method in onAudioStoppedMethod) {
-                audioList[position].OnAudioStopped += (Action<Audio, bool>)Delegate.CreateDelegate(typeof(Action<Audio, bool>), null, method.methodToCall);
+                audioList[position].OnAudioStopped += (Action<AudioBase, Audio, bool>)Delegate.CreateDelegate(typeof(Action<AudioBase, Audio, bool>), null, method.methodToCall);
             }
         }
         catch (TargetParameterCountException) {
@@ -166,7 +171,7 @@ public class AudioList : AudioBase {
 
         if (audioList[position].State != PlaybackState.Playing) {
             audioList[position].PitchFactor = this.pitchFactor;
-            audioList[position].volume = volume;
+            audioList[position].Volume = volume;
             if (audioList[position].State == PlaybackState.Stopped)
                 audioList[position].SetSpeakerNumber(SpeakerDeviceMonoNumber);
             audioList[position].Play();
@@ -188,10 +193,12 @@ public class AudioList : AudioBase {
 
 
 
-    private void DefaultOnAudioStopped(Audio stoppedAudio, bool hasPlayedFinished) {
-        if (hasPlayedFinished) {
+    private void DefaultOnAudioStopped(AudioBase audioBase, Audio stoppedAudio, bool hasPlayedFinished) {
+        if (hasPlayedFinished && PlayNextAudio == true) {
             ChangeNextSong();
             PlaySameList();
+        }else if(PlayNextAudio == false) {
+            PlayNextAudio = true;
         }
     }
     public void Stop() {

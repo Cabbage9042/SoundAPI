@@ -2,56 +2,75 @@ using NAudio.Dsp;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using System;
-using System.Collections.Generic;
-using UnityEngine;
 
 public class EqualizedAudio : ISampleProvider {
 
     public static int NUMBER_OF_BANDS = 10;
 
+    private Equalizer privateEqualizer;
 
-    public Equalizer equalizer;
+    /// <summary>
+    /// Stores the information about the boost or lost. Remember to call Update() after updating.
+    /// </summary>
+    public Equalizer equalizer {
+        get { return privateEqualizer; }
+        set {
+            privateEqualizer = value;
+            if (filter != null) { Update(); }
+        }
+    }
     private BiQuadFilter[] filter;
     private ISampleProvider sampleProvider;
-    private bool updated = false;
-
+    private bool updated = true;
+    private bool allZero = true;
     public WaveFormat WaveFormat => sampleProvider.WaveFormat;
 
     public EqualizedAudio(ISampleProvider sampleProvider = null) {
-       // equalizer = new Equalizer(NUMBER_OF_BANDS);
-        
+        equalizer = new();
+
         if (sampleProvider != null) {
             this.sampleProvider = sampleProvider;
-        }/*
-
-        //foreach(FrequencyBand bandFrequency in System.Enum.GetValues(typeof(FrequencyBand))) {
-        for (int i = 0; i < equalizer.Length; i++) {
-            equalizer[i] = new EqualizerBand(GetFrequencyByIndex(i), 0.8f, 0.0f);
-
         }
+
+
 
         filter = new BiQuadFilter[equalizer.Length];
         CreateFilter();
-        */
+
 
     }
 
 
-    private void CreateFilter() {
+    public void CreateFilter() {
+        bool thisTimeGotNotZero = false;
         for (int i = 0; i < equalizer.Length; i++) {
             if (filter[i] == null) {
                 filter[i] = BiQuadFilter.PeakingEQ(sampleProvider.WaveFormat.SampleRate,
-                    equalizer[i].CenterFrequency, equalizer[i].QFactor,
-                    equalizer[i].Gain);
+                    equalizer.equalizerBands[i].CenterFrequency, equalizer.equalizerBands[i].QFactor,
+                    equalizer.equalizerBands[i].Gain);
             }
             else {
                 filter[i].SetPeakingEq(sampleProvider.WaveFormat.SampleRate,
-                    equalizer[i].CenterFrequency, equalizer[i].QFactor,
-                    equalizer[i].Gain);
+                    equalizer.equalizerBands[i].CenterFrequency, equalizer.equalizerBands[i].QFactor,
+                    equalizer.equalizerBands[i].Gain);
+            }
+            if (equalizer.equalizerBands[i].Gain != 0.0f && thisTimeGotNotZero == false) {
+                thisTimeGotNotZero = true;
             }
 
+
+        }
+
+        if (thisTimeGotNotZero) {
+            allZero = false;
+
+        }
+        else {
+            allZero = true;
         }
     }
+
+
     public void Update() {
         updated = true;
         CreateFilter();
@@ -60,11 +79,13 @@ public class EqualizedAudio : ISampleProvider {
 
     public void ChangeGain(Frequency frequency, float Gain) {
         int index = GetIndexByFrequency(frequency);
-        if (equalizer[index].Gain == Gain) return;
-        equalizer[index].Gain = Gain;
+        if (equalizer.equalizerBands[index].Gain == Gain) return;
+        equalizer.equalizerBands[index].Gain = Gain;
         Update();
 
     }
+
+
 
 
     public static int GetIndexByFrequency(Frequency frequency) {
@@ -73,61 +94,32 @@ public class EqualizedAudio : ISampleProvider {
         return x;
     }
 
-    public ISampleProvider ApplyEqualization(ISampleProvider input) {
-        var output = new SampleToWaveProvider16(input);
-
-        foreach (var band in equalizer) {
-            var filter = BiQuadFilter.PeakingEQ(
-                input.WaveFormat.SampleRate,
-                band.CenterFrequency,
-                band.QFactor,
-                band.Gain);
 
 
-        }
-
-        return output.ToSampleProvider();
-
+    public static Frequency GetFrequencyByIndex(int index) {
+        return (Frequency)System.Enum.GetValues(typeof(Frequency)).GetValue(index);
     }
-
-    public static int GetFrequencyByIndex(int index) {
-        return (int)System.Enum.GetValues(typeof(Frequency)).GetValue(index);
-    }
-
-
-
 
 
     public int Read(float[] buffer, int offset, int count) {
         int sampleRead = sampleProvider.Read(buffer, offset, count);
-        /*
+
         if (updated) {
             CreateFilter();
             updated = false;
         }
-        
-        for (int i = 0; i < sampleRead; i++) {
-            for (int band = 0; band < equalizer.Length; band++) {
-                buffer[offset + i] = filter[band].Transform(buffer[offset + i]);
+
+        if (allZero == false) {
+            for (int i = 0; i < sampleRead; i++) {
+                for (int band = 0; band < equalizer.Length; band++) {
+                    buffer[offset + i] = filter[band].Transform(buffer[offset + i]);
+                }
             }
-        }**/
+        }
         return sampleRead;
     }
 }
-public class EqualizerBand {
-    public int CenterFrequency { get; set; }
-    public float QFactor { get; set; }
-    public float Gain { get; set; }
 
-    public static float MAX_GAIN = 12;
-    public static float MIN_GAIN = 12;
-
-    public EqualizerBand(int centerFrequency, float qFactor, float gain) {
-        CenterFrequency = centerFrequency;
-        QFactor = qFactor;
-        Gain = gain;
-    }
-}
 public enum Frequency {
     F31 = 31,
     F63 = 63,
