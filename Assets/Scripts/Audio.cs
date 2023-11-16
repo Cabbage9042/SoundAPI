@@ -16,7 +16,7 @@ public class Audio {
 
 
     private WaveStream OriginalWave;
-    private EqualizedAudio EqualizedWave;
+    private ModifiedAudio ModifiedWave;
     private MonoBehaviour audioBase;
 
 
@@ -24,10 +24,10 @@ public class Audio {
     private Speaker speaker;
     public float PitchFactor = 1.0f;
     public Equalizer equalizer {
-        get { return EqualizedWave.equalizer; }
+        get { return ModifiedWave.equalizer; }
         set {
-            EqualizedWave.equalizer = value;
-            EqualizedWave.Update();
+            ModifiedWave.equalizer = value;
+            ModifiedWave.Update();
         }
     }
     private bool AudioHasFinished = true;
@@ -94,7 +94,7 @@ public class Audio {
             long currentPosition = OriginalWave.Position;
             IgnoreAudioOnStopped = true;
             Stop();
-            speaker.Init(EqualizedWave);
+            speaker.Init(ModifiedWave);
             OriginalWave.Position = currentPosition;
             speaker.Volume = Volume;
             speaker.Play();
@@ -199,8 +199,9 @@ public class Audio {
     public Audio(string filePath, MonoBehaviour audioBase) {
         speaker = new Speaker();
         OriginalWave = GetFileInWAV(filePath);
+        // WaveFileReader(OriginalWave)
         //EqualizedWave = OriginalWave.ToSampleProvider();
-        EqualizedWave = new(OriginalWave.ToSampleProvider());
+        ModifiedWave = new(OriginalWave.ToSampleProvider());
         FilePath = filePath;
         this.audioBase = audioBase;
     }
@@ -233,12 +234,12 @@ public class Audio {
         if (speaker.PlaybackState != PlaybackState.Paused) {
             //get pitch factor and change
             if (PitchFactor != 1.0f) {
-                var pitch = new SmbPitchShiftingSampleProvider(EqualizedWave);
+                var pitch = new SmbPitchShiftingSampleProvider(ModifiedWave);
                 pitch.PitchFactor = PitchFactor;
                 speaker.Init(pitch);
             }
             else {
-                speaker.Init(EqualizedWave);
+                speaker.Init(ModifiedWave);
             }
         }
 
@@ -420,12 +421,12 @@ public class Audio {
         Stop();
 
         if (pitchFactor != 1.0f) {
-            var pitch = new SmbPitchShiftingSampleProvider(EqualizedWave);
+            var pitch = new SmbPitchShiftingSampleProvider(ModifiedWave);
             pitch.PitchFactor = PitchFactor;
             speaker.Init(pitch);
         }
         else {
-            speaker.Init(EqualizedWave);
+            speaker.Init(ModifiedWave);
         }
         OriginalWave.Position = OriginalPosition;
         speaker.Volume = Volume;
@@ -438,29 +439,65 @@ public class Audio {
     #endregion
 
     public static WaveStream GetFileInWAV(string filePath) {
-        if (filePath.EndsWith(".mp3")) {
-            return MP3toWAV(filePath);
-        }
-        else if (filePath.EndsWith(".wav")) {
-
+        WaveFileReader OriginalWave;
+        if (filePath.EndsWith("_MONO.wav")) {
             return new WaveFileReader(filePath);
         }
-        throw new Exception("File format not supported");
+        string wavMonoFilePath = filePath.Substring(0, filePath.Length - 4) + "_MONO.wav";
+        if (File.Exists(wavMonoFilePath)) {
+            return new WaveFileReader(wavMonoFilePath);
+        }
+
+        if (filePath.EndsWith(".mp3")) {
+
+
+            OriginalWave = MP3toWAV(filePath);
+
+
+        }
+        else if (filePath.EndsWith(".wav")) {
+            OriginalWave = new WaveFileReader(filePath);
+            if (OriginalWave.WaveFormat.Channels == 1) {
+                return OriginalWave;
+            }
+            StereoToMonoSampleProvider newReader = new StereoToMonoSampleProvider(OriginalWave.ToSampleProvider());
+            WaveFileWriter.CreateWaveFile(wavMonoFilePath, newReader.ToWaveProvider());
+            AssetDatabase.Refresh();
+            return new WaveFileReader(wavMonoFilePath);
+
+        }
+        else {
+            throw new Exception("File format not supported");
+        }
+
+
+
+        return OriginalWave;
     }
 
     public static WaveFileReader MP3toWAV(string mp3FilePath) {
 
-        string wavFilePath = mp3FilePath.Substring(0, mp3FilePath.Length - 4) + ".wav";
+        string wavFilePath = mp3FilePath.Substring(0, mp3FilePath.Length - 4) + "_MONO.wav";
 
         WaveFileReader wavFile;
 
         try {
             wavFile = new WaveFileReader(wavFilePath);
+
         }
         catch (FileNotFoundException) {
-            using (var reader = new Mp3FileReader(mp3FilePath)) {
-                WaveFileWriter.CreateWaveFile(wavFilePath, reader);
+            Mp3FileReader reader;
+            using (reader = new Mp3FileReader(mp3FilePath)) {
+                if (reader.WaveFormat.Channels == 2) {
+                    var newReader = new StereoToMonoSampleProvider(reader.ToSampleProvider());
+                    WaveFileWriter.CreateWaveFile(wavFilePath, newReader.ToWaveProvider());
+                }
+                else {
+                    WaveFileWriter.CreateWaveFile(wavFilePath, reader);
+                }
+                AssetDatabase.Refresh();
             }
+
             return new WaveFileReader(wavFilePath);
         }
         return wavFile;
@@ -514,11 +551,11 @@ public class Audio {
     #region Equalizer
 
     public void ChangeGain(Frequency frequency, float Gain) {
-        EqualizedWave.ChangeGain(frequency, Gain);
+        ModifiedWave.ChangeGain(frequency, Gain);
     }
 
     public void UpdateEquilizer() {
-        EqualizedWave.Update();
+        ModifiedWave.Update();
     }
 
 

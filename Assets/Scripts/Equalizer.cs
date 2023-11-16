@@ -25,7 +25,7 @@ public class Equalizer : IEnumerable<EqualizerBand> {
     public Equalizer() {
         equalizerBands = new EqualizerBand[DEFAULY_EQUALIZER_BANDS_COUNT];
         for (int i = 0; i < equalizerBands.Length; i++) {
-            equalizerBands[i] = new EqualizerBand((int)EqualizedAudio.GetFrequencyByIndex(i), 0.8f, 0.0f);
+            equalizerBands[i] = new EqualizerBand((int)ModifiedAudio.GetFrequencyByIndex(i), 0.8f, 0.0f);
 
         }
     }

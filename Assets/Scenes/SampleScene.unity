@@ -650,7 +650,7 @@ MonoBehaviour:
   SpeakerDeviceRightNumber: 0
   Stereo: 0
   Panning: 0
-  audioClip: {fileID: 8300000, guid: 227cb8687365bab47afdf71cd577477c, type: 3}
+  audioClip: {fileID: 8300000, guid: 85b4f281967e58d4aa2afb94b9fd9d35, type: 3}
   privateEqualizer:
     equalizerBands:
     - CenterFrequency: 31

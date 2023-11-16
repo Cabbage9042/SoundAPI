@@ -3,12 +3,21 @@ using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using System;
 
-public class EqualizedAudio : ISampleProvider {
+public class ModifiedAudio : ISampleProvider {
 
     public static int NUMBER_OF_BANDS = 10;
 
     private Equalizer privateEqualizer;
 
+ 
+    private BiQuadFilter[] filter;
+    private ISampleProvider sampleProvider;
+    private bool updated = true;
+    private bool allZero = true;
+
+
+    public WaveFormat WaveFormat => sampleProvider.WaveFormat;
+    
     /// <summary>
     /// Stores the information about the boost or lost. Remember to call Update() after updating.
     /// </summary>
@@ -19,13 +28,8 @@ public class EqualizedAudio : ISampleProvider {
             if (filter != null) { Update(); }
         }
     }
-    private BiQuadFilter[] filter;
-    private ISampleProvider sampleProvider;
-    private bool updated = true;
-    private bool allZero = true;
-    public WaveFormat WaveFormat => sampleProvider.WaveFormat;
 
-    public EqualizedAudio(ISampleProvider sampleProvider = null) {
+    public ModifiedAudio(ISampleProvider sampleProvider = null) {
         equalizer = new();
 
         if (sampleProvider != null) {
