@@ -23,6 +23,9 @@ public class AudioBasicUIManager : MonoBehaviour {
     public GameObject rightDropDown;
     public GameObject stereo;
 
+    public GameObject equalizerUI;
+
+
     public double[] getAmplitude() {
         return audioBasic?.GetAmplitude();
     }
@@ -119,6 +122,11 @@ public class AudioBasicUIManager : MonoBehaviour {
         else {
             audioBasic.loop = false;
         }
+    }
+
+    public void OpenEqualizerUI() {
+        equalizerUI.SetActive(true);
+        
     }
 
     async Task<AudioClip> LoadAudioClip() {
