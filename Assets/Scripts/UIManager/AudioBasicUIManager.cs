@@ -27,7 +27,7 @@ public class AudioBasicUIManager : MonoBehaviour {
 
 
     public double[] getAmplitude() {
-        return audioBasic?.GetAmplitude();
+        return audioBasic?.GetAmplitude(0.3f);
     }
 
     //select your audio1

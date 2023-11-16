@@ -30,12 +30,46 @@ public class AudioBasic : AudioBase {
         }
     }
 
+    private List<double[]> delayedAmplitude;
+    private float playStartedTime;
+    private bool stopDelaying = false;
 
     public int SampleRate { get { return audio.WaveFormat.SampleRate; } }
 
     public bool loop = false;
-    public double[] GetAmplitude() {
-        return audio?.GetAmplitude();
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="offset">In seconds</param>
+    /// <returns></returns>
+    public double[] GetAmplitude(float offset = 0) {
+
+
+        if (offset < 0) {
+            offset = 0;
+        }
+        if (offset == 0) {
+            return audio?.GetAmplitude();
+        }
+        if (delayedAmplitude == null) {
+            delayedAmplitude = new();
+        }
+        delayedAmplitude.Add(audio?.GetAmplitude());
+
+        if (stopDelaying == false) {
+            if (Time.time - playStartedTime < offset) {
+                return null;
+            }
+            else {
+                stopDelaying = true;
+            }
+        }
+
+        double[] fft = delayedAmplitude[0];
+        delayedAmplitude.RemoveAt(0);
+        return fft;
+
     }
     public double[] GetAmplitude(int[] targetAmplitudes) {
         return audio?.GetAmplitude(targetAmplitudes);
@@ -286,7 +320,8 @@ public class AudioBasic : AudioBase {
             // GetMonoOrStereoAudio().ChangeGain(Frequency.F31,0.0f);
 
         }
-
+        playStartedTime = Time.time;
+        stopDelaying = false;
     }
 
     private void CalculatePanningVolume(out float left, out float right) {
@@ -371,7 +406,7 @@ public class AudioBasic : AudioBase {
         audio.SetSpeakerNumber(id);
     }
 
-   
+
 
     private void UpdateLatestAudio() {
         audio = Audio.AudioClipToAudio(audioClip, this);

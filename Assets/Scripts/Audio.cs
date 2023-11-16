@@ -471,7 +471,7 @@ public class Audio {
     #region Amplitude
 
 
-    public double[] GetAmplitude(int frameSize = 1024) {
+    public double[] GetAmplitude(int frameSize = 2048) {
         if (!IsPowerOfTwo(frameSize)) {
             throw new Exception("Frame Size should be power of two!");
         }
@@ -481,7 +481,7 @@ public class Audio {
         return null;
     }
 
-    public double[] GetAmplitude(int[] targetFrequencies, int frameSize = 1024) {
+    public double[] GetAmplitude(int[] targetFrequencies, int frameSize = 2048) {
         if (!IsPowerOfTwo(frameSize)) {
             throw new Exception("Frame Size should be power of two!");
         }
@@ -491,7 +491,7 @@ public class Audio {
         return null;
 
     }
-    private double[] GetFFT(int[] targetFrequencies, int frameSize = 2048) {
+    private double[] GetFFT(int[] targetFrequencies, int frameSize) {
         byte[] byteBuffer = new byte[frameSize];
         long oriPosition = OriginalWave.Position;
 
