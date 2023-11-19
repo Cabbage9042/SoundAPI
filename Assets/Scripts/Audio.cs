@@ -22,7 +22,14 @@ public class Audio {
 
     public WaveFormat WaveFormat => OriginalWave.WaveFormat;
     private Speaker speaker;
-    public float PitchFactor = 1.0f;
+    private float pitchFactor = 1.0f;
+    public float PitchFactor {
+        get { return pitchFactor; }
+        set {
+            if (value < 0.0f) pitchFactor = 0.0f;
+            else pitchFactor = value;
+        }
+    }
     public Equalizer equalizer {
         get { return ModifiedWave.equalizer; }
         set {
@@ -61,9 +68,9 @@ public class Audio {
     /// </summary>
     public long Position { get { return OriginalWave.Position; } set { OriginalWave.Position = value; } }
     /// <summary>
-    /// The total length of the audio being played in bytes
+    /// The total length of the audio in bytes
     /// </summary>
-    public long Length { get; }
+    public long Length { get { return OriginalWave.Length; } }
 
     public PlaybackState State { get { return speaker.PlaybackState; } }
 
@@ -72,6 +79,7 @@ public class Audio {
 
     private bool IgnoreAudioOnStopped = false;
 
+    public float Panning { get { return ModifiedWave.Panning; } set { ModifiedWave.Panning = value; } }
 
 
     #region Device
@@ -199,7 +207,6 @@ public class Audio {
     public Audio(string filePath, MonoBehaviour audioBase) {
         speaker = new Speaker();
         OriginalWave = GetFileInWAV(filePath);
-        // WaveFileReader(OriginalWave)
         //EqualizedWave = OriginalWave.ToSampleProvider();
         ModifiedWave = new(OriginalWave.ToSampleProvider());
         FilePath = filePath;
@@ -322,8 +329,8 @@ public class Audio {
     /// <summary>
     /// Stop playing the audio
     /// </summary>
-    public void Stop(bool IgnoreAudioOnStopped = false) {
-        if (IgnoreAudioOnStopped) { this.IgnoreAudioOnStopped = true; }
+    public void Stop() {
+
         speaker?.Stop();
         OriginalWave.Position = 0;
     }
@@ -417,7 +424,7 @@ public class Audio {
         bool isPlaying = speaker.PlaybackState == PlaybackState.Playing;
 
         long OriginalPosition = OriginalWave.Position;
-        IgnoreAudioOnStopped = true;
+        if (speaker.PlaybackState != PlaybackState.Stopped) IgnoreAudioOnStopped = true;
         Stop();
 
         if (pitchFactor != 1.0f) {
@@ -428,6 +435,8 @@ public class Audio {
         else {
             speaker.Init(ModifiedWave);
         }
+
+
         OriginalWave.Position = OriginalPosition;
         speaker.Volume = Volume;
         if (isPlaying) {
@@ -440,10 +449,11 @@ public class Audio {
 
     public static WaveStream GetFileInWAV(string filePath) {
         WaveFileReader OriginalWave;
-        if (filePath.EndsWith("_MONO.wav")) {
+
+        if (filePath.EndsWith("_STEREO.wav")) {
             return new WaveFileReader(filePath);
         }
-        string wavMonoFilePath = filePath.Substring(0, filePath.Length - 4) + "_MONO.wav";
+        string wavMonoFilePath = filePath.Substring(0, filePath.Length - 4) + "_STEREO.wav";
         if (File.Exists(wavMonoFilePath)) {
             return new WaveFileReader(wavMonoFilePath);
         }
@@ -457,10 +467,10 @@ public class Audio {
         }
         else if (filePath.EndsWith(".wav")) {
             OriginalWave = new WaveFileReader(filePath);
-            if (OriginalWave.WaveFormat.Channels == 1) {
+            if (OriginalWave.WaveFormat.Channels == 2) {
                 return OriginalWave;
             }
-            StereoToMonoSampleProvider newReader = new StereoToMonoSampleProvider(OriginalWave.ToSampleProvider());
+            MonoToStereoSampleProvider newReader = new MonoToStereoSampleProvider(OriginalWave.ToSampleProvider());
             WaveFileWriter.CreateWaveFile(wavMonoFilePath, newReader.ToWaveProvider());
             AssetDatabase.Refresh();
             return new WaveFileReader(wavMonoFilePath);
@@ -477,7 +487,7 @@ public class Audio {
 
     public static WaveFileReader MP3toWAV(string mp3FilePath) {
 
-        string wavFilePath = mp3FilePath.Substring(0, mp3FilePath.Length - 4) + "_MONO.wav";
+        string wavFilePath = mp3FilePath.Substring(0, mp3FilePath.Length - 4) + "_STEREO.wav";
 
         WaveFileReader wavFile;
 
@@ -488,8 +498,8 @@ public class Audio {
         catch (FileNotFoundException) {
             Mp3FileReader reader;
             using (reader = new Mp3FileReader(mp3FilePath)) {
-                if (reader.WaveFormat.Channels == 2) {
-                    var newReader = new StereoToMonoSampleProvider(reader.ToSampleProvider());
+                if (reader.WaveFormat.Channels == 1) {
+                    var newReader = new MonoToStereoSampleProvider(reader.ToSampleProvider());
                     WaveFileWriter.CreateWaveFile(wavFilePath, newReader.ToWaveProvider());
                 }
                 else {
@@ -528,12 +538,18 @@ public class Audio {
         return null;
 
     }
-    private double[] GetFFT(int[] targetFrequencies, int frameSize) {
+    private double[] GetFFT(int[] targetFrequencies, int frameSize = 2048) {
         byte[] byteBuffer = new byte[frameSize];
         long oriPosition = OriginalWave.Position;
 
         OriginalWave.Read(byteBuffer, 0, frameSize);
         OriginalWave.Position = oriPosition;
+        /*    float[] floats = new float[frameSize / sizeof(float)];
+            for (int i = 0; i < floats.Length; i++) {
+                if (i % 2 == 0) floats[i] = BitConverter.ToSingle(byteBuffer, i * 4);
+
+            }*/
+
         if (targetFrequencies != null) {
             return SpectrumAnalyzer.GetAmplitude(byteBuffer, targetFrequencies, OriginalWave.WaveFormat.SampleRate);
         }
@@ -554,7 +570,7 @@ public class Audio {
         ModifiedWave.ChangeGain(frequency, Gain);
     }
 
-    public void UpdateEquilizer() {
+    public void UpdateEqualizer() {
         ModifiedWave.Update();
     }
 
@@ -562,7 +578,6 @@ public class Audio {
     #endregion
 
 
-#if UNITY_EDITOR
     public static Audio AudioClipToAudio(AudioClip audioClip, AudioBase audioBase) {
         string[] assetPathArray = AssetDatabase.GetAssetPath(audioClip.GetInstanceID()).Split("/");
         string path = Application.dataPath + "/";
@@ -576,7 +591,6 @@ public class Audio {
     }
 
 
-#endif
 
 
 

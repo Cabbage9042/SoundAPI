@@ -8,7 +8,7 @@ using UnityEngine;
 public class SpectrumAnalyzer {
 
     static int BYTES_PER_POINT = 2;
-    
+
 
     public static double[] GetAmplitude(byte[] buffer) {
         int frameSize = buffer.Length;
@@ -29,9 +29,14 @@ public class SpectrumAnalyzer {
 
         Accord.Math.FourierTransform.FFT(values, Accord.Math.FourierTransform.Direction.Forward);
 
+        /* for (int i = fftReal.Length / 2 - 1; i >= 0; i--) {
+             fftReal[i] = values[i].Magnitude;
+             fftReal[i + 1] = values[i].Magnitude;
+         }*/
 
-        for (int i = 0; i < fftReal.Length; i++) {
-            fftReal[i] = values[i].Magnitude;
+        for (int i = 0; i < fftReal.Length; i += 2) {
+            fftReal[i] = values[i / 2].Magnitude;
+            fftReal[i + 1] = (values[i / 2].Magnitude + values[i / 2 + 1].Magnitude) / 2;
         }
 
         /*
@@ -50,7 +55,7 @@ public class SpectrumAnalyzer {
 
         return fftReal;
     }
- 
+
     /// <summary>
     /// 
     /// </summary>
@@ -71,5 +76,18 @@ public class SpectrumAnalyzer {
         return returnedFFT;
 
 
+    }
+
+    public static double[] GetAmplitude(double[] amplitudes, int[] targetFrequencies, int sampleRate) {
+        
+        
+        
+        double[] returnedFFT = new double[targetFrequencies.Length];
+        for (int i = 0; i < returnedFFT.Length; i++) {
+            //+0.5 is to make the float round up or down depends on the demical point
+            int index = (int)((targetFrequencies[i] * (amplitudes.Length) / (double)sampleRate) + 0.5) *2;
+            returnedFFT[i] = amplitudes[index];
+        }
+        return returnedFFT;
     }
 }

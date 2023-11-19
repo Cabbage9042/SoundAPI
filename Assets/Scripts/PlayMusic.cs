@@ -4,7 +4,7 @@ using UnityEngine;
 using static AudioBasic;
 
 public class PlayMusic : MonoBehaviour {
-    public AudioBasic audio;
+    public new AudioBasic  audio;
     public void DoAfterFinish(MonoBehaviour audioBase, Audio stoppedAudio, bool hasPlayedFinished) {
         if (hasPlayedFinished) {
             print("yes");
@@ -102,7 +102,7 @@ public class PlayMusic : MonoBehaviour {
 
         if (audio?.State == NAudio.Wave.PlaybackState.Playing) {
              //var fft = audio.GetAmplitude();
-            var targetFFT = audio.GetAmplitude(new int[] { 1000 });
+           // var targetFFT = audio.GetAmplitude(new int[] { 1000 });
 
         }
 

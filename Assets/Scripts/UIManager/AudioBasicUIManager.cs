@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -16,18 +17,41 @@ public class AudioBasicUIManager : MonoBehaviour {
     public GameObject[] eventButton;
     public GameObject pitchSlider;
     public GameObject volumeSlider;
+    public GameObject panningSlider;
     public GameObject loopToggle;
     public GameObject audioNameText;
     public GameObject monoDropDown;
-    public GameObject leftDropDown;
-    public GameObject rightDropDown;
-    public GameObject stereo;
 
-    public GameObject equalizerUI;
+    public TextMeshProUGUI pitchValueLabel;
+    public TextMeshProUGUI volumeValueLabel;
+    public TextMeshProUGUI panningValueLabel;
+    public Button pitchResetButton;
+    public Button volumeResetButton;
+    public Button panningResetButton;
 
+    public GraphManager graphManager;
+
+    public Slider slider31;
+    public Slider slider63;
+    public Slider slider125;
+    public Slider slider250;
+    public Slider slider500;
+    public Slider slider1k;
+    public Slider slider2k;
+    public Slider slider4k;
+    public Slider slider8k;
+    public Slider slider16k;
 
     public double[] getAmplitude() {
         return audioBasic?.GetAmplitude(0.3f);
+    }
+    public double[] GetAmplitude(double[] amplitudes, int[] targetFrequencies, int sampleRate) {
+        return audioBasic?.GetAmplitude(amplitudes, targetFrequencies, sampleRate);
+    }
+    private void Start() {
+        List<string> speakerList = new(AudioBasic.speakerDevicesName);
+
+        monoDropDown.GetComponent<TMP_Dropdown>().AddOptions(speakerList);
     }
 
     //select your audio1
@@ -45,17 +69,9 @@ public class AudioBasicUIManager : MonoBehaviour {
         }
     }
 
-    private void Start() {
-        List<string> speakerList = new(AudioBasic.speakerDevicesName);
-
-        monoDropDown.GetComponent<TMP_Dropdown>().AddOptions(speakerList);
-        leftDropDown.GetComponent<TMP_Dropdown>().AddOptions(speakerList);
-        rightDropDown.GetComponent<TMP_Dropdown>().AddOptions(speakerList);
-    }
-
 
     //select your audio2
-    public async void addAudioBasic() {
+    public void addAudioBasic() {
 
 
         audioBasic = GameObject.Find("Audio").GetComponent<AudioBasic>();// GetComponent<AudioBasic>();
@@ -70,12 +86,11 @@ public class AudioBasicUIManager : MonoBehaviour {
         else {
             audioBasic.Stop();
         }
-        if (path.EndsWith(".mp3")) {
-            Audio.MP3toWAV(path);
-            path = path.Replace(".mp3", ".wav");
+
+        if (path != "") {
+            
+            audioBasic.setAudioClip(this, path);
         }
-        if (path != "")
-            audioBasic.setAudioClip(this, await LoadAudioClip(), path);
 
         audioBasic.AddOnAudioStarted(new MethodCalled(this, "AudioStarted"));
         audioBasic.AddOnAudioPaused(new MethodCalled(this, "AudioPaused"));
@@ -83,35 +98,47 @@ public class AudioBasicUIManager : MonoBehaviour {
         audioBasic.AddOnAudioResumed(new MethodCalled(this, "AudioResumed"));
         audioBasic.AddOnAudioStopped(new MethodCalled(this, "AudioStopped"));
 
-        pitchSlider.GetComponent<Slider>().onValueChanged.AddListener(delegate { audioBasic.ChangePitch(pitchSlider.GetComponent<Slider>().value); });
-        volumeSlider.GetComponent<Slider>().onValueChanged.AddListener(delegate { audioBasic.ChangeVolume(volumeSlider.GetComponent<Slider>().value); });
 
-        monoDropDown.GetComponent<TMP_Dropdown>().onValueChanged.AddListener(delegate { audioBasic.SetMonoSpeakerNumber(monoDropDown.GetComponent<TMP_Dropdown>().value); });
+        pitchSlider.GetComponent<Slider>().onValueChanged.AddListener(delegate { audioBasic.SetPitch(pitchSlider.GetComponent<Slider>().value); });
+        volumeSlider.GetComponent<Slider>().onValueChanged.AddListener(delegate { audioBasic.SetVolume(volumeSlider.GetComponent<Slider>().value); });
+        panningSlider.GetComponent<Slider>().onValueChanged.AddListener(delegate { audioBasic.SetPanning(panningSlider.GetComponent<Slider>().value); });
+
+
+        monoDropDown.GetComponent<TMP_Dropdown>().onValueChanged.AddListener(delegate { audioBasic.SetSpeakerNumber(monoDropDown.GetComponent<TMP_Dropdown>().value); });
 
 
         audioBasic.loop = loopToggle.GetComponent<Toggle>().isOn;
 
     }
 
-    public void ChangePitch() {
-        audioBasic.ChangePitch(pitchSlider.GetComponent<Slider>().value);
+    //select ur audio 3
+    public void ChangeAudioNameSelected() {
+        if (path != "")
+            ChangeAudioName(this, audioBasic.Name + " is selected!");
     }
-    public void ToggleStereo() {
-        var toggle = stereo.GetComponent<Toggle>();
-        if (toggle.isOn) {//stereo
-            leftDropDown.SetActive(true);
-            rightDropDown.SetActive(true);
-            monoDropDown.SetActive(false);
-        }
-        else { // mono
 
-            leftDropDown.SetActive(false);
-            rightDropDown.SetActive(false);
-            monoDropDown.SetActive(true);
-        }
 
-        audioBasic.Stereo = toggle.isOn;
+    public void ChangePitchValueLabel() {
+        pitchValueLabel.text = Math.Round(pitchSlider.GetComponent<Slider>().value, 2).ToString();
+    }
+    public void ChangeVolumeValueLabel() {
+        volumeValueLabel.text = Math.Round(volumeSlider.GetComponent<Slider>().value, 2).ToString();
+    }
+    public void ChangePanningValueLabel() {
+        panningValueLabel.text = Math.Round(panningSlider.GetComponent<Slider>().value, 2).ToString();
+    }
 
+    public void ResetPitch() {
+        audioBasic.SetPitch(1);
+        pitchSlider.GetComponent<Slider>().value = 1;
+    }
+    public void ResetVolume() {
+        audioBasic.SetVolume(1);
+        volumeSlider.GetComponent<Slider>().value = 1;
+    }
+    public void ResetPanning() {
+        audioBasic.SetPanning(1);
+        panningSlider.GetComponent<Slider>().value = 0;
     }
 
     public void toggleLoop() {
@@ -123,12 +150,7 @@ public class AudioBasicUIManager : MonoBehaviour {
             audioBasic.loop = false;
         }
     }
-
-    public void OpenEqualizerUI() {
-        equalizerUI.SetActive(true);
-        
-    }
-
+    /*
     async Task<AudioClip> LoadAudioClip() {
         AudioClip clip = null;
         using (UnityWebRequest uwr = UnityWebRequestMultimedia.GetAudioClip(path, AudioType.WAV)) {
@@ -149,7 +171,7 @@ public class AudioBasicUIManager : MonoBehaviour {
         }
 
         return clip;
-    }
+    }*/
 
     public void ChangeAudioName(AudioBasicUIManager audioManager, string status) {
 
@@ -161,6 +183,8 @@ public class AudioBasicUIManager : MonoBehaviour {
             name.text = status;
         }
     }
+
+    #region SetAudioStatus
 
     public void AudioStarted(MonoBehaviour audioManager, Audio audio) {
         ChangeAudioName((AudioBasicUIManager)audioManager, "Now playing: " + audio.Name);
@@ -182,6 +206,62 @@ public class AudioBasicUIManager : MonoBehaviour {
         ChangeAudioName((AudioBasicUIManager)audioManager, (hasFinishedPlaying ? "Finished playing: " : "Stopped: ") + audio.Name);
 
     }
+
+
+    #endregion
+
+    #region Equalizer
+
+    public void SetEqualizer31() {
+        audioBasic?.SetEqualizer(Frequency.F31, slider31.value);
+        audioBasic?.UpdateEqualizer();
+    }
+    public void SetEqualizer63() {
+
+        audioBasic?.UpdateEqualizer();
+        audioBasic?.SetEqualizer(Frequency.F63, slider63.value);
+    }
+    public void SetEqualizer125() {
+
+        audioBasic?.SetEqualizer(Frequency.F125, slider125.value);
+        audioBasic?.UpdateEqualizer();
+    }
+    public void SetEqualizer250() {
+
+        audioBasic?.SetEqualizer(Frequency.F250, slider250.value);
+        audioBasic?.UpdateEqualizer();
+    }
+    public void SetEqualizer500() {
+
+        audioBasic?.SetEqualizer(Frequency.F500, slider500.value);
+        audioBasic?.UpdateEqualizer();
+    }
+    public void SetEqualizer1k() {
+
+        audioBasic?.SetEqualizer(Frequency.F1k, slider1k.value);
+        audioBasic?.UpdateEqualizer();
+    }
+    public void SetEqualizer2k() {
+
+        audioBasic?.SetEqualizer(Frequency.F2k, slider2k.value);
+        audioBasic?.UpdateEqualizer();
+    }
+    public void SetEqualizer4k() {
+
+        audioBasic?.SetEqualizer(Frequency.F4k, slider4k.value);
+        audioBasic?.UpdateEqualizer();
+    }
+    public void SetEqualizer8k() {
+        audioBasic?.SetEqualizer(Frequency.F8k, slider8k.value);
+        audioBasic?.UpdateEqualizer();
+
+    }
+    public void SetEqualizer16k() {
+        audioBasic.SetEqualizer(Frequency.F16k, slider16k.value);
+        audioBasic.UpdateEqualizer();
+
+    }
+    #endregion
 
     public string getDirectory(string path) {
 

@@ -22,15 +22,39 @@ public class AudioList : AudioBase {
     private bool PlayNextAudio = true;
     private bool audioIsPlaying = false;
 
+    public Equalizer[] equalizerList = new Equalizer[] { new Equalizer() };
+    public int[] selectedEqualizer = new int[1];
 
+    public new Equalizer EqualizerProperty {
+        get {
+            return base.EqualizerProperty;
+        }
+        set {
+            base.EqualizerProperty = value;
+        }
+    }
 
+    public string[] EqualizerListName {
+        get {
+            string[] names = new string[equalizerList.Length];
+            names[0] = "No equalizer";
+            for (int i = 1; i < names.Length; i++) {
+                names[i] = "Equalizer " + (i).ToString();
+            }
+
+            return names;
+        }
+    }
 
 
     public enum LoopMode {
         Sequence,
         Random,
-        Single
+        Single,
+        Once
     }
+
+
 
 
     private void CheckAudioListAndRefresh() {
@@ -138,7 +162,13 @@ public class AudioList : AudioBase {
             position = 0;
         }
 
+        audio = audioList[position];
 
+        EqualizerProperty = equalizerList[selectedEqualizer[position]];
+
+        base.Play(DefaultOnAudioStopped);
+
+        /*
         audioList[position].ClearAllEvent();
 
         try {
@@ -173,38 +203,53 @@ public class AudioList : AudioBase {
             audioList[position].PitchFactor = this.pitchFactor;
             audioList[position].Volume = volume;
             if (audioList[position].State == PlaybackState.Stopped)
-                audioList[position].SetSpeakerNumber(SpeakerDeviceMonoNumber);
+                audioList[position].SetSpeakerNumber(SpeakerDeviceNumber);
             audioList[position].Play();
         }
         audioIsPlaying = true;
-
+        */
     }
 
     public void Play(int position) {
         if (audioIsPlaying) return;
-        PlaySameList(currentPosition);
+        PlaySameList(position);
 
+        audioIsPlaying = true;
     }
 
     public void Play() {
         if (audioIsPlaying) return;
         PlaySameList(currentPosition);
+
+        audioIsPlaying = true;
     }
 
+    public void Restart() {
+        base.Restart(this, DefaultOnAudioStopped);
+    }
 
 
     private void DefaultOnAudioStopped(MonoBehaviour audioBase, Audio stoppedAudio, bool hasPlayedFinished) {
+        if (mode == LoopMode.Once) {
+            audioIsPlaying = false;
+            return;
+        }
         if (hasPlayedFinished && PlayNextAudio == true) {
             ChangeNextSong();
             PlaySameList();
-        }else if(PlayNextAudio == false) {
+        }
+        else if (PlayNextAudio == false) {
             PlayNextAudio = true;
+            audioIsPlaying = false;
         }
     }
-    public void Stop() {
-        audioList[currentPosition].Stop();
+    public new void Stop() {
+        //audioList[currentPosition].Stop();
+        base.Stop();
         audioIsPlaying = false;
     }
+
+
 
 
     #region LoopMode
@@ -277,16 +322,13 @@ public class AudioList : AudioBase {
 
         if (playOnStart == false) return;
 
+
+
         Play();
 
-    }
 
-    /*
-    public MethodCalled[] onAudioStartedMethod;
-    public MethodCalled[] onAudioPausedMethod;
-    public MethodCalled[] onAudioResumedMethod;
-    public MethodCalled[] onAudioRestartedMethod;
-    public MethodCalled[] onAudioStoppedMethod;*/
+
+    }
 
 
 
@@ -312,10 +354,23 @@ public class AudioList : AudioBase {
         SerializedProperty audioClipArray;
         SerializedProperty mode;
         SerializedProperty playOnStart;
-        private SerializedProperty SpeakerDeviceMonoNumber;
+        private SerializedProperty SpeakerDeviceNumber;
 
         private SerializedProperty pitchFactor;
         private SerializedProperty volume;
+        private SerializedProperty Panning;
+        private SerializedProperty equalizerList;
+        private SerializedProperty selectedEqualizer;
+
+        private float lastFramePanning;
+        private float lastFrameVolume;
+        private float lastFramePitch;
+        private bool equalizerIsExpanded;
+        private bool[] eachEqualizerIsExpanded;
+
+        private string[] frequencyList = {
+            "31Hz","63Hz","125Hz","250Hz","500Hz","1kHz","2kHz","4kHz","8kHz","16kHz"
+        };
 
         private void OnEnable() {
 
@@ -326,10 +381,15 @@ public class AudioList : AudioBase {
             mode = serializedObject.FindProperty("mode");
             playOnStart = serializedObject.FindProperty("playOnStart");
 
-            SpeakerDeviceMonoNumber = serializedObject.FindProperty("SpeakerDeviceMonoNumber");
+            SpeakerDeviceNumber = serializedObject.FindProperty("SpeakerDeviceNumber");
             labelStyle.normal.textColor = Color.yellow;
+
             pitchFactor = serializedObject.FindProperty("pitchFactor");
             volume = serializedObject.FindProperty("volume");
+            Panning = serializedObject.FindProperty("Panning");
+            equalizerList = serializedObject.FindProperty("equalizerList");
+            selectedEqualizer = serializedObject.FindProperty("selectedEqualizer");
+
 
             eventArray[(int)EventName.onAudioStarted] = serializedObject.FindProperty("onAudioStartedMethod");
             eventArray[(int)EventName.onAudioPaused] = serializedObject.FindProperty("onAudioPausedMethod");
@@ -337,7 +397,19 @@ public class AudioList : AudioBase {
             eventArray[(int)EventName.onAudioRestarted] = serializedObject.FindProperty("onAudioRestartedMethod");
             eventArray[(int)EventName.onAudioStopped] = serializedObject.FindProperty("onAudioStoppedMethod");
 
+
+            if (audioList.equalizerList == null || audioList.equalizerList.Length == 0) {
+                audioList.equalizerList = new Equalizer[] { new Equalizer() };
+            }
+
+
+            if (audioList.selectedEqualizer == null || audioList.selectedEqualizer.Length == 0) {
+                audioList.selectedEqualizer = new int[] { 0 };
+            }
+            eachEqualizerIsExpanded = new bool[equalizerList.arraySize];
+
             InitializeAllList();
+
         }
 
 
@@ -347,6 +419,38 @@ public class AudioList : AudioBase {
             EditorGUILayout.LabelField("Audio", labelStyle);
 
             EditorGUILayout.PropertyField(audioClipArray, true);
+
+            /*
+            if (audioList.equalizerList.Length != audioList.audioClipArray.Length) {
+                Array.Resize(ref audioList.equalizerList, audioList.audioClipArray.Length);
+            }
+            int removedIndex = AudioClipArrayHasChanged();
+            if (removedIndex != -1) {
+
+                //not latest > latest
+                if (audioList.audioClipArray.Length > audioClipArray.arraySize) {
+                    while (removedIndex < audioList.audioClipArray.Length - 1) {
+                        audioList.equalizerList[removedIndex] = audioList.equalizerList[removedIndex + 1];
+                        removedIndex++;
+                    }
+                    Array.Resize(ref audioList.equalizerList, audioList.equalizerList.Length - 1);
+                }
+                else {
+                    Array.Resize(ref audioList.equalizerList, audioList.equalizerList.Length + 1);
+                    if (audioList.equalizerList.Length == 1) {
+                        audioList.equalizerList[0] = 0;
+                    }
+                    else {
+                        audioList.equalizerList[audioList.equalizerList.Length - 1] = audioList.equalizerList[audioList.equalizerList.Length - 2];
+                    }
+                }
+
+
+            }*/
+
+
+
+
 
             mode.enumValueIndex = (int)(AudioList.LoopMode)EditorGUILayout.EnumPopup("Mode", (AudioList.LoopMode)mode.enumValueIndex);
 
@@ -367,15 +471,186 @@ public class AudioList : AudioBase {
             }
 
             //select speaker device
-            SpeakerDeviceMonoNumber.intValue = EditorGUILayout.Popup("Speaker Device", SpeakerDeviceMonoNumber.intValue, speakerDevicesName);
+            SpeakerDeviceNumber.intValue = EditorGUILayout.Popup("Speaker Device", SpeakerDeviceNumber.intValue, speakerDevicesName);
+            lastFramePanning = Panning.floatValue;
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Panning", GUILayout.Width(EditorGUIUtility.labelWidth));
+            Panning.floatValue = EditorGUILayout.Slider(Panning.floatValue, -1.0f, 1.0f);
+            EditorGUILayout.EndHorizontal();
+
+            if (lastFramePanning != Panning.floatValue) {
+                audioList.SetPanning(Panning.floatValue);
+
+            }
+
+
 
             //select pitch factor
+            lastFramePitch = pitchFactor.floatValue;
             EditorGUILayout.PropertyField(pitchFactor);
+            if (lastFramePitch != pitchFactor.floatValue) {
 
-            EditorGUILayout.PropertyField(volume);
+                audioList.SetPitch(pitchFactor.floatValue);
+
+
+            }
+
+            //volume
+
+            lastFrameVolume = volume.floatValue;
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Volume", GUILayout.Width(EditorGUIUtility.labelWidth));
+            volume.floatValue = EditorGUILayout.Slider(volume.floatValue, 0, 1);
+            EditorGUILayout.EndHorizontal();
+
+            if (volume.floatValue != lastFrameVolume) {
+
+                audioList.SetVolume(audioList.volume);
+
+            }
+            PrintEqualizer();
+
 
             serializedObject.ApplyModifiedProperties();
+
+
         }
+
+        private void PrintEqualizer() {
+            equalizerIsExpanded = EditorGUILayout.Foldout(equalizerIsExpanded, "Equalizer");
+            if (!equalizerIsExpanded) return;
+
+            //audio + equalizer
+            for (int i = 0; i < audioClipArray.arraySize; i++) {
+                EditorGUILayout.BeginHorizontal();
+                string audioName;
+                bool disablePopUp = false;
+                if ((AudioClip)audioClipArray.GetArrayElementAtIndex(i).objectReferenceValue == null) {
+                    audioName = "No Audio Clip";
+                    disablePopUp = true;
+                }
+                else {
+                    audioName = ((AudioClip)audioClipArray.GetArrayElementAtIndex(i).objectReferenceValue).name;
+                }
+                EditorGUILayout.LabelField(audioName, GUILayout.Width(EditorGUIUtility.labelWidth));
+
+                EditorGUI.BeginDisabledGroup(disablePopUp);
+                int oriEqualizerIndex = selectedEqualizer.GetArrayElementAtIndex(i).intValue;
+                selectedEqualizer.GetArrayElementAtIndex(i).intValue = EditorGUILayout.Popup(selectedEqualizer.GetArrayElementAtIndex(i).intValue, audioList.EqualizerListName);
+                EditorGUI.EndDisabledGroup();
+                //volume.floatValue = EditorGUILayout.Slider(volume.floatValue, 0, 1);
+                EditorGUILayout.EndHorizontal();
+
+                if(oriEqualizerIndex!= selectedEqualizer.GetArrayElementAtIndex(i).intValue) {
+                    audioList.EqualizerProperty = audioList.equalizerList[selectedEqualizer.GetArrayElementAtIndex(i).intValue];
+                    audioList.UpdateEqualizer();
+                }
+
+
+            }
+
+            //equalizer only
+
+            for (int iEqualizer = 1; iEqualizer < equalizerList.arraySize; iEqualizer++) {
+                eachEqualizerIsExpanded[iEqualizer] = EditorGUILayout.Foldout(eachEqualizerIsExpanded[iEqualizer], "Equalizer " + iEqualizer);
+                if (!eachEqualizerIsExpanded[iEqualizer]) continue;
+
+                for (int iFrequency = 0; iFrequency < frequencyList.Length; iFrequency++) {
+                    EditorGUILayout.BeginHorizontal();
+                    var gain = equalizerList.GetArrayElementAtIndex(iEqualizer).FindPropertyRelative("equalizerBands").GetArrayElementAtIndex(iFrequency).FindPropertyRelative("Gain");
+                    var oriGain = gain.floatValue;
+                    EditorGUILayout.LabelField(frequencyList[iFrequency], GUILayout.Width(50));
+                    gain.floatValue = EditorGUILayout.Slider(gain.floatValue, Equalizer.MIN_GAIN, Equalizer.MAX_GAIN);
+                    if (oriGain != gain.floatValue) {
+                        audioList.equalizerList[iEqualizer].equalizerBands[iFrequency].Gain = gain.floatValue;
+                        //((Equalizer)equalizerList.GetArrayElementAtIndex(i).objectReferenceValue).equalizerBands[j].Gain = gain.floatValue;
+                        //audioList.EqualizerProperty.equalizerBands[j].Gain = gain.floatValue;
+
+                        audioList.audio?.UpdateEqualizer();
+
+                    }
+                    EditorGUILayout.EndHorizontal();
+                }
+
+                //reset button
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.FlexibleSpace();
+
+                bool resetIsPressed = GUILayout.Button("Reset To Default", GUILayout.Width(EditorGUIUtility.currentViewWidth / 2));
+
+                EditorGUILayout.EndHorizontal();
+                if (resetIsPressed) {
+                    for (int j = 0; j < frequencyList.Length; j++) {
+                        audioList.equalizerList[iEqualizer].equalizerBands[j].Gain = 0.0f;
+                    }
+                    audioList.audio?.UpdateEqualizer();
+
+                }
+                if (GUILayout.Button("Delete Equalizer " + iEqualizer)) {
+                    for (int k = 0; k < selectedEqualizer.arraySize; k++) {
+                        if (selectedEqualizer.GetArrayElementAtIndex(k).intValue == iEqualizer) {
+                            selectedEqualizer.GetArrayElementAtIndex(k).intValue = 0;
+
+                            if (audioList.currentPosition == k) {
+                                audioList.EqualizerProperty = audioList.equalizerList[0];
+                                audioList.audio?.UpdateEqualizer();
+                            }
+
+                        }
+                    
+                    }
+                    equalizerList.DeleteArrayElementAtIndex(iEqualizer);
+
+                }
+
+
+            }
+
+
+            if (GUILayout.Button("Add Equalizer")) {
+                equalizerList.arraySize += 1;
+                try {
+                    equalizerList.GetArrayElementAtIndex(equalizerList.arraySize - 1).objectReferenceValue = equalizerList.GetArrayElementAtIndex(0).objectReferenceValue;
+                }
+                catch{}
+                Array.Resize(ref eachEqualizerIsExpanded, eachEqualizerIsExpanded.Length + 1);
+            }
+
+
+
+        }
+
+        private int AudioClipArrayHasChanged() {
+
+
+            if (audioList.audioClipArray.Length == audioClipArray.arraySize) {
+                return -1;
+            }
+
+            //not latest > latest
+            if (audioList.audioClipArray.Length < audioClipArray.arraySize) {
+                return audioList.audioClipArray.Length;
+            }
+            int i;
+            for (i = 0; i < audioClipArray.arraySize; i++) {
+                if (((AudioClip)audioClipArray.GetArrayElementAtIndex(i).objectReferenceValue) == null) {
+                    return audioClipArray.arraySize;
+                }
+                if (audioList.audioClipArray[i].name != ((AudioClip)audioClipArray.GetArrayElementAtIndex(i).objectReferenceValue).name) {
+
+
+                    break;
+                }
+            }
+
+            return i;
+
+
+
+
+        }
+
 
 
         #region Event

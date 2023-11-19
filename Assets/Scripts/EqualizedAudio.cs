@@ -9,15 +9,20 @@ public class ModifiedAudio : ISampleProvider {
 
     private Equalizer privateEqualizer;
 
- 
+
     private BiQuadFilter[] filter;
     private ISampleProvider sampleProvider;
     private bool updated = true;
-    private bool allZero = true;
+    private bool equalizerIsNotSet = true;
+    private float panning;
 
+    public float Panning {
+        get { return panning; }
+        set { panning = Math.Max(-1.0f, Math.Min(1.0f, value)); }
+    }
 
     public WaveFormat WaveFormat => sampleProvider.WaveFormat;
-    
+
     /// <summary>
     /// Stores the information about the boost or lost. Remember to call Update() after updating.
     /// </summary>
@@ -66,11 +71,11 @@ public class ModifiedAudio : ISampleProvider {
         }
 
         if (thisTimeGotNotZero) {
-            allZero = false;
+            equalizerIsNotSet = false;
 
         }
         else {
-            allZero = true;
+            equalizerIsNotSet = true;
         }
     }
 
@@ -113,14 +118,27 @@ public class ModifiedAudio : ISampleProvider {
             updated = false;
         }
 
-        if (allZero == false) {
-            for (int i = 0; i < sampleRead; i++) {
-                for (int band = 0; band < equalizer.Length; band++) {
-                    buffer[offset + i] = filter[band].Transform(buffer[offset + i]);
+        if (equalizerIsNotSet == false || Panning != 0.0f) {
+            for (int i = 0; i < sampleRead; i += 2) {
+                if (equalizerIsNotSet == false) {
+                    for (int band = 0; band < equalizer.Length; band++) {
+                        buffer[offset + i] = filter[band].Transform(buffer[offset + i]);
+                        buffer[offset + i + 1] = filter[band].Transform(buffer[offset + i + 1]);
+                    }
+                }
+                if (Panning != 0.0f) {
+                    float normPan = (-panning + 1) / 2;
+                    float leftVolume = normPan;
+                    float rightVolume = 1 - normPan;
+
+                    buffer[offset + i] *= leftVolume;
+                    buffer[offset + i + 1] *= rightVolume;
                 }
             }
         }
         return sampleRead;
+
+
     }
 }
 

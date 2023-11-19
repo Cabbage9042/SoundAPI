@@ -216,8 +216,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 881952076}
-  - component: {fileID: 881952078}
-  - component: {fileID: 881952077}
+  - component: {fileID: 881952082}
+  - component: {fileID: 881952081}
   - component: {fileID: 881952080}
   - component: {fileID: 881952079}
   m_Layer: 0
@@ -242,7 +242,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &881952077
+--- !u!114 &881952079
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -251,11 +251,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 881952074}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d2c7bfd2b17f3b64294b11fff140ca4e, type: 3}
+  m_Script: {fileID: 11500000, guid: 38acf430c84b2d048adc2d7ded6b8452, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  audio: {fileID: 881952078}
---- !u!114 &881952078
+  audioList: {fileID: 881952080}
+--- !u!114 &881952080
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -264,393 +264,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 881952074}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b447aeeb126b4e4c964944956360b35, type: 3}
+  m_Script: {fileID: 11500000, guid: 5049b874757e48b4b9ef5c8b34f71b6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playOnStart: 0
-  pitchFactor: 1
-  volume: 1
-  onAudioStartedMethod:
-  - methodOwner: {fileID: 881952077}
-    allMethod:
-    - DoAfterFinish
-    - DoRestart
-    - OnStart
-    - OnPause
-    - OnResume
-    - OnRestart
-    - OnStop
-    - DoBeforeFinish
-    - DoBeforeFinish2
-    - DoBeforeFinish3
-    - DoAfterFinish2
-    - IsInvoking
-    - CancelInvoke
-    - Invoke
-    - InvokeRepeating
-    - CancelInvoke
-    - IsInvoking
-    - StartCoroutine
-    - StartCoroutine
-    - StartCoroutine
-    - StartCoroutine_Auto
-    - StopCoroutine
-    - StopCoroutine
-    - StopCoroutine
-    - StopAllCoroutines
-    - GetComponent
-    - GetComponent
-    - TryGetComponent
-    - TryGetComponent
-    - GetComponent
-    - GetComponentInChildren
-    - GetComponentInChildren
-    - GetComponentInChildren
-    - GetComponentInChildren
-    - GetComponentsInChildren
-    - GetComponentsInChildren
-    - GetComponentsInChildren
-    - GetComponentsInChildren
-    - GetComponentsInChildren
-    - GetComponentsInChildren
-    - GetComponentInParent
-    - GetComponentInParent
-    - GetComponentInParent
-    - GetComponentInParent
-    - GetComponentsInParent
-    - GetComponentsInParent
-    - GetComponentsInParent
-    - GetComponentsInParent
-    - GetComponentsInParent
-    - GetComponents
-    - GetComponents
-    - GetComponents
-    - GetComponents
-    - CompareTag
-    - SendMessageUpwards
-    - SendMessageUpwards
-    - SendMessageUpwards
-    - SendMessageUpwards
-    - SendMessage
-    - SendMessage
-    - SendMessage
-    - SendMessage
-    - BroadcastMessage
-    - BroadcastMessage
-    - BroadcastMessage
-    - BroadcastMessage
-    - GetInstanceID
-    - GetHashCode
-    - Equals
-    - ToString
-    - GetType
-    selectedMethodIndex: 2
-  onAudioPausedMethod:
-  - methodOwner: {fileID: 881952077}
-    allMethod:
-    - DoAfterFinish
-    - DoRestart
-    - OnStart
-    - OnPause
-    - OnResume
-    - OnRestart
-    - OnStop
-    - DoBeforeFinish
-    - DoBeforeFinish2
-    - DoBeforeFinish3
-    - DoAfterFinish2
-    - IsInvoking
-    - CancelInvoke
-    - Invoke
-    - InvokeRepeating
-    - CancelInvoke
-    - IsInvoking
-    - StartCoroutine
-    - StartCoroutine
-    - StartCoroutine
-    - StartCoroutine_Auto
-    - StopCoroutine
-    - StopCoroutine
-    - StopCoroutine
-    - StopAllCoroutines
-    - GetComponent
-    - GetComponent
-    - TryGetComponent
-    - TryGetComponent
-    - GetComponent
-    - GetComponentInChildren
-    - GetComponentInChildren
-    - GetComponentInChildren
-    - GetComponentInChildren
-    - GetComponentsInChildren
-    - GetComponentsInChildren
-    - GetComponentsInChildren
-    - GetComponentsInChildren
-    - GetComponentsInChildren
-    - GetComponentsInChildren
-    - GetComponentInParent
-    - GetComponentInParent
-    - GetComponentInParent
-    - GetComponentInParent
-    - GetComponentsInParent
-    - GetComponentsInParent
-    - GetComponentsInParent
-    - GetComponentsInParent
-    - GetComponentsInParent
-    - GetComponents
-    - GetComponents
-    - GetComponents
-    - GetComponents
-    - CompareTag
-    - SendMessageUpwards
-    - SendMessageUpwards
-    - SendMessageUpwards
-    - SendMessageUpwards
-    - SendMessage
-    - SendMessage
-    - SendMessage
-    - SendMessage
-    - BroadcastMessage
-    - BroadcastMessage
-    - BroadcastMessage
-    - BroadcastMessage
-    - GetInstanceID
-    - GetHashCode
-    - Equals
-    - ToString
-    - GetType
-    selectedMethodIndex: 3
-  onAudioResumedMethod:
-  - methodOwner: {fileID: 881952077}
-    allMethod:
-    - DoAfterFinish
-    - DoRestart
-    - OnStart
-    - OnPause
-    - OnResume
-    - OnRestart
-    - OnStop
-    - DoBeforeFinish
-    - DoBeforeFinish2
-    - DoBeforeFinish3
-    - DoAfterFinish2
-    - IsInvoking
-    - CancelInvoke
-    - Invoke
-    - InvokeRepeating
-    - CancelInvoke
-    - IsInvoking
-    - StartCoroutine
-    - StartCoroutine
-    - StartCoroutine
-    - StartCoroutine_Auto
-    - StopCoroutine
-    - StopCoroutine
-    - StopCoroutine
-    - StopAllCoroutines
-    - GetComponent
-    - GetComponent
-    - TryGetComponent
-    - TryGetComponent
-    - GetComponent
-    - GetComponentInChildren
-    - GetComponentInChildren
-    - GetComponentInChildren
-    - GetComponentInChildren
-    - GetComponentsInChildren
-    - GetComponentsInChildren
-    - GetComponentsInChildren
-    - GetComponentsInChildren
-    - GetComponentsInChildren
-    - GetComponentsInChildren
-    - GetComponentInParent
-    - GetComponentInParent
-    - GetComponentInParent
-    - GetComponentInParent
-    - GetComponentsInParent
-    - GetComponentsInParent
-    - GetComponentsInParent
-    - GetComponentsInParent
-    - GetComponentsInParent
-    - GetComponents
-    - GetComponents
-    - GetComponents
-    - GetComponents
-    - CompareTag
-    - SendMessageUpwards
-    - SendMessageUpwards
-    - SendMessageUpwards
-    - SendMessageUpwards
-    - SendMessage
-    - SendMessage
-    - SendMessage
-    - SendMessage
-    - BroadcastMessage
-    - BroadcastMessage
-    - BroadcastMessage
-    - BroadcastMessage
-    - GetInstanceID
-    - GetHashCode
-    - Equals
-    - ToString
-    - GetType
-    selectedMethodIndex: 4
-  onAudioRestartedMethod:
-  - methodOwner: {fileID: 881952077}
-    allMethod:
-    - DoAfterFinish
-    - DoRestart
-    - OnStart
-    - OnPause
-    - OnResume
-    - OnRestart
-    - OnStop
-    - DoBeforeFinish
-    - DoBeforeFinish2
-    - DoBeforeFinish3
-    - DoAfterFinish2
-    - IsInvoking
-    - CancelInvoke
-    - Invoke
-    - InvokeRepeating
-    - CancelInvoke
-    - IsInvoking
-    - StartCoroutine
-    - StartCoroutine
-    - StartCoroutine
-    - StartCoroutine_Auto
-    - StopCoroutine
-    - StopCoroutine
-    - StopCoroutine
-    - StopAllCoroutines
-    - GetComponent
-    - GetComponent
-    - TryGetComponent
-    - TryGetComponent
-    - GetComponent
-    - GetComponentInChildren
-    - GetComponentInChildren
-    - GetComponentInChildren
-    - GetComponentInChildren
-    - GetComponentsInChildren
-    - GetComponentsInChildren
-    - GetComponentsInChildren
-    - GetComponentsInChildren
-    - GetComponentsInChildren
-    - GetComponentsInChildren
-    - GetComponentInParent
-    - GetComponentInParent
-    - GetComponentInParent
-    - GetComponentInParent
-    - GetComponentsInParent
-    - GetComponentsInParent
-    - GetComponentsInParent
-    - GetComponentsInParent
-    - GetComponentsInParent
-    - GetComponents
-    - GetComponents
-    - GetComponents
-    - GetComponents
-    - CompareTag
-    - SendMessageUpwards
-    - SendMessageUpwards
-    - SendMessageUpwards
-    - SendMessageUpwards
-    - SendMessage
-    - SendMessage
-    - SendMessage
-    - SendMessage
-    - BroadcastMessage
-    - BroadcastMessage
-    - BroadcastMessage
-    - BroadcastMessage
-    - GetInstanceID
-    - GetHashCode
-    - Equals
-    - ToString
-    - GetType
-    selectedMethodIndex: 5
-  onAudioStoppedMethod:
-  - methodOwner: {fileID: 881952077}
-    allMethod:
-    - DoAfterFinish
-    - DoRestart
-    - OnStart
-    - OnPause
-    - OnResume
-    - OnRestart
-    - OnStop
-    - DoBeforeFinish
-    - DoBeforeFinish2
-    - DoBeforeFinish3
-    - DoAfterFinish2
-    - IsInvoking
-    - CancelInvoke
-    - Invoke
-    - InvokeRepeating
-    - CancelInvoke
-    - IsInvoking
-    - StartCoroutine
-    - StartCoroutine
-    - StartCoroutine
-    - StartCoroutine_Auto
-    - StopCoroutine
-    - StopCoroutine
-    - StopCoroutine
-    - StopAllCoroutines
-    - GetComponent
-    - GetComponent
-    - TryGetComponent
-    - TryGetComponent
-    - GetComponent
-    - GetComponentInChildren
-    - GetComponentInChildren
-    - GetComponentInChildren
-    - GetComponentInChildren
-    - GetComponentsInChildren
-    - GetComponentsInChildren
-    - GetComponentsInChildren
-    - GetComponentsInChildren
-    - GetComponentsInChildren
-    - GetComponentsInChildren
-    - GetComponentInParent
-    - GetComponentInParent
-    - GetComponentInParent
-    - GetComponentInParent
-    - GetComponentsInParent
-    - GetComponentsInParent
-    - GetComponentsInParent
-    - GetComponentsInParent
-    - GetComponentsInParent
-    - GetComponents
-    - GetComponents
-    - GetComponents
-    - GetComponents
-    - CompareTag
-    - SendMessageUpwards
-    - SendMessageUpwards
-    - SendMessageUpwards
-    - SendMessageUpwards
-    - SendMessage
-    - SendMessage
-    - SendMessage
-    - SendMessage
-    - BroadcastMessage
-    - BroadcastMessage
-    - BroadcastMessage
-    - BroadcastMessage
-    - GetInstanceID
-    - GetHashCode
-    - Equals
-    - ToString
-    - GetType
-    selectedMethodIndex: 6
-  SpeakerDeviceMonoNumber: 0
-  SpeakerDeviceLeftNumber: 1
-  SpeakerDeviceRightNumber: 0
-  Stereo: 0
-  Panning: 0
-  audioClip: {fileID: 8300000, guid: 85b4f281967e58d4aa2afb94b9fd9d35, type: 3}
   privateEqualizer:
     equalizerBands:
     - CenterFrequency: 31
@@ -676,42 +292,16 @@ MonoBehaviour:
       Gain: 0
     - CenterFrequency: 4000
       QFactor: 0.8
-      Gain: 0
+      Gain: 4.55
     - CenterFrequency: 8000
       QFactor: 0.8
       Gain: 0
     - CenterFrequency: 16000
       QFactor: 0.8
       Gain: 0
-  loop: 0
---- !u!114 &881952079
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 881952074}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38acf430c84b2d048adc2d7ded6b8452, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  audioList: {fileID: 881952080}
---- !u!114 &881952080
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 881952074}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5049b874757e48b4b9ef5c8b34f71b6a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
   playOnStart: 0
   pitchFactor: 1
-  volume: 1
+  volume: 0.441
   onAudioStartedMethod:
   - methodOwner: {fileID: 881952079}
     allMethod:
@@ -849,15 +439,174 @@ MonoBehaviour:
     - ToString
     - GetType
     selectedMethodIndex: 2
-  SpeakerDeviceMonoNumber: 0
-  SpeakerDeviceLeftNumber: 0
-  SpeakerDeviceRightNumber: 0
-  Stereo: 0
+  SpeakerDeviceNumber: 0
   Panning: 0
   audioClipArray:
-  - {fileID: 8300000, guid: 959535e5819a4584d890fa9989ac78f7, type: 3}
-  - {fileID: 8300000, guid: 699051342b8f1be4986a2680414479ee, type: 3}
-  - {fileID: 8300000, guid: 5f1b9ec02568cea4eb816e2d69f9fcb5, type: 3}
-  - {fileID: 8300000, guid: 3bcd0d9930ddd044f84b29fffb13d387, type: 3}
+  - {fileID: 8300000, guid: 227cb8687365bab47afdf71cd577477c, type: 3}
+  - {fileID: 8300000, guid: 227cb8687365bab47afdf71cd577477c, type: 3}
   currentPosition: 0
-  mode: 2
+  mode: 0
+  equalizerList:
+  - equalizerBands:
+    - CenterFrequency: 31
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 63
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 125
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 250
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 500
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 1000
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 2000
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 4000
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 8000
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 16000
+      QFactor: 0.8
+      Gain: 0
+  - equalizerBands:
+    - CenterFrequency: 31
+      QFactor: 0.8
+      Gain: 3.26
+    - CenterFrequency: 63
+      QFactor: 0.8
+      Gain: 3.26
+    - CenterFrequency: 125
+      QFactor: 0.8
+      Gain: 3.26
+    - CenterFrequency: 250
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 500
+      QFactor: 0.8
+      Gain: 3.26
+    - CenterFrequency: 1000
+      QFactor: 0.8
+      Gain: 3.65
+    - CenterFrequency: 2000
+      QFactor: 0.8
+      Gain: 3.26
+    - CenterFrequency: 4000
+      QFactor: 0.8
+      Gain: 1.66
+    - CenterFrequency: 8000
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 16000
+      QFactor: 0.8
+      Gain: 0
+  - equalizerBands:
+    - CenterFrequency: 31
+      QFactor: 0.8
+      Gain: 3.26
+    - CenterFrequency: 63
+      QFactor: 0.8
+      Gain: 3.26
+    - CenterFrequency: 125
+      QFactor: 0.8
+      Gain: 3.26
+    - CenterFrequency: 250
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 500
+      QFactor: 0.8
+      Gain: 3.26
+    - CenterFrequency: 1000
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 2000
+      QFactor: 0.8
+      Gain: 3.26
+    - CenterFrequency: 4000
+      QFactor: 0.8
+      Gain: 1.66
+    - CenterFrequency: 8000
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 16000
+      QFactor: 0.8
+      Gain: 0
+  selectedEqualizer: 010000000000000000000000
+--- !u!114 &881952081
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 881952074}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2c7bfd2b17f3b64294b11fff140ca4e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  audio: {fileID: 881952082}
+--- !u!114 &881952082
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 881952074}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b447aeeb126b4e4c964944956360b35, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  privateEqualizer:
+    equalizerBands:
+    - CenterFrequency: 31
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 63
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 125
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 250
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 500
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 1000
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 2000
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 4000
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 8000
+      QFactor: 0.8
+      Gain: 0
+    - CenterFrequency: 16000
+      QFactor: 0.8
+      Gain: 0
+  playOnStart: 0
+  pitchFactor: 1
+  volume: 1
+  onAudioStartedMethod: []
+  onAudioPausedMethod: []
+  onAudioResumedMethod: []
+  onAudioRestartedMethod: []
+  onAudioStoppedMethod: []
+  SpeakerDeviceNumber: 0
+  Panning: 0
+  audioClip: {fileID: 0}
+  loop: 0

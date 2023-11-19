@@ -12,7 +12,6 @@ public class GraphManager : MonoBehaviour {
     public static int DOT_COUNT = 512;
     public static float SPECTRUM_VISUALIZER_SCALE = 25;
     private float dotOriginY;
-    private static int LABEL_COUNT = 24;
 
     private int currentAudioRate = 0;
     private List<GameObject> labels;
@@ -36,7 +35,7 @@ public class GraphManager : MonoBehaviour {
             left += offset;
             var newDotPosition = new Vector3(left, dotOriginY);
             dotList[i] = Instantiate(dot, newDotPosition, Quaternion.identity, graph.transform);
-
+            dotList[i].name = "Dot " + i.ToString();
         }
 
 
@@ -50,7 +49,7 @@ public class GraphManager : MonoBehaviour {
         //print(graph.transform.localPosition.x + " " + graph.transform.localPosition.y +' '+graph.transform.localPosition.z);
         var amplitude = audioManager.getAmplitude();
         if (amplitude == null) return;
-
+        
 
         //double max=0;
         for (int i = 0; i < amplitude.Length; i++) {
@@ -67,7 +66,17 @@ public class GraphManager : MonoBehaviour {
 
 
     }
+    
+    public void ResetGraph() {
+            for (int i = 0; i > dotList.Length; i++) {
+                dotList[i].transform.localScale = new Vector3(1, 1, 1);
+                dotList[i].transform.localPosition = new Vector3(dotList[i].transform.localPosition.x, 0, dotList[i].transform.localPosition.z);
+            }
+        
+    }
+
     private void ChangeLabelHz(int currentAudioRate) {
+        currentAudioRate /= 2;
         if (currentAudioRate == this.currentAudioRate) return;
         this.currentAudioRate = currentAudioRate;
 
@@ -94,7 +103,7 @@ public class GraphManager : MonoBehaviour {
 
         }
         else if (labels.Count > labelCount) {
-            for(int i = labels.Count-1;i >= labelCount; i--) {
+            for (int i = labels.Count - 1; i >= labelCount; i--) {
                 Destroy(labels[i]);
                 labels.RemoveAt(i);
             }
@@ -111,7 +120,7 @@ public class GraphManager : MonoBehaviour {
 
         int fftMaxHz = audioManager.audioBasic.SampleRate / 2;
 
-        float spaceBetween2Label = graph.GetComponent<RectTransform>().rect.width / labels.Count ;
+        float spaceBetween2Label = graph.GetComponent<RectTransform>().rect.width / labels.Count;
         float left = 0;
         for (int i = 0; i < labels.Count; i++) {
             labels[i].transform.localPosition = new Vector3(left, labels[i].transform.localPosition.y, labels[i].transform.localPosition.z);
