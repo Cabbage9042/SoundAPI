@@ -15,15 +15,6 @@ public class AudioBasic : AudioBase {
 
 
 
-    public string FilePath { get { return audio.FilePath; } }
-    public string Name { get { return audio.Name; } }
-    public string NameWoExtension { get { return audio.NameWoExtension; } }
-    public TimeSpan TotalTime { get { return audio.TotalTime; } }
-    public long Position { get { return audio.Position; } }
-    public long Length { get { return audio.Length; } }
-
-
-    public int SampleRate { get { return audio.WaveFormat.SampleRate; } }
 
     public bool loop = false;
 
@@ -174,7 +165,7 @@ public class AudioBasic : AudioBase {
 
     }
 
-
+    
 
 
 

@@ -103,6 +103,18 @@ public class AudioBase : MonoBehaviour {
     protected bool isDelaying = false;
 
     public static string[] speakerDevicesName { get { return Audio.speakerDevicesName; } }
+
+
+    public string FilePath { get { return audio.FilePath; } }
+    public string Name { get { return audio.Name; } }
+    public string NameWoExtension { get { return audio.NameWoExtension; } }
+    public TimeSpan TotalTime { get { return audio.TotalTime; } }
+    public long Position { get { return audio.Position; } }
+    public long Length { get { return audio.Length; } }
+
+
+    public int SampleRate { get { return audio.WaveFormat.SampleRate; } }
+
     public double[] GetAmplitude(float offset = 0) {
 
 

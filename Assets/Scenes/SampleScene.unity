@@ -301,7 +301,7 @@ MonoBehaviour:
       Gain: 0
   playOnStart: 0
   pitchFactor: 1
-  volume: 0.441
+  volume: 1
   onAudioStartedMethod:
   - methodOwner: {fileID: 881952079}
     allMethod:
@@ -465,7 +465,7 @@ MonoBehaviour:
       Gain: 0
     - CenterFrequency: 1000
       QFactor: 0.8
-      Gain: 0
+      Gain: 4.65
     - CenterFrequency: 2000
       QFactor: 0.8
       Gain: 0
@@ -481,66 +481,36 @@ MonoBehaviour:
   - equalizerBands:
     - CenterFrequency: 31
       QFactor: 0.8
-      Gain: 3.26
+      Gain: 0
     - CenterFrequency: 63
       QFactor: 0.8
-      Gain: 3.26
+      Gain: 0
     - CenterFrequency: 125
       QFactor: 0.8
-      Gain: 3.26
+      Gain: 0
     - CenterFrequency: 250
       QFactor: 0.8
       Gain: 0
     - CenterFrequency: 500
       QFactor: 0.8
-      Gain: 3.26
+      Gain: 2.46
     - CenterFrequency: 1000
       QFactor: 0.8
-      Gain: 3.65
+      Gain: 7.04
     - CenterFrequency: 2000
       QFactor: 0.8
-      Gain: 3.26
+      Gain: 6.24
     - CenterFrequency: 4000
       QFactor: 0.8
-      Gain: 1.66
+      Gain: 0
     - CenterFrequency: 8000
       QFactor: 0.8
       Gain: 0
     - CenterFrequency: 16000
       QFactor: 0.8
       Gain: 0
-  - equalizerBands:
-    - CenterFrequency: 31
-      QFactor: 0.8
-      Gain: 3.26
-    - CenterFrequency: 63
-      QFactor: 0.8
-      Gain: 3.26
-    - CenterFrequency: 125
-      QFactor: 0.8
-      Gain: 3.26
-    - CenterFrequency: 250
-      QFactor: 0.8
-      Gain: 0
-    - CenterFrequency: 500
-      QFactor: 0.8
-      Gain: 3.26
-    - CenterFrequency: 1000
-      QFactor: 0.8
-      Gain: 0
-    - CenterFrequency: 2000
-      QFactor: 0.8
-      Gain: 3.26
-    - CenterFrequency: 4000
-      QFactor: 0.8
-      Gain: 1.66
-    - CenterFrequency: 8000
-      QFactor: 0.8
-      Gain: 0
-    - CenterFrequency: 16000
-      QFactor: 0.8
-      Gain: 0
-  selectedEqualizer: 010000000000000000000000
+  selectedEqualizer: 000000000000000000000000
+  usingScript: 0
 --- !u!114 &881952081
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -608,5 +578,5 @@ MonoBehaviour:
   onAudioStoppedMethod: []
   SpeakerDeviceNumber: 0
   Panning: 0
-  audioClip: {fileID: 0}
+  audioClip: {fileID: 8300000, guid: cb068afd33992774f83a136d4a075876, type: 3}
   loop: 0

@@ -25,6 +25,8 @@ public class AudioList : AudioBase {
     public Equalizer[] equalizerList = new Equalizer[] { new Equalizer() };
     public int[] selectedEqualizer = new int[1];
 
+    public bool usingScript = false;
+
     public new Equalizer EqualizerProperty {
         get {
             return base.EqualizerProperty;
@@ -112,6 +114,8 @@ public class AudioList : AudioBase {
     }
 
 
+
+
     /// <summary>
     /// if audioList.count and audioClipArray.Length same, check each element same or not
     /// </summary>
@@ -152,7 +156,9 @@ public class AudioList : AudioBase {
 
     private void PlaySameList(int position) {
 
-        CheckAudioListAndRefresh();
+        if (!usingScript) {
+            CheckAudioListAndRefresh();
+        }
 
         if (audioList.Count == 0) return;
 
@@ -251,6 +257,29 @@ public class AudioList : AudioBase {
 
 
 
+    public void setAudioClip(MonoBehaviour methodOwner, string path, int index) {
+        if (audioList == null) {
+            audioList = new();
+        }
+
+        if (index >= audioList.Count) {
+            audioList.Add(new Audio(path, methodOwner));
+            Array.Resize(ref selectedEqualizer, index + 1);
+        }
+        else {
+            audioList[index] = new Audio(path, methodOwner);
+
+        }
+        selectedEqualizer[index] = 0;
+
+
+        onAudioStartedMethod = new MethodCalled[0];
+        onAudioPausedMethod = new MethodCalled[0];
+        onAudioResumedMethod = new MethodCalled[0];
+        onAudioRestartedMethod = new MethodCalled[0];
+        onAudioStoppedMethod = new MethodCalled[0];
+    }
+
 
     #region LoopMode
 
@@ -323,13 +352,42 @@ public class AudioList : AudioBase {
         if (playOnStart == false) return;
 
 
-
+        audioList = new();
         Play();
 
 
 
     }
 
+    public void AddNewEqualizer() {
+
+        Array.Resize(ref equalizerList, equalizerList.Length + 1);
+        equalizerList[equalizerList.Length - 1] = new Equalizer();
+    }
+
+    public void RemoveEqualizer(int index) {
+        for (int k = 0; k < selectedEqualizer.Length; k++) {
+            if (selectedEqualizer[k] == index) {
+                selectedEqualizer[k] = 0;
+
+                if (currentPosition == k) {
+                    EqualizerProperty = equalizerList[0];
+                    audio?.UpdateEqualizer();
+                }
+
+            }
+
+        }
+        for (int i = index; i < equalizerList.Length - 1; i++) {
+
+            equalizerList[i] = equalizerList[i + 1];
+        }
+        Array.Resize(ref equalizerList, equalizerList.Length - 1);
+    }
+
+    public void SetGain(int equalizerIndex, Frequency frequency, float gain) {
+        equalizerList[equalizerIndex].equalizerBands[ModifiedAudio.GetIndexByFrequency(frequency)].Gain = gain;
+    }
 
 
 #if UNITY_EDITOR
@@ -542,7 +600,7 @@ public class AudioList : AudioBase {
                 //volume.floatValue = EditorGUILayout.Slider(volume.floatValue, 0, 1);
                 EditorGUILayout.EndHorizontal();
 
-                if(oriEqualizerIndex!= selectedEqualizer.GetArrayElementAtIndex(i).intValue) {
+                if (oriEqualizerIndex != selectedEqualizer.GetArrayElementAtIndex(i).intValue) {
                     audioList.EqualizerProperty = audioList.equalizerList[selectedEqualizer.GetArrayElementAtIndex(i).intValue];
                     audioList.UpdateEqualizer();
                 }
@@ -563,6 +621,7 @@ public class AudioList : AudioBase {
                     EditorGUILayout.LabelField(frequencyList[iFrequency], GUILayout.Width(50));
                     gain.floatValue = EditorGUILayout.Slider(gain.floatValue, Equalizer.MIN_GAIN, Equalizer.MAX_GAIN);
                     if (oriGain != gain.floatValue) {
+                        
                         audioList.equalizerList[iEqualizer].equalizerBands[iFrequency].Gain = gain.floatValue;
                         //((Equalizer)equalizerList.GetArrayElementAtIndex(i).objectReferenceValue).equalizerBands[j].Gain = gain.floatValue;
                         //audioList.EqualizerProperty.equalizerBands[j].Gain = gain.floatValue;
@@ -588,19 +647,8 @@ public class AudioList : AudioBase {
 
                 }
                 if (GUILayout.Button("Delete Equalizer " + iEqualizer)) {
-                    for (int k = 0; k < selectedEqualizer.arraySize; k++) {
-                        if (selectedEqualizer.GetArrayElementAtIndex(k).intValue == iEqualizer) {
-                            selectedEqualizer.GetArrayElementAtIndex(k).intValue = 0;
-
-                            if (audioList.currentPosition == k) {
-                                audioList.EqualizerProperty = audioList.equalizerList[0];
-                                audioList.audio?.UpdateEqualizer();
-                            }
-
-                        }
+                    audioList.RemoveEqualizer(iEqualizer);
                     
-                    }
-                    equalizerList.DeleteArrayElementAtIndex(iEqualizer);
 
                 }
 
@@ -609,12 +657,10 @@ public class AudioList : AudioBase {
 
 
             if (GUILayout.Button("Add Equalizer")) {
-                equalizerList.arraySize += 1;
-                try {
-                    equalizerList.GetArrayElementAtIndex(equalizerList.arraySize - 1).objectReferenceValue = equalizerList.GetArrayElementAtIndex(0).objectReferenceValue;
-                }
-                catch{}
+
+                audioList.AddNewEqualizer();
                 Array.Resize(ref eachEqualizerIsExpanded, eachEqualizerIsExpanded.Length + 1);
+
             }
 
 

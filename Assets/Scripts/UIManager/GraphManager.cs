@@ -8,7 +8,7 @@ public class GraphManager : MonoBehaviour {
     public GameObject graph;
     public GameObject dot;
     public GameObject[] dotList;
-    public AudioBasicUIManager audioManager;
+    public AudioListUIManager audioManager;
     public static int DOT_COUNT = 512;
     public static float SPECTRUM_VISUALIZER_SCALE = 25;
     private float dotOriginY;
@@ -61,7 +61,7 @@ public class GraphManager : MonoBehaviour {
             //lineRenderer.GetComponent<LineRenderer>().SetPosition(i, dotList[i].transform.position);
         }
 
-        ChangeLabelHz(audioManager.audioBasic.SampleRate);
+        ChangeLabelHz(audioManager.audioList.SampleRate);
         // print(max);
 
 
@@ -118,7 +118,7 @@ public class GraphManager : MonoBehaviour {
 
 
 
-        int fftMaxHz = audioManager.audioBasic.SampleRate / 2;
+        //int fftMaxHz = audioManager.audioBasic.SampleRate / 2;
 
         float spaceBetween2Label = graph.GetComponent<RectTransform>().rect.width / labels.Count;
         float left = 0;
