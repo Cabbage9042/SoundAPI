@@ -161,14 +161,12 @@ public class AudioBase : MonoBehaviour {
 
 
     protected void Play(Action<MonoBehaviour, Audio, bool> defaultStop) {
-        if (audio.State == PlaybackState.Playing) {
+        if (audio?.State == PlaybackState.Playing) {
             return;
         }
 
         audio.ClearAllEvent();
 
-        //loop
-        audio.OnAudioStopped += defaultStop;
 
         try {
             foreach (var method in onAudioStartedMethod) {
@@ -192,6 +190,8 @@ public class AudioBase : MonoBehaviour {
             return;
         }
 
+        //loop
+        audio.OnAudioStopped += defaultStop;
 
         audio.SetSpeakerNumber(SpeakerDeviceNumber);
         audio.ChangePitch(pitchFactor);
@@ -212,20 +212,20 @@ public class AudioBase : MonoBehaviour {
     }
     protected void Restart(MonoBehaviour childClass, Action<MonoBehaviour, Audio, bool> defaultStop) {
         //this is == play
-        if (audio.State == PlaybackState.Stopped) {
+        if (audio?.State == PlaybackState.Stopped) {
             Play(defaultStop);
             //same as play == false in audio.restart
-            audio.OnAudioRestarted?.Invoke(childClass, audio, true);
+            audio?.OnAudioRestarted?.Invoke(childClass, audio, true);
         }
         //this is the true restart(audio is playing)
         else {
 
-            audio.Restart();
+            audio?.Restart();
 
         }
     }
     public void Pause() {
-        audio.Pause();
+        audio?.Pause();
     }
 
     #region Equalizer
@@ -264,5 +264,108 @@ public class AudioBase : MonoBehaviour {
         audio?.Stop();
         audio?.Dispose();
     }
+    #region Add Remove OnEvent
 
+    #region Started
+    public void AddOnAudioStarted(MethodCalled methodCalled) {
+        AddOnEvent(ref onAudioStartedMethod, methodCalled);
+    }
+
+    public bool RemoveOnAudioStarted(MethodCalled methodCalled) {
+        return RemoveOnEvent(ref onAudioStartedMethod, methodCalled);
+    }
+
+    public void RemoveAllOnAudioStarted() {
+        onAudioStartedMethod = null;
+    }
+    #endregion
+
+    #region Pause
+    public void AddOnAudioPaused(MethodCalled methodCalled) {
+        AddOnEvent(ref onAudioPausedMethod, methodCalled);
+    }
+
+    public bool RemoveOnAudioPaused(MethodCalled methodCalled) {
+        return RemoveOnEvent(ref onAudioPausedMethod, methodCalled);
+    }
+
+    public void RemoveAllOnAudioPaused() {
+        onAudioPausedMethod = null;
+    }
+    #endregion
+
+    #region Resumed
+    public void AddOnAudioResumed(MethodCalled methodCalled) {
+        AddOnEvent(ref onAudioResumedMethod, methodCalled);
+    }
+
+    public bool RemoveOnAudioResumed(MethodCalled methodCalled) {
+        return RemoveOnEvent(ref onAudioResumedMethod, methodCalled);
+    }
+
+    public void RemoveAllOnAudioResumed() {
+        onAudioResumedMethod = null;
+    }
+
+    #endregion
+
+    #region Restarted
+    public void AddOnAudioRestarted(MethodCalled methodCalled) {
+        AddOnEvent(ref onAudioRestartedMethod, methodCalled);
+    }
+
+    public bool RemoveOnAudioRestarted(MethodCalled methodCalled) {
+        return RemoveOnEvent(ref onAudioRestartedMethod, methodCalled);
+    }
+
+    public void RemoveAllOnAudioRestarted() {
+        onAudioRestartedMethod = null;
+    }
+
+    #endregion
+
+    #region Stopped
+    public void AddOnAudioStopped(MethodCalled methodCalled) {
+        AddOnEvent(ref onAudioStoppedMethod, methodCalled);
+    }
+
+    public bool RemoveOnAudioStopped(MethodCalled methodCalled) {
+        return RemoveOnEvent(ref onAudioStoppedMethod, methodCalled);
+    }
+
+    public void RemoveAllOnAudioStopped() {
+        onAudioStoppedMethod = null;
+    }
+
+    #endregion
+
+    #region Base
+    //return true if found and removed, false if not found
+    private bool RemoveOnEvent(ref MethodCalled[] onEvent, MethodCalled methodCalled) {
+
+        for (int i = 0; i < onEvent.Length; i++) {
+            if (onEvent[i].Equals(methodCalled)) {
+                for (int j = i; j < onEvent.Length - 1; j++) {
+                    onEvent[j] = onEvent[j + 1];
+                }
+
+                Array.Resize(ref onEvent, onEvent.Length - 1);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void AddOnEvent(ref MethodCalled[] onEvent, MethodCalled methodCalled) {
+        if (onEvent == null || onEvent.Length == 0) {
+            onEvent = new MethodCalled[] { methodCalled };
+        }
+        else {
+            Array.Resize(ref onEvent, onEvent.Length + 1);
+            onEvent[onEvent.Length - 1] = methodCalled;
+        }
+    }
+    #endregion
+
+    #endregion
 }

@@ -8,7 +8,8 @@ public class GraphManager : MonoBehaviour {
     public GameObject graph;
     public GameObject dot;
     public GameObject[] dotList;
-    public AudioListUIManager audioManager;
+    public AudioListUIManager audioListUIManager;
+    public AudioBasicUIManager audioBasicUIManager;
     public static int DOT_COUNT = 512;
     public static float SPECTRUM_VISUALIZER_SCALE = 25;
     private float dotOriginY;
@@ -47,9 +48,12 @@ public class GraphManager : MonoBehaviour {
 
         //print(graph.GetComponent<RectTransform>().rect.width);
         //print(graph.transform.localPosition.x + " " + graph.transform.localPosition.y +' '+graph.transform.localPosition.z);
-        var amplitude = audioManager.getAmplitude();
+        double[] amplitude;
+        if (audioListUIManager == null) amplitude = audioBasicUIManager.GetAmplitude();
+        else amplitude = audioListUIManager.GetAmplitude();
+
         if (amplitude == null) return;
-        
+
 
         //double max=0;
         for (int i = 0; i < amplitude.Length; i++) {
@@ -60,19 +64,20 @@ public class GraphManager : MonoBehaviour {
             //if(max < amplitude[i])                 max = amplitude[i];
             //lineRenderer.GetComponent<LineRenderer>().SetPosition(i, dotList[i].transform.position);
         }
+        if (audioBasicUIManager == null)             ChangeLabelHz(audioListUIManager.audioList.SampleRate);
+        else ChangeLabelHz(audioBasicUIManager.audioBasic.SampleRate);
 
-        ChangeLabelHz(audioManager.audioList.SampleRate);
-        // print(max);
-
+        //var target = audioListUIManager.GetAmplitude(amplitude, new int[] { 5000 }, audioListUIManager.audioList.SampleRate);
+        //print(target[0]);
 
     }
-    
+
     public void ResetGraph() {
-            for (int i = 0; i > dotList.Length; i++) {
-                dotList[i].transform.localScale = new Vector3(1, 1, 1);
-                dotList[i].transform.localPosition = new Vector3(dotList[i].transform.localPosition.x, 0, dotList[i].transform.localPosition.z);
-            }
-        
+        for (int i = 0; i > dotList.Length; i++) {
+            dotList[i].transform.localScale = new Vector3(1, 1, 1);
+            dotList[i].transform.localPosition = new Vector3(dotList[i].transform.localPosition.x, 0, dotList[i].transform.localPosition.z);
+        }
+
     }
 
     private void ChangeLabelHz(int currentAudioRate) {

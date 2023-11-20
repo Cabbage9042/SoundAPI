@@ -42,7 +42,7 @@ public class AudioBasicUIManager : MonoBehaviour {
     public Slider slider8k;
     public Slider slider16k;
 
-    public double[] getAmplitude() {
+    public double[] GetAmplitude() {
         return audioBasic?.GetAmplitude(0.3f);
     }
     public double[] GetAmplitude(double[] amplitudes, int[] targetFrequencies, int sampleRate) {

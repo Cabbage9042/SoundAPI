@@ -13,9 +13,13 @@ public class AudioListUIManager : MonoBehaviour {
     string directory = null;
     string path;
 
+    public GameObject audioNameText;
+
     public GameObject audioListSet;
     public GameObject audioContent;
     private List<GameObject> audioListContentSet;
+
+    public GameObject addAudioButton;
 
     public GameObject equalizerListSet;
     public GameObject equalizerContent;
@@ -31,6 +35,9 @@ public class AudioListUIManager : MonoBehaviour {
     public GameObject volumeSlider;
     public GameObject panningSlider;
     public GameObject speakerDropDown;
+
+    public GameObject[] equalizerSliderArray;
+    public GameObject equalizerCanvas;
 
     private void Start() {
         audioList = GameObject.Find("Audio").AddComponent(typeof(AudioList)) as AudioList;
@@ -55,6 +62,22 @@ public class AudioListUIManager : MonoBehaviour {
         speakerDropDown.GetComponent<TMP_Dropdown>().AddOptions(speakerList);
         loopModeDropDown.AddOptions(loopModeList);
 
+
+        audioList.AddOnAudioStarted(new MethodCalled(this, "AudioStarted"));
+        audioList.AddOnAudioPaused(new MethodCalled(this, "AudioPaused"));
+        audioList.AddOnAudioRestarted(new MethodCalled(this, "AudioRestarted"));
+        audioList.AddOnAudioResumed(new MethodCalled(this, "AudioResumed"));
+        audioList.AddOnAudioStopped(new MethodCalled(this, "AudioStopped"));
+
+
+        pitchSlider.GetComponent<Slider>().onValueChanged.AddListener(delegate { audioList.SetPitch(pitchSlider.GetComponent<Slider>().value); });
+        volumeSlider.GetComponent<Slider>().onValueChanged.AddListener(delegate { audioList.SetVolume(volumeSlider.GetComponent<Slider>().value); });
+        panningSlider.GetComponent<Slider>().onValueChanged.AddListener(delegate { audioList.SetPanning(panningSlider.GetComponent<Slider>().value); });
+
+        speakerDropDown.GetComponent<TMP_Dropdown>().onValueChanged.AddListener(delegate { audioList.SetSpeakerNumber(speakerDropDown.GetComponent<TMP_Dropdown>().value); });
+
+
+
     }
 
     public void OpenAudioCanvas() {
@@ -68,30 +91,46 @@ public class AudioListUIManager : MonoBehaviour {
         audioCanvas.SetActive(false);
     }
 
-    public double[] getAmplitude() {
+    public double[] GetAmplitude() {
         return audioList?.GetAmplitude(0.3f);
     }
-
+    public double[] GetAmplitude(double[] amplitudes, int[] targetFrequencies, int sampleRate) {
+        return audioList?.GetAmplitude(amplitudes, targetFrequencies, sampleRate);
+    }
     public void AddNewAudio() {
 
         audioListContentSet.Add(Instantiate(audioListSet, audioContent.transform));
-        audioListContentSet[audioListContentSet.Count - 1].name = (audioListContentSet.Count - 1).ToString();
 
-        Button audioButton = audioListContentSet[audioListContentSet.Count - 1].transform.Find("Audio Button").GetComponent<Button>();
-        TMP_Dropdown equalizerDropDown = audioListContentSet[audioListContentSet.Count - 1].transform.Find("Equalizer Drop Down").GetComponent<TMP_Dropdown>();
-        Button deleteButton = audioListContentSet[audioListContentSet.Count - 1].transform.Find("Delete Button").GetComponent<Button>();
+        int audioIndex = audioListContentSet.Count - 1;
+
+        audioListContentSet[audioIndex].name = (audioIndex).ToString();
+
+        Button audioButton = audioListContentSet[audioIndex].transform.Find("Audio Button").GetComponent<Button>();
+        TMP_Dropdown equalizerDropDown = audioListContentSet[audioIndex].transform.Find("Equalizer Drop Down").GetComponent<TMP_Dropdown>();
+        Button deleteButton = audioListContentSet[audioIndex].transform.Find("Delete Button").GetComponent<Button>();
 
         audioButton.onClick.AddListener(delegate { getAudioPath(); });
         audioButton.onClick.AddListener(delegate { addAudioBasic(); });
-        audioButton.name = "Audio Button "+ (audioListContentSet.Count - 1).ToString();
+        audioButton.onClick.AddListener(delegate { CheckAudioIndexAndTryActiveAddAudioButton(); });
+        audioButton.name = "Audio Button " + (audioIndex).ToString();
 
         List<string> nameList = new(audioList.EqualizerListName);
         equalizerDropDown.AddOptions(nameList);
 
+        equalizerDropDown.onValueChanged.AddListener(delegate { AudioChangeEqualizer(audioIndex); });
+
         deleteButton.onClick.AddListener(delegate { RemoveAudio(); });
-        deleteButton.name = "Delete Button " + (audioListContentSet.Count - 1).ToString();
+        deleteButton.name = "Delete Button " + (audioIndex).ToString();
 
+        //disable add audio
+        addAudioButton.GetComponent<Button>().enabled = false;
+        addAudioButton.GetComponent<Image>().color = Color.grey;
 
+    }
+
+    public void AudioChangeEqualizer(int audioIndex) {
+        int value = audioListContentSet[audioIndex].transform.Find("Equalizer Drop Down").GetComponent<TMP_Dropdown>().value;
+        audioList.SetEqualizerToAudio(value, audioIndex);
     }
 
     //select audio1
@@ -123,21 +162,6 @@ public class AudioListUIManager : MonoBehaviour {
         audioList.setAudioClip(this, path, index);
 
 
-        /*
-                audioBasic.AddOnAudioStarted(new MethodCalled(this, "AudioStarted"));
-                audioBasic.AddOnAudioPaused(new MethodCalled(this, "AudioPaused"));
-                audioBasic.AddOnAudioRestarted(new MethodCalled(this, "AudioRestarted"));
-                audioBasic.AddOnAudioResumed(new MethodCalled(this, "AudioResumed"));
-                audioBasic.AddOnAudioStopped(new MethodCalled(this, "AudioStopped"));*/
-
-        
-        pitchSlider.GetComponent<Slider>().onValueChanged.AddListener(delegate { audioList.SetPitch(pitchSlider.GetComponent<Slider>().value); });
-        volumeSlider.GetComponent<Slider>().onValueChanged.AddListener(delegate { audioList.SetVolume(volumeSlider.GetComponent<Slider>().value); });
-        panningSlider.GetComponent<Slider>().onValueChanged.AddListener(delegate { audioList.SetPanning(panningSlider.GetComponent<Slider>().value); });
-
-        speakerDropDown.GetComponent<TMP_Dropdown>().onValueChanged.AddListener(delegate { audioList.SetSpeakerNumber(speakerDropDown.GetComponent<TMP_Dropdown>().value); });
-
-
 
         int indexForAudioList = index;
         for (int i = 0; i < index; i++) {
@@ -147,8 +171,21 @@ public class AudioListUIManager : MonoBehaviour {
         }
 
         audioListContentSet[index].transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().text = audioList.audioList[indexForAudioList].Name;
+
+
+        AudioChangeEqualizer(index);
     }
 
+    //select audio 3
+    public void CheckAudioIndexAndTryActiveAddAudioButton() {
+
+        if (path == "") return;
+        int index = Int32.Parse(EventSystem.current.currentSelectedGameObject.name.Split(' ')[2]);
+        if (index == audioListContentSet.Count - 1) {
+            addAudioButton.GetComponent<Button>().enabled = true;
+            addAudioButton.GetComponent<Image>().color = Color.white;
+        }
+    }
 
     public void RemoveAudio() {
         int index = Int32.Parse(EventSystem.current.currentSelectedGameObject.name.Split(' ')[2]);
@@ -182,19 +219,49 @@ public class AudioListUIManager : MonoBehaviour {
 
 
     public void AddNewEqualizer() {
-        equalizerListContentSet.Add(Instantiate(equalizerListSet,equalizerContent.transform));
+        equalizerListContentSet.Add(Instantiate(equalizerListSet, equalizerContent.transform));
         equalizerListContentSet[equalizerListContentSet.Count - 1].name = (equalizerListContentSet.Count - 1).ToString();
 
         Button equalizerButton = equalizerListContentSet[equalizerListContentSet.Count - 1].transform.Find("Equalizer Button").GetComponent<Button>();
         Button deleteButton = equalizerListContentSet[equalizerListContentSet.Count - 1].transform.Find("Delete Button").GetComponent<Button>();
 
+        audioList.AddNewEqualizer();
+
+        int index = equalizerListContentSet.Count;
+        equalizerButton.onClick.AddListener(delegate { OpenEqualizer(index); });
+        equalizerButton.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().text += (" " + index.ToString());
+
         deleteButton.onClick.AddListener(delegate { RemoveEqualizer(); });
         deleteButton.name = "Delete Button " + (equalizerListContentSet.Count - 1).ToString();
 
-        audioList.AddNewEqualizer();
-        
+        //update selectable eq in audio
+
+        List<string> eqNameList = new(audioList.EqualizerListName);
+
+        for (int i = 0; i < audioListContentSet.Count; i++) {
+            audioListContentSet[i].transform.Find("Equalizer Drop Down").GetComponent<TMP_Dropdown>().ClearOptions();
+            audioListContentSet[i].transform.Find("Equalizer Drop Down").GetComponent<TMP_Dropdown>().AddOptions(eqNameList);
+        }
 
     }
+    public void OpenEqualizer(int index) {
+        equalizerCanvas.SetActive(true);
+
+        for (int i = 0; i < equalizerSliderArray.Length; i++) {
+            int localIndex = i;
+            equalizerSliderArray[i].GetComponent<Slider>().value = audioList.EqualizerList[index].equalizerBands[i].Gain;
+            equalizerSliderArray[i].GetComponent<Slider>().onValueChanged.AddListener(delegate { ChangeGain(index, localIndex); });
+        }
+
+
+    }
+
+    public void ChangeGain(int equalizerIndex, int equalizerBandIndex) {
+        float gain = equalizerSliderArray[equalizerBandIndex].GetComponent<Slider>().value;
+        audioList.SetGain(equalizerIndex, ModifiedAudio.GetFrequencyByIndex(equalizerBandIndex), gain);
+        audioList.UpdateEqualizer();
+    }
+
     public void RemoveEqualizer() {
         string indexString = EventSystem.current.currentSelectedGameObject.name.Split(' ')[2];
         int index = Int32.Parse(indexString);
@@ -207,7 +274,18 @@ public class AudioListUIManager : MonoBehaviour {
         Destroy(equalizerListContentSet[index]);
         equalizerListContentSet.RemoveAt(index);
 
-        audioList.RemoveEqualizer(index+1);
+        audioList.RemoveEqualizer(index + 1);
+
+        List<string> eqNameList = new(audioList.EqualizerListName);
+
+        for (int i = 0; i < audioListContentSet.Count; i++) {
+            var equalizerDropDown = audioListContentSet[i].transform.Find("Equalizer Drop Down").GetComponent<TMP_Dropdown>();
+            if (equalizerDropDown.value == index) {
+                equalizerDropDown.value = 0;
+            }
+            equalizerDropDown.ClearOptions();
+            equalizerDropDown.AddOptions(eqNameList);
+        }
 
     }
 
@@ -220,4 +298,40 @@ public class AudioListUIManager : MonoBehaviour {
 
         return tempDirectory;
     }
+
+    public void ChangeAudioName(AudioListUIManager audioManager, string status) {
+
+        var name = audioManager.audioNameText.GetComponent<TextMeshProUGUI>();
+        if (audioManager.audioList == null) {
+            name.text = "No audio is selected!";
+        }
+        else {
+            name.text = status;
+        }
+    }
+
+    #region SetAudioStatus
+
+    public void AudioStarted(MonoBehaviour audioManager, Audio audio) {
+        ChangeAudioName((AudioListUIManager)audioManager, "Now playing: " + audio.Name);
+
+    }
+    public void AudioPaused(MonoBehaviour audioManager, Audio audio) {
+        ChangeAudioName((AudioListUIManager)audioManager, "Paused: " + audio.Name);
+    }
+
+    public void AudioRestarted(MonoBehaviour audioManager, Audio audio, bool sameAsPlay) {
+        ChangeAudioName((AudioListUIManager)audioManager, "Restarted: " + audio.Name);
+
+    }
+
+    public void AudioResumed(MonoBehaviour audioManager, Audio audio) {
+        ChangeAudioName((AudioListUIManager)audioManager, "Resumed: " + audio.Name);
+    }
+    public void AudioStopped(MonoBehaviour audioManager, Audio audio, bool hasFinishedPlaying) {
+        ChangeAudioName((AudioListUIManager)audioManager, (hasFinishedPlaying ? "Finished playing: " : "Stopped: ") + audio.Name);
+
+    }
+
+    #endregion
 }

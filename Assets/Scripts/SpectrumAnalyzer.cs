@@ -34,9 +34,11 @@ public class SpectrumAnalyzer {
              fftReal[i + 1] = values[i].Magnitude;
          }*/
 
+        int beforeIndex;
         for (int i = 0; i < fftReal.Length; i += 2) {
-            fftReal[i] = values[i / 2].Magnitude;
-            fftReal[i + 1] = (values[i / 2].Magnitude + values[i / 2 + 1].Magnitude) / 2;
+            beforeIndex = i / 2 + 1;
+            fftReal[i] = values[beforeIndex].Magnitude;
+            fftReal[i + 1] = (values[beforeIndex].Magnitude + values[beforeIndex + 1].Magnitude) / 2;
         }
 
         /*
@@ -70,7 +72,7 @@ public class SpectrumAnalyzer {
         double[] returnedFFT = new double[targetFrequencies.Length];
         for (int i = 0; i < returnedFFT.Length; i++) {
             //+0.5 is to make the float round up or down depends on the demical point
-            int index = (int)((targetFrequencies[i] * (buffer.Length / 4) / (double)sampleRate) + 0.5);
+            int index = (int)((targetFrequencies[i] * (fft.Length) / (double)sampleRate) + 0.5) * 2;
             returnedFFT[i] = fft[index];
         }
         return returnedFFT;
@@ -79,13 +81,13 @@ public class SpectrumAnalyzer {
     }
 
     public static double[] GetAmplitude(double[] amplitudes, int[] targetFrequencies, int sampleRate) {
-        
-        
-        
+
+
+
         double[] returnedFFT = new double[targetFrequencies.Length];
         for (int i = 0; i < returnedFFT.Length; i++) {
             //+0.5 is to make the float round up or down depends on the demical point
-            int index = (int)((targetFrequencies[i] * (amplitudes.Length) / (double)sampleRate) + 0.5) *2;
+            int index = ((int)((targetFrequencies[i] * (amplitudes.Length) / (double)sampleRate) + 0.5) - 1)* 2;
             returnedFFT[i] = amplitudes[index];
         }
         return returnedFFT;

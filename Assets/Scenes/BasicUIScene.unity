@@ -8725,7 +8725,8 @@ MonoBehaviour:
   graph: {fileID: 807717368}
   dot: {fileID: 2670620469348224607, guid: cf31244956fcb3d47b89d420a882e1f3, type: 3}
   dotList: []
-  audioManager: {fileID: 697160760}
+  audioListUIManager: {fileID: 0}
+  audioBasicUIManager: {fileID: 697160760}
   labelPrefab: {fileID: 7901506425760308641, guid: 3ecc4e3e707277449b786a0980f8b05e, type: 3}
   labelCount: 0
 --- !u!1 &1454018440
