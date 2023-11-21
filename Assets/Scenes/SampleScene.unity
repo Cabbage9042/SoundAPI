@@ -220,6 +220,7 @@ GameObject:
   - component: {fileID: 881952081}
   - component: {fileID: 881952079}
   - component: {fileID: 881952083}
+  - component: {fileID: 881952084}
   m_Layer: 0
   m_Name: Audio
   m_TagString: Untagged
@@ -479,3 +480,18 @@ MonoBehaviour:
       Gain: 0
   selectedEqualizer: 020000000000000000000000000000000000000000000000
   usingScript: 0
+--- !u!114 &881952084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 881952074}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8ef7a67f6bdcde40ad6eb211cfc6c58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  saveIntoFile: 0
+  calculateAmplitude: 0
+  absoluteOutputPath: C:\tarc\fyp\project\SoundAPI\SoundAPI\Assets\Audio\FromMicro.wav

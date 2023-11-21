@@ -29,7 +29,7 @@ public class EqualizerBand {
 
 
         for (int i = 0; i < bands.Length; i++) {
-            bands[i] = new EqualizerBand((int)ModifiedAudio.GetFrequencyByIndex(i), 0.8f, 8.0f);
+            bands[i] = new EqualizerBand((int)Equalizer.GetFrequencyByIndex(i), 0.8f, 8.0f);
 
         }
 

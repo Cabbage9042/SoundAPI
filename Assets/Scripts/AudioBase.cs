@@ -255,7 +255,7 @@ public class AudioBase : MonoBehaviour {
         audio?.UpdateEqualizer();
     }
     public void SetEqualizer(Frequency frequency, float Gain) {
-        int index = ModifiedAudio.GetIndexByFrequency(frequency);
+        int index = Equalizer.GetIndexByFrequency(frequency);
         this.EqualizerProperty.equalizerBands[index].Gain = Gain;
 
     }

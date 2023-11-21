@@ -87,26 +87,11 @@ public class ModifiedAudio : ISampleProvider {
 
 
     public void ChangeGain(Frequency frequency, float Gain) {
-        int index = GetIndexByFrequency(frequency);
+        int index = Equalizer. GetIndexByFrequency(frequency);
         if (equalizer.equalizerBands[index].Gain == Gain) return;
         equalizer.equalizerBands[index].Gain = Gain;
         Update();
 
-    }
-
-
-
-
-    public static int GetIndexByFrequency(Frequency frequency) {
-        Frequency[] values = (Frequency[])Enum.GetValues(typeof(Frequency));
-        int x = Array.IndexOf(values, frequency);
-        return x;
-    }
-
-
-
-    public static Frequency GetFrequencyByIndex(int index) {
-        return (Frequency)System.Enum.GetValues(typeof(Frequency)).GetValue(index);
     }
 
 

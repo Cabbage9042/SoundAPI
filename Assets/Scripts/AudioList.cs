@@ -394,7 +394,7 @@ public class AudioList : AudioBase {
     }
 
     public void SetGain(int equalizerIndex, Frequency frequency, float gain) {
-        equalizerList[equalizerIndex].equalizerBands[ModifiedAudio.GetIndexByFrequency(frequency)].Gain = gain;
+        equalizerList[equalizerIndex].equalizerBands[Equalizer.GetIndexByFrequency(frequency)].Gain = gain;
     }
 
 

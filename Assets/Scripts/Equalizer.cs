@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class Equalizer : IEnumerable<EqualizerBand> {
+public class Equalizer {
 
     public static float MIN_GAIN { get { return EqualizerBand.MIN_GAIN; } }
 
@@ -25,7 +25,7 @@ public class Equalizer : IEnumerable<EqualizerBand> {
     public Equalizer() {
         equalizerBands = new EqualizerBand[DEFAULY_EQUALIZER_BANDS_COUNT];
         for (int i = 0; i < equalizerBands.Length; i++) {
-            equalizerBands[i] = new EqualizerBand((int)ModifiedAudio.GetFrequencyByIndex(i), 0.8f, 0.0f);
+            equalizerBands[i] = new EqualizerBand((int)GetFrequencyByIndex(i), 0.8f, 0.0f);
 
         }
     }
@@ -35,14 +35,18 @@ public class Equalizer : IEnumerable<EqualizerBand> {
 
 
 
-    public IEnumerator<EqualizerBand> GetEnumerator() {
-        for (int i = 0; i < Length; ++i) {
-            yield return equalizerBands[i];
-        }
+    public static int GetIndexByFrequency(Frequency frequency) {
+        Frequency[] values = (Frequency[])Enum.GetValues(typeof(Frequency));
+        int x = Array.IndexOf(values, frequency);
+        return x;
     }
 
-    IEnumerator IEnumerable.GetEnumerator() {
-        return GetEnumerator();
+
+
+    public static Frequency GetFrequencyByIndex(int index) {
+        return (Frequency)System.Enum.GetValues(typeof(Frequency)).GetValue(index);
     }
+
+
 }
 

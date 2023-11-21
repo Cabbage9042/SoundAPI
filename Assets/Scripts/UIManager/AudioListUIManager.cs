@@ -258,7 +258,7 @@ public class AudioListUIManager : MonoBehaviour {
 
     public void ChangeGain(int equalizerIndex, int equalizerBandIndex) {
         float gain = equalizerSliderArray[equalizerBandIndex].GetComponent<Slider>().value;
-        audioList.SetGain(equalizerIndex, ModifiedAudio.GetFrequencyByIndex(equalizerBandIndex), gain);
+        audioList.SetGain(equalizerIndex, Equalizer.GetFrequencyByIndex(equalizerBandIndex), gain);
         audioList.UpdateEqualizer();
     }
 
