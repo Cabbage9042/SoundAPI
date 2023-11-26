@@ -4,19 +4,21 @@ using UnityEngine;
 using NAudio.Wave;
 using System.Reflection;
 using System;
-using UnityEditorInternal;
 
 #if UNITY_EDITOR
 using UnityEditor;
+using UnityEditorInternal;
 #endif
 
 public class AudioBasic : AudioBase {
-    public AudioClip audioClip = null;
+    //public AudioClip audioClip = null;
+    public string audioClipPath = null;
+    private string directory = null;
+    public bool usingScript = false;
 
 
 
-
-    public bool loop = false;
+    public bool Loop = false;
 
     /// <summary>
     /// 
@@ -34,7 +36,7 @@ public class AudioBasic : AudioBase {
 
 
 
-    public void setAudioClip(MonoBehaviour methodOwner, string path) {
+    public void setAudio(MonoBehaviour methodOwner, string path) {
         audio = new Audio(path, methodOwner);
 
         onAudioStartedMethod = new MethodCalled[0];
@@ -42,27 +44,29 @@ public class AudioBasic : AudioBase {
         onAudioResumedMethod = new MethodCalled[0];
         onAudioRestartedMethod = new MethodCalled[0];
         onAudioStoppedMethod = new MethodCalled[0];
+
+        usingScript = true;
     }
 
     void Start() {
 
 
         //if got audio attached
-        if (audioClip != null) {
+        if (audioClipPath == null || audioClipPath.Length == 0) return;
 
-            //assign new audio into audio
-            UpdateLatestAudio();
+        //assign new audio into audio
+        UpdateLatestAudio();
 
-            //check need to play on start or not
-            if (playOnStart == false) return;
+        //check need to play on start or not
+        if (PlayOnStart == false) return;
 
 
-            Play();
-        }
+        Play();
+
 
     }
 
-    
+
 
 
 
@@ -70,7 +74,7 @@ public class AudioBasic : AudioBase {
     public void Play() {
 
         base.Play(OnAudioStopped_CheckLoop);
-
+        print("is play" + audio.FilePath);
     }
 
 
@@ -84,7 +88,7 @@ public class AudioBasic : AudioBase {
 
     private void OnAudioStopped_CheckLoop(MonoBehaviour audioBase, Audio stoppedAudio, bool hasFinishedPlaying) {
         if (hasFinishedPlaying) {
-            if (loop) {
+            if (Loop) {
                 Play();
             }
         }
@@ -96,15 +100,24 @@ public class AudioBasic : AudioBase {
 
 
     private void UpdateLatestAudio() {
-        audio = Audio.AudioClipToAudio(audioClip, this);
+        //audio = Audio.AudioClipToAudio(audioClip, this);
+
+        audio = new Audio(audioClipPath, this);
 
     }
 
 
+    public new void SetGain(Frequency frequency, float gain) {
+        base.SetGain(frequency, gain);
+    }
 
+    public new void GetGain(Frequency frequency) {
+        base.GetGain(frequency);
+    }
 
-
-
+    public new void SetEqualizer(Equalizer equalizer) {
+        base.SetEqualizer(equalizer);
+    }
 
 #if UNITY_EDITOR
     [CustomEditor(typeof(AudioBasic))]
@@ -114,7 +127,7 @@ public class AudioBasic : AudioBase {
         private string previousString;
         private long audioCurrentPosition;
 
-        SerializedProperty audioClip;
+        SerializedProperty audioClipPath;
         private SerializedProperty playOnStart;
         private SerializedProperty loop;
         private SerializedProperty SpeakerDeviceNumber;
@@ -149,11 +162,11 @@ public class AudioBasic : AudioBase {
             InitializeHeaderName();
 
             audioBasic = (AudioBasic)target;
-            audioClip = serializedObject.FindProperty("audioClip");
-            playOnStart = serializedObject.FindProperty("playOnStart");
-            loop = serializedObject.FindProperty("loop");
+            audioClipPath = serializedObject.FindProperty("audioClipPath");
+            playOnStart = serializedObject.FindProperty("PlayOnStart");
+            loop = serializedObject.FindProperty("Loop");
             SpeakerDeviceNumber = serializedObject.FindProperty("SpeakerDeviceNumber");
-            pitchFactor = serializedObject.FindProperty("pitchFactor");
+            pitchFactor = serializedObject.FindProperty("PitchFactor");
             volume = serializedObject.FindProperty("volume");
 
             Panning = serializedObject.FindProperty("Panning");
@@ -189,7 +202,19 @@ public class AudioBasic : AudioBase {
             }
 
             //audioclip field
-            EditorGUILayout.PropertyField(audioClip, true);
+
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("File Path");
+            EditorGUILayout.LabelField(audioBasic.audioClipPath);
+
+            //EditorGUILayout.PropertyField(audioClipPath);
+            EditorGUILayout.EndHorizontal();
+
+            if (GUILayout.Button("Select your audio")) {
+                if (audioBasic.directory == null) audioBasic.directory = Application.dataPath;
+                audioBasic.audioClipPath = EditorUtility.OpenFilePanel("Select your audio", audioBasic.directory, "wav, mp3");
+            }
 
             //play on start 
             EditorGUI.BeginDisabledGroup(Application.isPlaying); // Disable the EnumPopup
@@ -209,13 +234,13 @@ public class AudioBasic : AudioBase {
 
             if (Application.isPlaying) {
                 //if the object field got audio
-                if (audioClip.objectReferenceValue != null) {
+                if (audioClipPath.stringValue != null) {
 
                     //if the audio has been changed (programmer drag into field while game running)
-                    if (audioClip.objectReferenceValue.name != previousString && previousString != null) {
+                    if (audioClipPath.stringValue != previousString && previousString != null) {
 
                         //if the programmer drag the same audio into the field, the audio continue playing
-                        if (((AudioClip)audioClip.objectReferenceValue).name == audioBasic.audio?.NameWoExtension && audioBasic.audio.State == PlaybackState.Playing) {
+                        if (audioClipPath.stringValue == audioBasic.audio?.NameWoExtension && audioBasic.audio.State == PlaybackState.Playing) {
                             audioBasic.audio.Position = audioCurrentPosition;
                             audioBasic.audio.Play(checkStopped: false);
                         }
@@ -234,7 +259,7 @@ public class AudioBasic : AudioBase {
             }
 
             //disable the audio.name != string checking, the audio will immediately change when a new audio drag into the field
-            previousString = ((AudioClip)audioClip.objectReferenceValue)?.name;
+            previousString = audioClipPath.stringValue;
 
 
 
@@ -247,7 +272,7 @@ public class AudioBasic : AudioBase {
             }
 
 
-
+            //panning
             lastFramePanning = Panning.floatValue;
 
             EditorGUILayout.BeginHorizontal();
@@ -347,7 +372,7 @@ public class AudioBasic : AudioBase {
 
 
         }
- #region Event
+        #region Event
         struct ListHolder {
             public ReorderableList list;
             public string headerName;
@@ -442,6 +467,6 @@ public class AudioBasic : AudioBase {
 
 
     }
-       
+
 #endif
 }

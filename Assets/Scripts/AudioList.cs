@@ -2,12 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using UnityEditorInternal;
 using System.Reflection;
 using NAudio.Wave;
 
 #if UNITY_EDITOR
 using UnityEditor;
+using UnityEditorInternal;
 #endif
 
 
@@ -18,7 +18,7 @@ public class AudioList : AudioBase {
     public List<Audio> audioList;
 
     public int currentPosition = 0;
-    public LoopMode mode = LoopMode.Sequence;
+    public LoopMode Mode = LoopMode.Sequence;
     private bool PlayNextAudio = true;
     private bool audioIsPlaying = false;
 
@@ -94,9 +94,9 @@ public class AudioList : AudioBase {
                     return;
                 }
             }
-
+#if UNITY_EDITOR
             audioList.Add(Audio.AudioClipToAudio(audioClipArray[i], this));
-
+#endif
         }
     }
 
@@ -109,8 +109,9 @@ public class AudioList : AudioBase {
             while (audioClipArray[i] == null) {
                 i++;
             }
+#if UNITY_EDITOR
             audioList.Add(Audio.AudioClipToAudio(audioClipArray[i], this));
-
+#endif
         }
     }
 
@@ -138,13 +139,14 @@ public class AudioList : AudioBase {
                 return audioI.ToString() + " " + audioClipI.ToString();
             }
 
+#if UNITY_EDITOR
             if (audioList[audioI].FilePath.EndsWith(
                 AssetDatabase.GetAssetPath(audioClipArray[audioClipI].GetInstanceID())
                 ) == false) {
 
                 return audioI.ToString() + " " + audioClipI.ToString();
             }
-
+#endif
         }
 
         return "-1";
@@ -244,7 +246,7 @@ public class AudioList : AudioBase {
 
 
     private void DefaultOnAudioStopped(MonoBehaviour audioBase, Audio stoppedAudio, bool hasPlayedFinished) {
-        if (mode == LoopMode.Once) {
+        if (Mode == LoopMode.Once) {
             audioIsPlaying = false;
             return;
         }
@@ -265,7 +267,7 @@ public class AudioList : AudioBase {
 
 
 
-    public void setAudioClip(MonoBehaviour methodOwner, string path, int index) {
+    public void SetAudio(MonoBehaviour methodOwner, string path, int index) {
         if (audioList == null) {
             audioList = new();
         }
@@ -286,13 +288,15 @@ public class AudioList : AudioBase {
         onAudioResumedMethod = new MethodCalled[0];
         onAudioRestartedMethod = new MethodCalled[0];
         onAudioStoppedMethod = new MethodCalled[0];
+
+        usingScript = true;
     }
 
 
     #region LoopMode
 
     private void ChangeNextSong() {
-        switch (mode) {
+        switch (Mode) {
             case LoopMode.Sequence:
                 SequenceNextSong();
                 break;
@@ -342,7 +346,7 @@ public class AudioList : AudioBase {
     #endregion
 
 
-    private void OnDestroy() {
+    private new void OnDestroy() {
         if (audioList == null) return;
         if (audioList?.Count != 0) {
             foreach (var audio in audioList) {
@@ -357,7 +361,7 @@ public class AudioList : AudioBase {
 
         if (audioClipArray == null || audioClipArray.Length == 0) return;
 
-        if (playOnStart == false) return;
+        if (PlayOnStart == false) return;
 
 
         audioList = new();
@@ -397,7 +401,9 @@ public class AudioList : AudioBase {
         equalizerList[equalizerIndex].equalizerBands[Equalizer.GetIndexByFrequency(frequency)].Gain = gain;
     }
 
-
+    public float GetGain(int equalizerIndex, Frequency frequency) {
+        return equalizerList[equalizerIndex].equalizerBands[Equalizer.GetIndexByFrequency(frequency)].Gain;
+    }
     public void SetEqualizerToAudio(int equalizerIndex, int audioIndex) {
         selectedEqualizer[audioIndex] = equalizerIndex;
         if (audioIndex == currentPosition) {
@@ -406,7 +412,7 @@ public class AudioList : AudioBase {
         }
     }
 
-    public void SetEqualizer(Equalizer equalizer, int equalizerIndex) {
+    public void SetEqualizerByIndex(Equalizer equalizer, int equalizerIndex) {
         if (equalizerList[equalizerIndex] == CurrentEqualizer) {
             equalizerList[equalizerIndex] = equalizer;
             CurrentEqualizer = equalizerList[equalizerIndex];
@@ -414,6 +420,14 @@ public class AudioList : AudioBase {
             return;
         }
         equalizerList[equalizerIndex] = equalizer;
+    }
+
+    public Equalizer GetCurrentEqualizer() {
+        return EqualizerProperty;
+    }
+
+    public Equalizer GetEqualizerByIndex(int index) {
+        return equalizerList[index];
     }
 
 #if UNITY_EDITOR
@@ -462,13 +476,13 @@ public class AudioList : AudioBase {
 
             audioList = (AudioList)target;
             audioClipArray = serializedObject.FindProperty("audioClipArray");
-            mode = serializedObject.FindProperty("mode");
-            playOnStart = serializedObject.FindProperty("playOnStart");
+            mode = serializedObject.FindProperty("Mode");
+            playOnStart = serializedObject.FindProperty("PlayOnStart");
 
             SpeakerDeviceNumber = serializedObject.FindProperty("SpeakerDeviceNumber");
             labelStyle.normal.textColor = Color.yellow;
 
-            pitchFactor = serializedObject.FindProperty("pitchFactor");
+            pitchFactor = serializedObject.FindProperty("PitchFactor");
             volume = serializedObject.FindProperty("volume");
             Panning = serializedObject.FindProperty("Panning");
             equalizerList = serializedObject.FindProperty("equalizerList");
@@ -814,10 +828,9 @@ public class AudioList : AudioBase {
     }
 
 
+#endif
+
 }
 
 
 
-
-
-#endif

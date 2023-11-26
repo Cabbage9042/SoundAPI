@@ -4,12 +4,12 @@ using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 using NAudio.Wave.SampleProviders;
-using UnityEditor;
 using NAudio.Dsp;
+using UnityEngine;
 
 #if UNITY_EDITOR
 
-using UnityEngine;
+using UnityEditor;
 #endif
 
 public class Audio {
@@ -34,7 +34,6 @@ public class Audio {
         get { return ModifiedWave.equalizer; }
         set {
             ModifiedWave.equalizer = value;
-            ModifiedWave.Update();
         }
     }
     private bool AudioHasFinished = true;
@@ -472,7 +471,9 @@ public class Audio {
             }
             MonoToStereoSampleProvider newReader = new MonoToStereoSampleProvider(OriginalWave.ToSampleProvider());
             WaveFileWriter.CreateWaveFile(wavMonoFilePath, newReader.ToWaveProvider());
+#if UNITY_EDITOR
             AssetDatabase.Refresh();
+#endif
             return new WaveFileReader(wavMonoFilePath);
 
         }
@@ -505,7 +506,9 @@ public class Audio {
                 else {
                     WaveFileWriter.CreateWaveFile(wavFilePath, reader);
                 }
+#if UNITY_EDITOR
                 AssetDatabase.Refresh();
+#endif
             }
 
             return new WaveFileReader(wavFilePath);
@@ -571,13 +574,13 @@ public class Audio {
     }
 
     public void UpdateEqualizer() {
-        ModifiedWave.Update();
+        ModifiedWave.UpdateEqualizer();
     }
 
 
     #endregion
 
-
+#if UNITY_EDITOR
     public static Audio AudioClipToAudio(AudioClip audioClip, AudioBase audioBase) {
         string[] assetPathArray = AssetDatabase.GetAssetPath(audioClip.GetInstanceID()).Split("/");
         string path = Application.dataPath + "/";
@@ -589,7 +592,7 @@ public class Audio {
         return new Audio(path, audioBase);
 
     }
-
+#endif
 
 
 

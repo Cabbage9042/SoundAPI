@@ -6,19 +6,19 @@ using UnityEngine;
 
 public class BufferedWave : IWaveProvider {
 
-    private readonly IWaveProvider sourceWaveProvider;
+    public BufferedWaveProvider bufferedWaveProvider;
     public double[] amplitude;
-    public bool CalculateAmplitude { get; set; } = false;
+    public bool CalculateAmplitude { get; set; } = true;
 
-    public BufferedWave(IWaveProvider wave) {
-        this.sourceWaveProvider = wave;
+    public BufferedWave(WaveFormat waveFormat) {
+        bufferedWaveProvider = new BufferedWaveProvider(waveFormat);
     }
 
-    public WaveFormat WaveFormat => sourceWaveProvider.WaveFormat;
+    public WaveFormat WaveFormat => bufferedWaveProvider.WaveFormat;
 
 
     public int Read(byte[] buffer, int offset, int count) {
-        int sampleRead = sourceWaveProvider.Read(buffer, offset, count);
+        int sampleRead = bufferedWaveProvider.Read(buffer, offset, count);
 
         if (CalculateAmplitude) {
             amplitude = SpectrumAnalyzer.GetAmplitude(buffer);

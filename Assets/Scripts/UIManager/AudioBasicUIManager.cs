@@ -1,3 +1,5 @@
+
+#if UNITY_EDITOR
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -89,7 +91,7 @@ public class AudioBasicUIManager : MonoBehaviour {
 
         if (path != "") {
             
-            audioBasic.setAudioClip(this, path);
+            audioBasic.setAudio(this, path);
         }
 
         audioBasic.AddOnAudioStarted(new MethodCalled(this, "AudioStarted"));
@@ -107,7 +109,7 @@ public class AudioBasicUIManager : MonoBehaviour {
         monoDropDown.GetComponent<TMP_Dropdown>().onValueChanged.AddListener(delegate { audioBasic.SetSpeakerNumber(monoDropDown.GetComponent<TMP_Dropdown>().value); });
 
 
-        audioBasic.loop = loopToggle.GetComponent<Toggle>().isOn;
+        audioBasic.Loop = loopToggle.GetComponent<Toggle>().isOn;
 
     }
 
@@ -137,17 +139,17 @@ public class AudioBasicUIManager : MonoBehaviour {
         volumeSlider.GetComponent<Slider>().value = 1;
     }
     public void ResetPanning() {
-        audioBasic.SetPanning(1);
+        audioBasic.SetPanning(0);
         panningSlider.GetComponent<Slider>().value = 0;
     }
 
     public void toggleLoop() {
         if (audioBasic == null) return;
         if (loopToggle.GetComponent<Toggle>().isOn) {
-            audioBasic.loop = true;
+            audioBasic.Loop = true;
         }
         else {
-            audioBasic.loop = false;
+            audioBasic.Loop = false;
         }
     }
     /*
@@ -213,51 +215,51 @@ public class AudioBasicUIManager : MonoBehaviour {
     #region Equalizer
 
     public void SetEqualizer31() {
-        audioBasic?.SetEqualizer(Frequency.F31, slider31.value);
+        audioBasic?.SetGain(Frequency.F31, slider31.value);
         audioBasic?.UpdateEqualizer();
     }
     public void SetEqualizer63() {
 
         audioBasic?.UpdateEqualizer();
-        audioBasic?.SetEqualizer(Frequency.F63, slider63.value);
+        audioBasic?.SetGain(Frequency.F63, slider63.value);
     }
     public void SetEqualizer125() {
 
-        audioBasic?.SetEqualizer(Frequency.F125, slider125.value);
+        audioBasic?.SetGain(Frequency.F125, slider125.value);
         audioBasic?.UpdateEqualizer();
     }
     public void SetEqualizer250() {
 
-        audioBasic?.SetEqualizer(Frequency.F250, slider250.value);
+        audioBasic?.SetGain(Frequency.F250, slider250.value);
         audioBasic?.UpdateEqualizer();
     }
     public void SetEqualizer500() {
 
-        audioBasic?.SetEqualizer(Frequency.F500, slider500.value);
+        audioBasic?.SetGain(Frequency.F500, slider500.value);
         audioBasic?.UpdateEqualizer();
     }
     public void SetEqualizer1k() {
 
-        audioBasic?.SetEqualizer(Frequency.F1k, slider1k.value);
+        audioBasic?.SetGain(Frequency.F1k, slider1k.value);
         audioBasic?.UpdateEqualizer();
     }
     public void SetEqualizer2k() {
 
-        audioBasic?.SetEqualizer(Frequency.F2k, slider2k.value);
+        audioBasic?.SetGain(Frequency.F2k, slider2k.value);
         audioBasic?.UpdateEqualizer();
     }
     public void SetEqualizer4k() {
 
-        audioBasic?.SetEqualizer(Frequency.F4k, slider4k.value);
+        audioBasic?.SetGain(Frequency.F4k, slider4k.value);
         audioBasic?.UpdateEqualizer();
     }
     public void SetEqualizer8k() {
-        audioBasic?.SetEqualizer(Frequency.F8k, slider8k.value);
+        audioBasic?.SetGain(Frequency.F8k, slider8k.value);
         audioBasic?.UpdateEqualizer();
 
     }
     public void SetEqualizer16k() {
-        audioBasic.SetEqualizer(Frequency.F16k, slider16k.value);
+        audioBasic.SetGain(Frequency.F16k, slider16k.value);
         audioBasic.UpdateEqualizer();
 
     }
@@ -273,3 +275,4 @@ public class AudioBasicUIManager : MonoBehaviour {
         return tempDirectory;
     }
 }
+#endif

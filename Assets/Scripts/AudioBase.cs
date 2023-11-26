@@ -82,9 +82,9 @@ public class AudioBase : MonoBehaviour {
         }
     }
 
-    public bool playOnStart;
+    public bool PlayOnStart;
 
-    public float pitchFactor = 1.0f;
+    public float PitchFactor = 1.0f;
 
     public float volume = 1.0f;
     public MethodCalled[] onAudioStartedMethod;
@@ -115,7 +115,7 @@ public class AudioBase : MonoBehaviour {
 
     public int SampleRate { get { return audio.WaveFormat.SampleRate; } }
 
-    public double[] GetAmplitude(float offset = 0) {
+    public double[] GetAmplitude(float offset) {
 
 
         if (offset < 0) {
@@ -151,6 +151,11 @@ public class AudioBase : MonoBehaviour {
         return fft;
 
     }
+
+    public double[] GetAmplitude() {
+        return GetAmplitude(0.0f);
+    }
+
     public double[] GetAmplitude(double[] amplitudes, int[] targetFrequencies, int sampleRate) {
         return SpectrumAnalyzer.GetAmplitude(amplitudes, targetFrequencies, sampleRate);
     }
@@ -185,7 +190,7 @@ public class AudioBase : MonoBehaviour {
                 audio.OnAudioStopped += (Action<MonoBehaviour, Audio, bool>)Delegate.CreateDelegate(typeof(Action<MonoBehaviour, Audio, bool>), null, method.methodToCall);
             }
         }
-        catch (TargetParameterCountException) {
+        catch (Exception) {
             Debug.LogError("Parameter mismatch. Please change your parameter variable, or change your method");
             return;
         }
@@ -194,7 +199,7 @@ public class AudioBase : MonoBehaviour {
         audio.OnAudioStopped += defaultStop;
 
         audio.SetSpeakerNumber(SpeakerDeviceNumber);
-        audio.ChangePitch(pitchFactor);
+        audio.ChangePitch(PitchFactor);
         audio.Volume = volume;
         audio.Panning = Panning;
         audio?.Play();
@@ -228,42 +233,68 @@ public class AudioBase : MonoBehaviour {
         audio?.Pause();
     }
 
-    #region Equalizer
 
-
-
-    public void SetPanning(float Panning) {
-        if (audio != null) audio.Panning = Panning;
-        this.Panning = Panning;
+    public void SetPanning(float panning) {
+        if (audio != null) audio.Panning = panning;
+        this.Panning = panning;
     }
+    public float GetPanning() { return Panning; }
 
     public void SetPitch(float pitchFactor) {
-        this.pitchFactor = pitchFactor;
+        this.PitchFactor = pitchFactor;
         audio?.ChangePitch(pitchFactor);
     }
+    public float GetPitch() { return PitchFactor; }
 
     public void SetVolume(float volume) {
         this.volume = volume;
         if (audio != null) audio.Volume = volume;
     }
 
+    public float GetVolume() {
+        return volume;
+    }
+
     public void SetSpeakerNumber(int id) {
         audio.SetSpeakerNumber(id);
         SpeakerDeviceNumber = id;
     }
+
+    public int GetSpeakerNumber() {
+
+        return SpeakerDeviceNumber;
+    }
+    #region Equalizer
+
+
     public void UpdateEqualizer() {
         audio?.UpdateEqualizer();
     }
-    public void SetEqualizer(Frequency frequency, float Gain) {
+    protected void SetGain(Frequency frequency, float gain) {
         int index = Equalizer.GetIndexByFrequency(frequency);
-        this.EqualizerProperty.equalizerBands[index].Gain = Gain;
+        this.EqualizerProperty.equalizerBands[index].Gain = gain;
 
     }
+    protected float GetGain(Frequency frequency) {
+        int index = Equalizer.GetIndexByFrequency(frequency);
+        return this.EqualizerProperty.equalizerBands[index].Gain;
+    }
+
+    protected void SetEqualizer(Equalizer equalizer) {
+        EqualizerProperty = equalizer;
+        UpdateEqualizer();
+    }
+
+    public Equalizer GetEqualizer() {
+        return EqualizerProperty;
+    }
+
     #endregion
-    private void OnDestroy() {
+    public void OnDestroy() {
         audio?.Stop();
         audio?.Dispose();
     }
+
     #region Add Remove OnEvent
 
     #region Started

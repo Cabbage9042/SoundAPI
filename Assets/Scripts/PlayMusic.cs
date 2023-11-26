@@ -7,10 +7,10 @@ public class PlayMusic : MonoBehaviour {
     public new AudioBasic  audio;
     public void DoAfterFinish(MonoBehaviour audioBase, Audio stoppedAudio, bool hasPlayedFinished) {
         if (hasPlayedFinished) {
-            print("yes");
+            Debug.LogError("yes");
         }
         else {
-            print("no");
+            Debug.LogError("no");
         }
 
     }
@@ -19,52 +19,52 @@ public class PlayMusic : MonoBehaviour {
 
     public void DoRestart(MonoBehaviour audioBase, Audio stoppedAudio, bool sameAsPlay) {
         if (sameAsPlay) {
-            print("yes");
+            Debug.LogError("yes");
         }
         else {
-            print("no");
+            Debug.LogError("no");
         }
 
 
     }
 
     public void OnStart(MonoBehaviour audioBase, Audio audio) {
-        print(audio.Channels);
+        Debug.LogError(audio.Channels);
     }
 
     public void OnPause(MonoBehaviour audioBase, Audio audio) {
-        print("Pause");
+        Debug.LogError("Pause");
     }
 
     public void OnResume(MonoBehaviour audioBase, Audio audio) {
-        print("Resume");
+        Debug.LogError("Resume");
     }
     public void OnRestart(MonoBehaviour audioBase, Audio audio, bool sameAsPlay) {
-        print("Restart " + (sameAsPlay ? "Same as play" : "Not same as play"));
+        Debug.LogError("Restart " + (sameAsPlay ? "Same as play" : "Not same as play"));
     }
 
 
 
     public void OnStop(MonoBehaviour audioBase, Audio audio, bool ReachEnd) {
-        print("Stop " + (ReachEnd ? "Reach End" : "Not reach end"));
+        Debug.LogError("Stop " + (ReachEnd ? "Reach End" : "Not reach end"));
     }
 
     public void DoBeforeFinish(MonoBehaviour audioBase, Audio currentAudio) {
-        print(currentAudio.Name);
+        Debug.LogError(currentAudio.Name);
     }
     public void DoBeforeFinish2(MonoBehaviour audioBase, Audio currentAudio) {
-        print(currentAudio.Name + "2");
+        Debug.LogError(currentAudio.Name + "2");
     }
     public void DoBeforeFinish3(MonoBehaviour audioBase, Audio currentAudio) {
-        print(currentAudio.Name + "3");
+        Debug.LogError(currentAudio.Name + "3");
     }
 
     public void DoAfterFinish2(MonoBehaviour audioBase, Audio stoppedAudio, bool hasPlayedFinished) {
         if (hasPlayedFinished) {
-            print("yes2");
+            Debug.LogError("yes2");
         }
         else {
-            print("no2");
+            Debug.LogError("no2");
         }
     }
     private void Update() {
@@ -98,6 +98,15 @@ public class PlayMusic : MonoBehaviour {
             audio.RemoveAllOnAudioStarted();
         }
         else if (Input.GetKeyDown(KeyCode.C)) {
+        }
+        if (Input.GetKeyDown(KeyCode.UpArrow)) {
+            audio.SetGain(Frequency.F1k,8);
+            audio.SetGain(Frequency.F2k,8);
+            audio.UpdateEqualizer();
+        }else if (Input.GetKeyDown(KeyCode.DownArrow)) {
+            audio.SetGain(Frequency.F1k, 0);
+            audio.SetGain(Frequency.F2k, 0);
+            audio.UpdateEqualizer();
         }
 
         if (audio?.State == NAudio.Wave.PlaybackState.Playing) {

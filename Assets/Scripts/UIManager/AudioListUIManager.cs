@@ -1,3 +1,5 @@
+
+#if UNITY_EDITOR
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -38,6 +40,10 @@ public class AudioListUIManager : MonoBehaviour {
 
     public GameObject[] equalizerSliderArray;
     public GameObject equalizerCanvas;
+
+    public TextMeshProUGUI pitchValueLabel;
+    public TextMeshProUGUI volumeValueLabel;
+    public TextMeshProUGUI panningValueLabel;
 
     private void Start() {
         audioList = GameObject.Find("Audio").AddComponent(typeof(AudioList)) as AudioList;
@@ -159,7 +165,7 @@ public class AudioListUIManager : MonoBehaviour {
         if (path == "") return;
 
         int index = Int32.Parse(EventSystem.current.currentSelectedGameObject.name.Split(' ')[2]);
-        audioList.setAudioClip(this, path, index);
+        audioList.SetAudio(this, path, index);
 
 
 
@@ -214,7 +220,7 @@ public class AudioListUIManager : MonoBehaviour {
         int index = loopModeDropDown.value;
         LoopMode target = (LoopMode)(Enum.GetValues(typeof(LoopMode)).GetValue(index));
 
-        audioList.mode = target;
+        audioList.Mode = target;
     }
 
 
@@ -289,6 +295,31 @@ public class AudioListUIManager : MonoBehaviour {
 
     }
 
+    public void ResetPitch() {
+        audioList.SetPitch(1);
+        pitchSlider.GetComponent<Slider>().value = 1;
+    }
+    public void ResetVolume() {
+        audioList.SetVolume(1);
+        volumeSlider.GetComponent<Slider>().value = 1;
+    }
+    public void ResetPanning() {
+        audioList.SetPanning(0);
+        panningSlider.GetComponent<Slider>().value = 0;
+    }
+
+    public void ChangePitchLabel() {
+        pitchValueLabel.text = Math.Round(pitchSlider.GetComponent<Slider>().value, 2).ToString();
+    }
+
+    public void ChangeVolumeLabel() {
+        volumeValueLabel.text = Math.Round(volumeSlider.GetComponent<Slider>().value, 2).ToString();
+    }
+
+    public void ChangePanningLabel() {
+        panningValueLabel.text = Math.Round(panningSlider.GetComponent<Slider>().value, 2).ToString();
+    }
+
     public string getDirectory(string path) {
 
         string tempDirectory = path;
@@ -335,3 +366,4 @@ public class AudioListUIManager : MonoBehaviour {
 
     #endregion
 }
+#endif

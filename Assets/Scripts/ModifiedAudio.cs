@@ -30,7 +30,7 @@ public class ModifiedAudio : ISampleProvider {
         get { return privateEqualizer; }
         set {
             privateEqualizer = value;
-            if (filter != null) { Update(); }
+            if (filter != null) { UpdateEqualizer(); }
         }
     }
 
@@ -80,7 +80,7 @@ public class ModifiedAudio : ISampleProvider {
     }
 
 
-    public void Update() {
+    public void UpdateEqualizer() {
         updated = true;
         CreateFilter();
     }
@@ -90,7 +90,7 @@ public class ModifiedAudio : ISampleProvider {
         int index = Equalizer. GetIndexByFrequency(frequency);
         if (equalizer.equalizerBands[index].Gain == Gain) return;
         equalizer.equalizerBands[index].Gain = Gain;
-        Update();
+        UpdateEqualizer();
 
     }
 

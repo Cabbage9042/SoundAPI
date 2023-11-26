@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -10,8 +11,9 @@ public class GraphManager : MonoBehaviour {
     public GameObject[] dotList;
     public AudioListUIManager audioListUIManager;
     public AudioBasicUIManager audioBasicUIManager;
+    public MicrophoneUIManager microphoneUIManager;
     public static int DOT_COUNT = 512;
-    public static float SPECTRUM_VISUALIZER_SCALE = 25;
+    public static float SPECTRUM_VISUALIZER_SCALE = 12.5f;
     private float dotOriginY;
 
     private int currentAudioRate = 0;
@@ -49,8 +51,9 @@ public class GraphManager : MonoBehaviour {
         //print(graph.GetComponent<RectTransform>().rect.width);
         //print(graph.transform.localPosition.x + " " + graph.transform.localPosition.y +' '+graph.transform.localPosition.z);
         double[] amplitude;
-        if (audioListUIManager == null) amplitude = audioBasicUIManager.GetAmplitude();
-        else amplitude = audioListUIManager.GetAmplitude();
+        if (audioBasicUIManager != null) amplitude = audioBasicUIManager.GetAmplitude();
+        else if (audioListUIManager != null) amplitude = audioListUIManager.GetAmplitude();
+        else amplitude = microphoneUIManager.GetAmplitude();
 
         if (amplitude == null) return;
 
@@ -64,8 +67,9 @@ public class GraphManager : MonoBehaviour {
             //if(max < amplitude[i])                 max = amplitude[i];
             //lineRenderer.GetComponent<LineRenderer>().SetPosition(i, dotList[i].transform.position);
         }
-        if (audioBasicUIManager == null)             ChangeLabelHz(audioListUIManager.audioList.SampleRate);
-        else ChangeLabelHz(audioBasicUIManager.audioBasic.SampleRate);
+        if (audioBasicUIManager != null) ChangeLabelHz(audioBasicUIManager.audioBasic.SampleRate);
+        else if (audioListUIManager != null) ChangeLabelHz(audioListUIManager.audioList.SampleRate);
+        else ChangeLabelHz(microphoneUIManager.SampleRate);
 
         //var target = audioListUIManager.GetAmplitude(amplitude, new int[] { 5000 }, audioListUIManager.audioList.SampleRate);
         //print(target[0]);
@@ -134,3 +138,4 @@ public class GraphManager : MonoBehaviour {
         }
     }
 }
+#endif
