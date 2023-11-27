@@ -48,7 +48,8 @@ public class Audio {
     /// </summary>
     public string Name {
         get {
-            string[] list = FilePath.Split("/");
+            string spliter = FilePath.Contains("/") ? "/" : "\\";
+            string[] list = FilePath.Split(spliter);
             return list[list.Length - 1];
         }
         private set { Name = value; }

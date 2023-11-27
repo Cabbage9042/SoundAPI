@@ -20,6 +20,14 @@ public class Microphone : MonoBehaviour {
 
     public float Panning = 0.0f;
 
+    public static string[] MicrophoneDevicesName => MicrophoneObject.GetMicrophoneDevicesName();
+
+    public static WaveInCapabilities[] MicrophoneDevices => MicrophoneObject.GetMicrophoneDevices();
+
+
+    public void Start() {
+        microphone.Initialize();
+    }
 
     public void StartCapture() {
         var waveFormat = new WaveFormat(SampleRate, Bit, Channel);
@@ -67,7 +75,13 @@ public class Microphone : MonoBehaviour {
         this.Channel = channel;
     }
 
+    public void SetMicrophoneNumber(int id) {
+        microphone?.SetMicrophoneNumber(id);
+    }
 
+    public int GetMicrophoneNumber() {
+        return microphone.GetSpeakerNumber;
+    }
 
     //  public void UpdateEqualizer() => microphone?.UpdateEqualizer();
     /*   public void SetEqualizer(Equalizer equalizer) {

@@ -1,12 +1,11 @@
 
-#if UNITY_EDITOR
+using SimpleFileBrowser;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using TMPro;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
@@ -54,45 +53,73 @@ public class AudioBasicUIManager : MonoBehaviour {
         List<string> speakerList = new(AudioBasic.speakerDevicesName);
 
         monoDropDown.GetComponent<TMP_Dropdown>().AddOptions(speakerList);
+
+        FileBrowser.SetFilters(true, new FileBrowser.Filter("Audio", ".mp3", ".wav"));
+        FileBrowser.SetDefaultFilter(".wav");
+        FileBrowser.SetExcludedExtensions(".lnk", ".tmp", ".zip", ".rar", ".exe");
+
+        audioBasic = GameObject.Find("Audio").GetComponent<AudioBasic>();// GetComponent<AudioBasic>();
+        audioBasic = GameObject.Find("Audio").AddComponent(typeof(AudioBasic)) as AudioBasic;
+        eventButton[0].GetComponent<Button>().onClick.AddListener(() => audioBasic.Stop());
+        eventButton[1].GetComponent<Button>().onClick.AddListener(() => audioBasic.Pause());
+        eventButton[2].GetComponent<Button>().onClick.AddListener(() => audioBasic.Play());
+        eventButton[3].GetComponent<Button>().onClick.AddListener(() => audioBasic.Play());
+        eventButton[4].GetComponent<Button>().onClick.AddListener(() => audioBasic.Restart());
+
+
+
+        monoDropDown.GetComponent<TMP_Dropdown>().onValueChanged.AddListener(delegate { audioBasic.SetSpeakerNumber(monoDropDown.GetComponent<TMP_Dropdown>().value); });
+        pitchSlider.GetComponent<Slider>().onValueChanged.AddListener(delegate { audioBasic.SetPitch(pitchSlider.GetComponent<Slider>().value); });
+        volumeSlider.GetComponent<Slider>().onValueChanged.AddListener(delegate { audioBasic.SetVolume(volumeSlider.GetComponent<Slider>().value); });
+        panningSlider.GetComponent<Slider>().onValueChanged.AddListener(delegate { audioBasic.SetPanning(panningSlider.GetComponent<Slider>().value); });
+
+
+
+
+
+        audioBasic.Loop = loopToggle.GetComponent<Toggle>().isOn;
     }
 
     //select your audio1
     public void getAudioPath() {
-
         if (directory == null) directory = Application.dataPath;
+        FileBrowser.ShowLoadDialog((paths) => { GetPathOnSuccess(paths[0]); }, () => { GetPathOnCancel(); },
+            FileBrowser.PickMode.Files, initialPath: directory);
 
-        path = EditorUtility.OpenFilePanel("Select your audio", directory, "wav,mp3");
-        if (string.IsNullOrEmpty(path)) {
-            print("No audio is selected!");
-        }
-        else {
-            directory = getDirectory(path);
-            print(path);
-        }
+
+
+
+        //path = EditorUtility.OpenFilePanel("Select your audio", directory, "wav,mp3");
+        /* if (string.IsNullOrEmpty(path)) {
+             print("No audio is selected!");
+         }
+         else {
+             directory = getDirectory(path);
+             print(path);
+         }*/
     }
+    private void GetPathOnSuccess(string path) {
+        directory = getDirectory(path);
+        print(path);
+        this.path = path;
 
-
+        addAudioBasic();
+        ChangeAudioNameSelected();
+    }
+    private void GetPathOnCancel() {
+        print("No audio is selected!");
+    }
     //select your audio2
     public void addAudioBasic() {
 
 
-        audioBasic = GameObject.Find("Audio").GetComponent<AudioBasic>();// GetComponent<AudioBasic>();
-        if (audioBasic == null) {
-            audioBasic = GameObject.Find("Audio").AddComponent(typeof(AudioBasic)) as AudioBasic;
-            eventButton[0].GetComponent<Button>().onClick.AddListener(() => audioBasic.Stop());
-            eventButton[1].GetComponent<Button>().onClick.AddListener(() => audioBasic.Pause());
-            eventButton[2].GetComponent<Button>().onClick.AddListener(() => audioBasic.Play());
-            eventButton[3].GetComponent<Button>().onClick.AddListener(() => audioBasic.Play());
-            eventButton[4].GetComponent<Button>().onClick.AddListener(() => audioBasic.Restart());
-        }
-        else {
-            audioBasic.Stop();
-        }
 
-        if (path != "") {
-            
-            audioBasic.setAudio(this, path);
-        }
+        audioBasic.Stop();
+
+
+
+        audioBasic.setAudio(this, path);
+
 
         audioBasic.AddOnAudioStarted(new MethodCalled(this, "AudioStarted"));
         audioBasic.AddOnAudioPaused(new MethodCalled(this, "AudioPaused"));
@@ -101,22 +128,13 @@ public class AudioBasicUIManager : MonoBehaviour {
         audioBasic.AddOnAudioStopped(new MethodCalled(this, "AudioStopped"));
 
 
-        pitchSlider.GetComponent<Slider>().onValueChanged.AddListener(delegate { audioBasic.SetPitch(pitchSlider.GetComponent<Slider>().value); });
-        volumeSlider.GetComponent<Slider>().onValueChanged.AddListener(delegate { audioBasic.SetVolume(volumeSlider.GetComponent<Slider>().value); });
-        panningSlider.GetComponent<Slider>().onValueChanged.AddListener(delegate { audioBasic.SetPanning(panningSlider.GetComponent<Slider>().value); });
 
-
-        monoDropDown.GetComponent<TMP_Dropdown>().onValueChanged.AddListener(delegate { audioBasic.SetSpeakerNumber(monoDropDown.GetComponent<TMP_Dropdown>().value); });
-
-
-        audioBasic.Loop = loopToggle.GetComponent<Toggle>().isOn;
 
     }
 
     //select ur audio 3
     public void ChangeAudioNameSelected() {
-        if (path != "")
-            ChangeAudioName(this, audioBasic.Name + " is selected!");
+        ChangeAudioName(this, audioBasic.Name + " is selected!");
     }
 
 
@@ -275,4 +293,3 @@ public class AudioBasicUIManager : MonoBehaviour {
         return tempDirectory;
     }
 }
-#endif

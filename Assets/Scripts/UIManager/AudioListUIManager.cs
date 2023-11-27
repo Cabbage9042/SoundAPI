@@ -1,5 +1,5 @@
 
-#if UNITY_EDITOR
+using SimpleFileBrowser;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -45,7 +45,13 @@ public class AudioListUIManager : MonoBehaviour {
     public TextMeshProUGUI volumeValueLabel;
     public TextMeshProUGUI panningValueLabel;
 
+    private int indexSelected;
+
     private void Start() {
+        FileBrowser.SetFilters(true, new FileBrowser.Filter("Audio", ".mp3", ".wav"));
+        FileBrowser.SetDefaultFilter(".wav");
+        FileBrowser.SetExcludedExtensions(".lnk", ".tmp", ".zip", ".rar", ".exe");
+
         audioList = GameObject.Find("Audio").AddComponent(typeof(AudioList)) as AudioList;
         audioList.usingScript = true;
         audioListContentSet = new();
@@ -116,8 +122,6 @@ public class AudioListUIManager : MonoBehaviour {
         Button deleteButton = audioListContentSet[audioIndex].transform.Find("Delete Button").GetComponent<Button>();
 
         audioButton.onClick.AddListener(delegate { getAudioPath(); });
-        audioButton.onClick.AddListener(delegate { addAudioBasic(); });
-        audioButton.onClick.AddListener(delegate { CheckAudioIndexAndTryActiveAddAudioButton(); });
         audioButton.name = "Audio Button " + (audioIndex).ToString();
 
         List<string> nameList = new(audioList.EqualizerListName);
@@ -125,6 +129,7 @@ public class AudioListUIManager : MonoBehaviour {
 
         equalizerDropDown.onValueChanged.AddListener(delegate { AudioChangeEqualizer(audioIndex); });
 
+        deleteButton.onClick.AddListener(delegate { GetIndexSelected(audioIndex); });
         deleteButton.onClick.AddListener(delegate { RemoveAudio(); });
         deleteButton.name = "Delete Button " + (audioIndex).ToString();
 
@@ -139,21 +144,41 @@ public class AudioListUIManager : MonoBehaviour {
         audioList.SetEqualizerToAudio(value, audioIndex);
     }
 
+
+
     //select audio1
+    public void GetIndexSelected(int index) {
+        int i = index;
+        indexSelected = i;
+    }
+
     public void getAudioPath() {
 
         if (directory == null) directory = Application.dataPath;
 
-        path = EditorUtility.OpenFilePanel("Select your audio", directory, "wav,mp3");
-        if (string.IsNullOrEmpty(path)) {
-            print("No audio is selected!");
-        }
-        else {
-            directory = getDirectory(path);
-            print(path);
-        }
+        indexSelected = Int32.Parse(EventSystem.current.currentSelectedGameObject.name.Split(' ')[2]);
+        FileBrowser.ShowLoadDialog((paths) => { GetPathOnSuccess(paths[0]); }, () => { GetPathOnCancel(); },
+         FileBrowser.PickMode.Files, initialPath: directory);
+        // path = EditorUtility.OpenFilePanel("Select your audio", directory, "wav,mp3");
+        /* if (string.IsNullOrEmpty(path)) {
+             print("No audio is selected!");
+         }
+         else {
+             directory = getDirectory(path);
+             print(path);
+         }*/
     }
+    private void GetPathOnSuccess(string path) {
+        directory = getDirectory(path);
+        print(path);
+        this.path = path;
 
+        addAudioBasic();
+        CheckAudioIndexAndTryActiveAddAudioButton();
+    }
+    private void GetPathOnCancel() {
+        print("No audio is selected!");
+    }
 
     //select your audio2
     public void addAudioBasic() {
@@ -164,7 +189,8 @@ public class AudioListUIManager : MonoBehaviour {
 
         if (path == "") return;
 
-        int index = Int32.Parse(EventSystem.current.currentSelectedGameObject.name.Split(' ')[2]);
+        //int index = Int32.Parse(EventSystem.current.currentSelectedGameObject.name.Split(' ')[2]);
+        int index = indexSelected;
         audioList.SetAudio(this, path, index);
 
 
@@ -186,7 +212,8 @@ public class AudioListUIManager : MonoBehaviour {
     public void CheckAudioIndexAndTryActiveAddAudioButton() {
 
         if (path == "") return;
-        int index = Int32.Parse(EventSystem.current.currentSelectedGameObject.name.Split(' ')[2]);
+        int index = indexSelected;
+        // int index = Int32.Parse(EventSystem.current.currentSelectedGameObject.name.Split(' ')[2]);
         if (index == audioListContentSet.Count - 1) {
             addAudioButton.GetComponent<Button>().enabled = true;
             addAudioButton.GetComponent<Image>().color = Color.white;
@@ -194,8 +221,9 @@ public class AudioListUIManager : MonoBehaviour {
     }
 
     public void RemoveAudio() {
-        int index = Int32.Parse(EventSystem.current.currentSelectedGameObject.name.Split(' ')[2]);
 
+        int index = Int32.Parse(EventSystem.current.currentSelectedGameObject.name.Split(' ')[2]);
+        //int index = indexSelected;
         int indexForAudioList = index;
         for (int i = 0; i < index; i++) {
             if (audioListContentSet[i].transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().text == "No Audio") {
@@ -206,7 +234,8 @@ public class AudioListUIManager : MonoBehaviour {
 
         for (int i = index + 1; i < audioListContentSet.Count; i++) {
             audioListContentSet[i].name = (i - 1).ToString();
-            audioListContentSet[i].transform.GetChild(2).GetComponent<Button>().name = (i - 1).ToString();
+            audioListContentSet[i].transform.GetChild(2).GetComponent<Button>().name = "Delete Button " + (i - 1).ToString();
+            audioListContentSet[i].transform.GetChild(0).GetComponent<Button>().name = "Audio Button " + (i - 1).ToString();
         }
 
         Destroy(audioListContentSet[index]);
@@ -234,8 +263,9 @@ public class AudioListUIManager : MonoBehaviour {
         audioList.AddNewEqualizer();
 
         int index = equalizerListContentSet.Count;
-        equalizerButton.onClick.AddListener(delegate { OpenEqualizer(index); });
         equalizerButton.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().text += (" " + index.ToString());
+        equalizerButton.onClick.AddListener(delegate { OpenEqualizer(index); });
+
 
         deleteButton.onClick.AddListener(delegate { RemoveEqualizer(); });
         deleteButton.name = "Delete Button " + (equalizerListContentSet.Count - 1).ToString();
@@ -269,8 +299,9 @@ public class AudioListUIManager : MonoBehaviour {
     }
 
     public void RemoveEqualizer() {
-        string indexString = EventSystem.current.currentSelectedGameObject.name.Split(' ')[2];
-        int index = Int32.Parse(indexString);
+        //string indexString = EventSystem.current.currentSelectedGameObject.name.Split(' ')[2];
+        //int index = Int32.Parse(indexString);
+        int index = indexSelected;
 
         for (int i = index + 1; i < equalizerListContentSet.Count; i++) {
             equalizerListContentSet[i].name = (i - 1).ToString();
@@ -366,4 +397,3 @@ public class AudioListUIManager : MonoBehaviour {
 
     #endregion
 }
-#endif

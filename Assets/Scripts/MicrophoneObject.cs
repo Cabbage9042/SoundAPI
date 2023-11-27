@@ -17,6 +17,8 @@ public class MicrophoneObject {
 
     private List<byte> buffer = new();
     public WaveFormat WaveFormat => waveIn.WaveFormat;
+    public int GetSpeakerNumber => waveIn.DeviceNumber;
+
    /* public Equalizer equalizer {
         get { return modifiedAudio.equalizer; }
         set {
@@ -50,11 +52,14 @@ public class MicrophoneObject {
         return microphoneDevicesName;
     }
 
+    public void Initialize() {
+        waveIn = new();
+    }
+
     private void StartCaptureCore(bool saveIntoFile, string outputPath, WaveFormat waveFormat) {
 
         if (IsPlaying) return;
 
-        waveIn = new WaveInEvent();
         waveIn.WaveFormat = waveFormat;
 
         waveIn.DataAvailable += WaveIn_DataAvailable;
@@ -142,6 +147,8 @@ public class MicrophoneObject {
     }
 
     public bool SetMicrophoneNumber(int id) {
+        if (IsPlaying) return false;
+
         if (id == waveIn.DeviceNumber) {
             return true;
         }

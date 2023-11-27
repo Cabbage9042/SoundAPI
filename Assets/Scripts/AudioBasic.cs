@@ -74,7 +74,7 @@ public class AudioBasic : AudioBase {
     public void Play() {
 
         base.Play(OnAudioStopped_CheckLoop);
-        print("is play" + audio.FilePath);
+        
     }
 
 

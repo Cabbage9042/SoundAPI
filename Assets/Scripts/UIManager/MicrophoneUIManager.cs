@@ -1,11 +1,14 @@
 
-#if UNITY_EDITOR
+using SimpleFileBrowser;
+using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class MicrophoneUIManager : MonoBehaviour {
 
+    private static string NO_FOLDER_SELECTED = "No folder selected";
     public Microphone microphone;
     public GameObject startRecording;
     public GameObject stopRecording;
@@ -14,21 +17,35 @@ public class MicrophoneUIManager : MonoBehaviour {
     public GameObject bitsInput;
     public GameObject channelInput;
 
-    public TextMeshProUGUI status;
+    public TextMeshProUGUI mainStatus;
+    public Toggle saveIntoFile;
+    public GameObject choosePath;
+    public GameObject enterFileName;
+    public GameObject saveFileStatus;
+    public GraphManager graphManager;
+
+    public TMP_Dropdown inputDropDown;
+
+    private string folder = null;
 
     public int SampleRate => microphone.GetSampleRate();
 
     // Start is called before the first frame update
     void Start() {
         microphone = GameObject.Find("Audio").AddComponent(typeof(Microphone)) as Microphone;
-        startRecording.GetComponent<Button>().onClick.AddListener(delegate { StartCapture(); });
+     /*   startRecording.GetComponent<Button>().onClick.AddListener(delegate { StartCapture(); });
         stopRecording.GetComponent<Button>().onClick.AddListener(delegate { StopCapture(); });
+*/
+        FileBrowser.SetFilters(true, new FileBrowser.Filter("Audio", ".mp3", ".wav"));
+        FileBrowser.SetDefaultFilter(".wav");
+        FileBrowser.SetExcludedExtensions(".lnk", ".tmp", ".zip", ".rar", ".exe");
+        stopRecording.GetComponent<Image>().color = Color.gray;
 
-        stopRecording.SetActive(false);
-
+        var inputList = new List<string>(Microphone.MicrophoneDevicesName);
+        inputDropDown.AddOptions(inputList);
     }
 
-    private void StartCapture() {
+    public void StartCapture() {
 
         int sampleRate, bits, channel;
         bool isSuccessed;
@@ -36,21 +53,21 @@ public class MicrophoneUIManager : MonoBehaviour {
         string sampleRateString = sampleRateInput.GetComponent<TMP_InputField>().text;
         isSuccessed = int.TryParse(sampleRateString, out sampleRate);
         if (!isSuccessed) {
-            status.text = "Sample Rate is not a integer!";
+            mainStatus.text = "Sample Rate is not a integer!";
             return;
         }
 
         string bitsString = bitsInput.GetComponent<TMP_InputField>().text;
         isSuccessed = int.TryParse(bitsString, out bits);
         if (!isSuccessed) {
-            status.text = "Bits is not a integer!";
+            mainStatus.text = "Bits is not a integer!";
             return;
         }
 
         string channelString = channelInput.GetComponent<TMP_InputField>().text;
         isSuccessed = int.TryParse(channelString, out channel);
         if (!isSuccessed) {
-            status.text = "Channel is not a integer!";
+            mainStatus.text = "Channel is not a integer!";
             return;
         }
 
@@ -59,30 +76,65 @@ public class MicrophoneUIManager : MonoBehaviour {
         microphone.SetSampleRate(sampleRate);
         microphone.SetBit(bits);
         microphone.SetChannel(channel);
-        microphone.StartCapture();
+
+        int microphoneID = inputDropDown.value;
+        microphone.SetMicrophoneNumber(microphoneID);
+
+        if (saveIntoFile.isOn) {
+
+            if (folder == null) {
+                mainStatus.text = "Folder is not selected!";
+                return;
+            }
+            string filename = enterFileName.GetComponent<TMP_InputField>().text;
+            if (filename == null) {
+                mainStatus.text = "Please enter your audio name!";
+                return;
+            }
+
+            if (!filename.EndsWith(".wav")) {
+                filename += ".wav";
+            }
+            string folderPlusName = folder + "\\" + filename;
+
+            microphone.absoluteOutputPath = folderPlusName;
+            microphone.saveIntoFile = true;
+            microphone.StartCapture();
+        }
+        else {
+
+            microphone.saveIntoFile = false;
+            microphone.StartCapture();
+        }
 
         startRecording.GetComponent<Button>().enabled = false;
+        startRecording.GetComponent<Image>().color = Color.gray;
+
         stopRecording.GetComponent<Button>().enabled = true;
+        stopRecording.GetComponent<Image>().color = Color.white;
 
         sampleRateInput.GetComponent<TMP_InputField>().enabled = false;
         bitsInput.GetComponent<TMP_InputField>().enabled = false;
         channelInput.GetComponent<TMP_InputField>().enabled = false;
 
-        status.text = "Recording!";
+        mainStatus.text = "Recording!";
 
     }
 
-    private void StopCapture() {
+    public void StopCapture() {
         microphone.StopCapture();
 
         startRecording.GetComponent<Button>().enabled = true;
+        startRecording.GetComponent<Image>().color = Color.white;
+
         stopRecording.GetComponent<Button>().enabled = false;
+        stopRecording.GetComponent<Image>().color = Color.gray;
 
         sampleRateInput.GetComponent<TMP_InputField>().enabled = true;
         bitsInput.GetComponent<TMP_InputField>().enabled = true;
         channelInput.GetComponent<TMP_InputField>().enabled = true;
 
-        status.text = "Stop Recorded!";
+        mainStatus.text = "Stop Recorded!";
 
     }
 
@@ -90,8 +142,40 @@ public class MicrophoneUIManager : MonoBehaviour {
         return microphone?.GetAmplitude();
     }
 
+    public void EnableChosoePathAndEnterFileName() {
+        if (saveIntoFile.isOn) {
+            choosePath.SetActive(true);
+            enterFileName.SetActive(true);
+            saveFileStatus.SetActive(true);
+        }
+        else {
+            choosePath.SetActive(false);
+            enterFileName.SetActive(false);
+            saveFileStatus.SetActive(false);
+
+        }
+    }
+
+    public void ChoosePath() {
+
+        if (folder == null) folder = Application.dataPath;
+
+        FileBrowser.ShowLoadDialog((paths) => { GetPathOnSuccess(paths[0]); }, () => { GetPathOnCancel(); },
+          FileBrowser.PickMode.Folders, initialPath: folder);
 
 
+    }
+
+    private void GetPathOnSuccess(string folder) {
+        this.folder = folder;
+        saveFileStatus.GetComponent<TextMeshProUGUI>().text = "Folder selected: " + folder;
+
+    }
+
+    private void GetPathOnCancel() {
+        saveFileStatus.GetComponent<TextMeshProUGUI>().text = NO_FOLDER_SELECTED;
+    }
+
+   
 
 }
-#endif

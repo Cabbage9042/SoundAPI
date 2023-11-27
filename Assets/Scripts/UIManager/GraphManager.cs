@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -27,9 +27,12 @@ public class GraphManager : MonoBehaviour {
         //bar
         dotList = new GameObject[DOT_COUNT];
 
-        float left = graph.GetComponent<RectTransform>().position.x;
+        float left = transform.position.x;
+
+        //float left = graph.GetComponent<RectTransform>().position.x;
         dotOriginY = graph.GetComponent<RectTransform>().position.y;
-        float offset = graph.GetComponent<RectTransform>().rect.width / DOT_COUNT;
+        float offset = transform.position.x * 2 /DOT_COUNT / -1;
+        //float offset = graph.GetComponent<RectTransform>().rect.width / DOT_COUNT;
 
 
 
@@ -77,7 +80,7 @@ public class GraphManager : MonoBehaviour {
     }
 
     public void ResetGraph() {
-        for (int i = 0; i > dotList.Length; i++) {
+        for (int i = 0; i < dotList.Length; i++) {
             dotList[i].transform.localScale = new Vector3(1, 1, 1);
             dotList[i].transform.localPosition = new Vector3(dotList[i].transform.localPosition.x, 0, dotList[i].transform.localPosition.z);
         }
@@ -138,4 +141,3 @@ public class GraphManager : MonoBehaviour {
         }
     }
 }
-#endif

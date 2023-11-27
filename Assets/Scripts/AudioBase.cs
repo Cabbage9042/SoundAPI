@@ -166,6 +166,7 @@ public class AudioBase : MonoBehaviour {
 
 
     protected void Play(Action<MonoBehaviour, Audio, bool> defaultStop) {
+        if (audio == null) return;
         if (audio?.State == PlaybackState.Playing) {
             return;
         }
