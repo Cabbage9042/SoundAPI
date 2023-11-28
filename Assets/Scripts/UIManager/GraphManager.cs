@@ -16,6 +16,9 @@ public class GraphManager : MonoBehaviour {
     public static float SPECTRUM_VISUALIZER_SCALE = 12.5f;
     private float dotOriginY;
 
+    public double[] amplitudes = null;
+    public int sampleRate;
+
     private int currentAudioRate = 0;
     private List<GameObject> labels;
     public GameObject labelPrefab;
@@ -31,7 +34,7 @@ public class GraphManager : MonoBehaviour {
 
         //float left = graph.GetComponent<RectTransform>().position.x;
         dotOriginY = graph.GetComponent<RectTransform>().position.y;
-        float offset = transform.position.x * 2 /DOT_COUNT / -1;
+        float offset = transform.position.x * 2 / DOT_COUNT / -1;
         //float offset = graph.GetComponent<RectTransform>().rect.width / DOT_COUNT;
 
 
@@ -53,26 +56,30 @@ public class GraphManager : MonoBehaviour {
 
         //print(graph.GetComponent<RectTransform>().rect.width);
         //print(graph.transform.localPosition.x + " " + graph.transform.localPosition.y +' '+graph.transform.localPosition.z);
-        double[] amplitude;
-        if (audioBasicUIManager != null) amplitude = audioBasicUIManager.GetAmplitude();
-        else if (audioListUIManager != null) amplitude = audioListUIManager.GetAmplitude();
-        else amplitude = microphoneUIManager.GetAmplitude();
 
-        if (amplitude == null) return;
+        if (audioBasicUIManager != null) amplitudes = audioBasicUIManager.GetAmplitude();
+        else if (audioListUIManager != null) amplitudes = audioListUIManager.GetAmplitude();
+        else amplitudes = microphoneUIManager.GetAmplitude();
+
+        if (amplitudes == null) return;
+
+        if (audioBasicUIManager != null) sampleRate = audioBasicUIManager.audioBasic.SampleRate;
+        else if (audioListUIManager != null) sampleRate = audioListUIManager.audioList.SampleRate;
+        else sampleRate = microphoneUIManager.SampleRate;
 
 
         //double max=0;
-        for (int i = 0; i < amplitude.Length; i++) {
+        for (int i = 0; i < amplitudes.Length; i++) {
             // dotList[i].transform.localPosition = new Vector3(dotList[i].transform.localPosition.x, (float)amplitude[i] * 50);
-            dotList[i].transform.localScale = new Vector3(1, (float)amplitude[i] * SPECTRUM_VISUALIZER_SCALE, 1);
-            float newY = ((float)(amplitude[i] * (SPECTRUM_VISUALIZER_SCALE / 2)) * dot.GetComponent<RectTransform>().rect.height);
+            dotList[i].transform.localScale = new Vector3(1, (float)amplitudes[i] * SPECTRUM_VISUALIZER_SCALE, 1);
+            float newY = ((float)(amplitudes[i] * (SPECTRUM_VISUALIZER_SCALE / 2)) * dot.GetComponent<RectTransform>().rect.height);
             dotList[i].transform.localPosition = new Vector3(dotList[i].transform.localPosition.x, newY, dotList[i].transform.localPosition.z);
             //if(max < amplitude[i])                 max = amplitude[i];
             //lineRenderer.GetComponent<LineRenderer>().SetPosition(i, dotList[i].transform.position);
         }
-        if (audioBasicUIManager != null) ChangeLabelHz(audioBasicUIManager.audioBasic.SampleRate);
-        else if (audioListUIManager != null) ChangeLabelHz(audioListUIManager.audioList.SampleRate);
-        else ChangeLabelHz(microphoneUIManager.SampleRate);
+
+
+        ChangeLabelHz(sampleRate);
 
         //var target = audioListUIManager.GetAmplitude(amplitude, new int[] { 5000 }, audioListUIManager.audioList.SampleRate);
         //print(target[0]);

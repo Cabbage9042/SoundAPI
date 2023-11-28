@@ -242,7 +242,8 @@ public class AudioListUIManager : MonoBehaviour {
         audioListContentSet.RemoveAt(index);
 
         if (audioList.audioList != null)
-            audioList.audioList.RemoveAt(indexForAudioList);
+            if(indexForAudioList < audioList.audioList.Count)
+                audioList.audioList.RemoveAt(indexForAudioList);
     }
 
     public void ChangeLoopMode() {

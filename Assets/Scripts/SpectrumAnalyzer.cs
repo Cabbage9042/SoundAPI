@@ -87,7 +87,7 @@ public class SpectrumAnalyzer {
         double[] returnedFFT = new double[targetFrequencies.Length];
         for (int i = 0; i < returnedFFT.Length; i++) {
             //+0.5 is to make the float round up or down depends on the demical point
-            int index = ((int)((targetFrequencies[i] * (amplitudes.Length) / (double)sampleRate) + 0.5) - 1)* 2;
+            int index = ((int)((targetFrequencies[i] * (amplitudes.Length) / (double)sampleRate) + 0.5))* 2;
             returnedFFT[i] = amplitudes[index];
         }
         return returnedFFT;
