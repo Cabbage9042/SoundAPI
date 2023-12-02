@@ -233,7 +233,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 667068027}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3b447aeeb126b4e4c964944956360b35, type: 3}
   m_Name: 
@@ -242,36 +242,26 @@ MonoBehaviour:
     equalizerBands:
     - CenterFrequency: 31
       QFactor: 0.8
-      Gain: 0
     - CenterFrequency: 63
       QFactor: 0.8
-      Gain: 0
     - CenterFrequency: 125
       QFactor: 0.8
-      Gain: 0
     - CenterFrequency: 250
       QFactor: 0.8
-      Gain: 0
     - CenterFrequency: 500
       QFactor: 0.8
-      Gain: 0
     - CenterFrequency: 1000
       QFactor: 0.8
-      Gain: 0
     - CenterFrequency: 2000
       QFactor: 0.8
-      Gain: 0
     - CenterFrequency: 4000
       QFactor: 0.8
-      Gain: 0
     - CenterFrequency: 8000
       QFactor: 0.8
-      Gain: 0
     - CenterFrequency: 16000
       QFactor: 0.8
-      Gain: 0
-  playOnStart: 0
-  pitchFactor: 1
+  PlayOnStart: 0
+  PitchFactor: 1
   volume: 1
   onAudioStartedMethod: []
   onAudioPausedMethod: []
@@ -280,9 +270,9 @@ MonoBehaviour:
   onAudioStoppedMethod: []
   SpeakerDeviceNumber: 0
   Panning: 0
-  audioClipPath: 
+  audioClipPath: C:/tarc/fyp/project/SoundAPI/SoundAPI/Assets/Audio/lorem2.wav
   usingScript: 0
-  loop: 0
+  Loop: 0
 --- !u!114 &667068029
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -319,7 +309,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 667068027}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5049b874757e48b4b9ef5c8b34f71b6a, type: 3}
   m_Name: 
@@ -328,36 +318,26 @@ MonoBehaviour:
     equalizerBands:
     - CenterFrequency: 31
       QFactor: 0.8
-      Gain: 0
     - CenterFrequency: 63
       QFactor: 0.8
-      Gain: 0
     - CenterFrequency: 125
       QFactor: 0.8
-      Gain: 0
     - CenterFrequency: 250
       QFactor: 0.8
-      Gain: 0
     - CenterFrequency: 500
       QFactor: 0.8
-      Gain: 0
     - CenterFrequency: 1000
       QFactor: 0.8
-      Gain: 0
     - CenterFrequency: 2000
       QFactor: 0.8
-      Gain: 0
     - CenterFrequency: 4000
       QFactor: 0.8
-      Gain: 0
     - CenterFrequency: 8000
       QFactor: 0.8
-      Gain: 0
     - CenterFrequency: 16000
       QFactor: 0.8
-      Gain: 0
-  playOnStart: 0
-  pitchFactor: 1
+  PlayOnStart: 1
+  PitchFactor: 1
   volume: 1
   onAudioStartedMethod: []
   onAudioPausedMethod: []
@@ -366,40 +346,32 @@ MonoBehaviour:
   onAudioStoppedMethod: []
   SpeakerDeviceNumber: 0
   Panning: 0
-  audioClipArray: []
+  audioClipArray:
+  - {fileID: 8300000, guid: 035f56d3378092444b1ff6918f108fb7, type: 3}
+  - {fileID: 8300000, guid: e33292baad070df4da4b0f85132022e2, type: 3}
   currentPosition: 0
-  mode: 0
+  Mode: 0
   equalizerList:
   - equalizerBands:
     - CenterFrequency: 31
       QFactor: 0.8
-      Gain: 0
     - CenterFrequency: 63
       QFactor: 0.8
-      Gain: 0
     - CenterFrequency: 125
       QFactor: 0.8
-      Gain: 0
     - CenterFrequency: 250
       QFactor: 0.8
-      Gain: 0
     - CenterFrequency: 500
       QFactor: 0.8
-      Gain: 0
     - CenterFrequency: 1000
       QFactor: 0.8
-      Gain: 0
     - CenterFrequency: 2000
       QFactor: 0.8
-      Gain: 0
     - CenterFrequency: 4000
       QFactor: 0.8
-      Gain: 0
     - CenterFrequency: 8000
       QFactor: 0.8
-      Gain: 0
     - CenterFrequency: 16000
       QFactor: 0.8
-      Gain: 0
   selectedEqualizer: 00000000
   usingScript: 0

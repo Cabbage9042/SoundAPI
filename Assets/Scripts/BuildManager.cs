@@ -20,13 +20,13 @@ public class BuildManager : MonoBehaviour
     }
     */
     void Start() {
-        audioList.SetAudio(this, "C:/tarc/fyp/project/SoundAPI/SoundAPI/Assets/Audio/lala haha.mp3",0);
-        audioList.SetAudio(this, "C:/tarc/fyp/project/SoundAPI/SoundAPI/Assets/Audio/testing.mp3",1);
-        audioList.AddOnAudioStarted(new MethodCalled(this, "OnStart"));
+/*        audioList.SetAudio(this, "C:/tarc/fyp/project/SoundAPI/SoundAPI/Assets/Audio/lala haha.mp3",0);
+        audioList.SetAudio(this, "C:/tarc/fyp/project/SoundAPI/SoundAPI/Assets/Audio/testing.mp3",1);*/
+/*        audioList.AddOnAudioStarted(new MethodCalled(this, "OnStart"));
         audioList.AddOnAudioStopped(new MethodCalled(this, "OnStop"));
 
 
-        audioList.Play();
+        audioList.Play();*/
 
 
     }
@@ -39,18 +39,18 @@ public class BuildManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space)) {
             // Start playing the audio
 
-            audioList.Play();
+            audioBasic.Play();
             //audioListSpeaker.Play();
         }
         else if (Input.GetKeyDown(KeyCode.R)) {
-            audioList.Restart();
+            audioBasic.Restart();
 
         }
         else if (Input.GetKeyDown(KeyCode.P)) {
-            audioList.Pause();
+            audioBasic.Pause();
         }
         else if (Input.GetKeyDown(KeyCode.S)) {
-            audioList.Stop();
+            audioBasic.Stop();
         }
     }
 

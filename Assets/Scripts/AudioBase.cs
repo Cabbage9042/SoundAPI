@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using UnityEditor;
 using UnityEngine;
 
 
@@ -400,4 +401,17 @@ public class AudioBase : MonoBehaviour {
     #endregion
 
     #endregion
+
+
+#if UNITY_EDITOR
+    [CustomEditor(typeof(AudioBase))]
+    public class AudioBaseEditor : Editor {
+        public override void OnInspectorGUI() {
+
+            EditorGUILayout.LabelField("You can only add Audio Basic or Audio List!");
+            EditorGUILayout.LabelField("Please remove this Audio Base!");
+        }
+    }
+
+#endif
 }
