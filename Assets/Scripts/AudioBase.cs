@@ -110,11 +110,14 @@ public class AudioBase : MonoBehaviour {
     public string Name { get { return audio.Name; } }
     public string NameWoExtension { get { return audio.NameWoExtension; } }
     public TimeSpan TotalTime { get { return audio.TotalTime; } }
+    public float CurrentTime => audio.CurrentTime;
     public long Position { get { return audio.Position; } }
     public long Length { get { return audio.Length; } }
 
 
     public int SampleRate { get { return audio.WaveFormat.SampleRate; } }
+
+
 
     public double[] GetAmplitude(float offset) {
 

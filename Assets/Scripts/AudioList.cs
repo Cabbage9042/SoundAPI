@@ -28,6 +28,8 @@ public class AudioList : AudioBase {
 
     public bool usingScript = false;
 
+    public int AudioCount => audioList.Count;
+
     public Equalizer CurrentEqualizer {
         get {
             return base.EqualizerProperty;
@@ -291,6 +293,17 @@ public class AudioList : AudioBase {
 
         usingScript = true;
     }
+
+    public void RemoveAudio(int index) {
+
+        audioList.RemoveAt(index);
+    }
+
+    public Audio GetAudio(int index) {
+        return audioList[index];
+    }
+
+
 
 
     #region LoopMode
@@ -660,7 +673,7 @@ public class AudioList : AudioBase {
 
                 for (int iFrequency = 0; iFrequency < frequencyList.Length; iFrequency++) {
                     EditorGUILayout.BeginHorizontal();
-                    var gain = equalizerList.GetArrayElementAtIndex(iEqualizer).FindPropertyRelative("equalizerBands").GetArrayElementAtIndex(iFrequency).FindPropertyRelative("Gain");
+                    var gain = equalizerList.GetArrayElementAtIndex(iEqualizer).FindPropertyRelative("equalizerBands").GetArrayElementAtIndex(iFrequency).FindPropertyRelative("gain");
                     var oriGain = gain.floatValue;
                     EditorGUILayout.LabelField(frequencyList[iFrequency], GUILayout.Width(50));
                     gain.floatValue = EditorGUILayout.Slider(gain.floatValue, Equalizer.MIN_GAIN, Equalizer.MAX_GAIN);

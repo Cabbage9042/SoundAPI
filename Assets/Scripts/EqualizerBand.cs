@@ -5,7 +5,7 @@ using UnityEngine;
 public class EqualizerBand {
     public int CenterFrequency;
     public float QFactor;
-    private float gain;
+    public float gain;
     public float Gain {
         get { return gain; }
         set {

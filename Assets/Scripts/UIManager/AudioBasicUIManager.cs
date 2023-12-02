@@ -118,7 +118,7 @@ public class AudioBasicUIManager : MonoBehaviour {
 
 
 
-        audioBasic.setAudio(this, path);
+        audioBasic.SetAudio(this, path);
 
 
         audioBasic.AddOnAudioStarted(new MethodCalled(this, "AudioStarted"));

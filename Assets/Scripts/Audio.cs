@@ -86,7 +86,7 @@ public class Audio {
     public static WaveOutCapabilities[] speakerDevices { get { return Speaker.GetSpeakerDevices(); } }
     public static string[] speakerDevicesName { get { return Speaker.GetSpeakerDevicesName(); } }
 
-
+    public float CurrentTime { get { return Position / (float) OriginalWave.WaveFormat.AverageBytesPerSecond; } }
     public bool SetSpeakerNumber(int id) {
         if (id == speaker.DeviceNumber) {
             return true;

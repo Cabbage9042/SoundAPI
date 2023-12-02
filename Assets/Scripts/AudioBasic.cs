@@ -36,7 +36,7 @@ public class AudioBasic : AudioBase {
 
 
 
-    public void setAudio(MonoBehaviour methodOwner, string path) {
+    public void SetAudio(MonoBehaviour methodOwner, string path) {
         audio = new Audio(path, methodOwner);
 
         onAudioStartedMethod = new MethodCalled[0];
@@ -341,7 +341,7 @@ public class AudioBasic : AudioBase {
 
             for (int i = 0; i < frequencyList.Length; i++) {
                 EditorGUILayout.BeginHorizontal();
-                var gain = equalizer.FindPropertyRelative("equalizerBands").GetArrayElementAtIndex(i).FindPropertyRelative("Gain");
+                var gain = equalizer.FindPropertyRelative("equalizerBands").GetArrayElementAtIndex(i).FindPropertyRelative("gain");
                 var oriGain = gain.floatValue;
                 EditorGUILayout.LabelField(frequencyList[i], GUILayout.Width(50));
                 gain.floatValue = EditorGUILayout.Slider(gain.floatValue, Equalizer.MIN_GAIN, Equalizer.MAX_GAIN);

@@ -7,29 +7,28 @@ public class BuildManager : MonoBehaviour
     public AudioBasic audioBasic;
     public AudioList audioList;
     // Start is called before the first frame update
-    /*
-    void Start() { 
-   
-        audioBasic.setAudio(this, "C:/tarc/fyp/project/SoundAPI/SoundAPI/Assets/Audio/lorem2.wav");
-        audioBasic.AddOnAudioStarted(new MethodCalled(this, "OnStart"));
 
-        audioBasic.Play();
-
-
-
-    }
-    */
     void Start() {
-/*        audioList.SetAudio(this, "C:/tarc/fyp/project/SoundAPI/SoundAPI/Assets/Audio/lala haha.mp3",0);
-        audioList.SetAudio(this, "C:/tarc/fyp/project/SoundAPI/SoundAPI/Assets/Audio/testing.mp3",1);*/
-/*        audioList.AddOnAudioStarted(new MethodCalled(this, "OnStart"));
-        audioList.AddOnAudioStopped(new MethodCalled(this, "OnStop"));
+
+        audioBasic.SetAudio(this, "C:/tarc/fyp/project/SoundAPI/SoundAPI/Assets/Audio/lorem2.wav");
+        audioBasic.AddOnAudioStarted(new MethodCalled(this, "OnStart"));
+        /*
 
 
-        audioList.Play();*/
+*        audioList.SetAudio(this, "C:/tarc/fyp/project/SoundAPI/SoundAPI/Assets/Audio/lala haha.mp3",0);
+        audioList.SetAudio(this, "C:/tarc/fyp/project/SoundAPI/SoundAPI/Assets/Audio/testing.mp3",1);
+       audioList.AddOnAudioStarted(new MethodCalled(this, "OnStart"));
+        audioList.AddOnAudioStopped(new MethodCalled(this, "OnStop"));*/
+
+
 
 
     }
+
+ 
+
+
+    
     public void OnStart(MonoBehaviour mono, Audio audio) {
        // Debug.LogError(mono.name);
        // Debug.LogError(audio.Name);
@@ -52,6 +51,7 @@ public class BuildManager : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.S)) {
             audioBasic.Stop();
         }
+        print(audioBasic.CurrentTime);
     }
 
     public void OnStop(MonoBehaviour mono, Audio audio, bool isFinished) {
