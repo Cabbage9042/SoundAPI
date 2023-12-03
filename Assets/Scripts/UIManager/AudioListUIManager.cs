@@ -154,7 +154,7 @@ public class AudioListUIManager : MonoBehaviour {
 
     public void getAudioPath() {
 
-        if (directory == null) directory = Application.dataPath;
+        if (directory == null) directory = Application.streamingAssetsPath;
 
         indexSelected = Int32.Parse(EventSystem.current.currentSelectedGameObject.name.Split(' ')[2]);
         FileBrowser.ShowLoadDialog((paths) => { GetPathOnSuccess(paths[0]); }, () => { GetPathOnCancel(); },
@@ -364,6 +364,7 @@ public class AudioListUIManager : MonoBehaviour {
 
     public void ChangeAudioName(AudioListUIManager audioManager, string status) {
 
+        if (audioManager == null) return;
         var name = audioManager.audioNameText.GetComponent<TextMeshProUGUI>();
         if (audioManager.audioList == null) {
             name.text = "No audio is selected!";
@@ -371,6 +372,22 @@ public class AudioListUIManager : MonoBehaviour {
         else {
             name.text = status;
         }
+    }
+    public void Exit() {
+        Application.Quit();
+    }
+
+    public void SkipToPrevious() {
+        audioList.Stop();
+        audioList.currentPosition--;
+        audioList.Play();
+
+    }
+    public void SkipToNext() {
+        audioList.Stop();
+        audioList.currentPosition++;
+        audioList.Play();
+
     }
 
     #region SetAudioStatus

@@ -272,7 +272,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 881952074}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 38acf430c84b2d048adc2d7ded6b8452, type: 3}
   m_Name: 
@@ -307,24 +307,34 @@ MonoBehaviour:
     equalizerBands:
     - CenterFrequency: 31
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 63
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 125
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 250
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 500
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 1000
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 2000
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 4000
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 8000
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 16000
       QFactor: 0.8
+      gain: 0
   PlayOnStart: 0
   PitchFactor: 1
   volume: 1
@@ -715,7 +725,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 881952074}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5049b874757e48b4b9ef5c8b34f71b6a, type: 3}
   m_Name: 
@@ -724,24 +734,34 @@ MonoBehaviour:
     equalizerBands:
     - CenterFrequency: 31
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 63
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 125
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 250
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 500
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 1000
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 2000
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 4000
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 8000
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 16000
       QFactor: 0.8
+      gain: 0
   PlayOnStart: 0
   PitchFactor: 1
   volume: 1
@@ -885,6 +905,7 @@ MonoBehaviour:
   SpeakerDeviceNumber: 0
   Panning: 0
   audioClipArray:
+  - {fileID: 8300000, guid: 227cb8687365bab47afdf71cd577477c, type: 3}
   - {fileID: 8300000, guid: 85b4f281967e58d4aa2afb94b9fd9d35, type: 3}
   - {fileID: 8300000, guid: 227cb8687365bab47afdf71cd577477c, type: 3}
   currentPosition: 0
@@ -893,66 +914,96 @@ MonoBehaviour:
   - equalizerBands:
     - CenterFrequency: 31
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 63
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 125
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 250
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 500
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 1000
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 2000
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 4000
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 8000
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 16000
       QFactor: 0.8
+      gain: 0
   - equalizerBands:
     - CenterFrequency: 31
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 63
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 125
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 250
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 500
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 1000
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 2000
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 4000
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 8000
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 16000
       QFactor: 0.8
+      gain: 0
   - equalizerBands:
     - CenterFrequency: 31
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 63
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 125
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 250
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 500
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 1000
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 2000
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 4000
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 8000
       QFactor: 0.8
+      gain: 0
     - CenterFrequency: 16000
       QFactor: 0.8
+      gain: 0
   selectedEqualizer: 020000000000000000000000000000000000000000000000
   usingScript: 0
 --- !u!114 &881952084
@@ -962,7 +1013,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 881952074}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b8ef7a67f6bdcde40ad6eb211cfc6c58, type: 3}
   m_Name: 

@@ -82,7 +82,7 @@ public class AudioBasicUIManager : MonoBehaviour {
 
     //select your audio1
     public void getAudioPath() {
-        if (directory == null) directory = Application.dataPath;
+        if (directory == null) directory = Application.streamingAssetsPath;
         FileBrowser.ShowLoadDialog((paths) => { GetPathOnSuccess(paths[0]); }, () => { GetPathOnCancel(); },
             FileBrowser.PickMode.Files, initialPath: directory);
 
@@ -194,7 +194,7 @@ public class AudioBasicUIManager : MonoBehaviour {
     }*/
 
     public void ChangeAudioName(AudioBasicUIManager audioManager, string status) {
-
+        if(audioManager == null) return;
         var name = audioManager.audioNameText.GetComponent<TextMeshProUGUI>();
         if (audioManager.audioBasic == null) {
             name.text = "No audio is selected!";
@@ -202,6 +202,9 @@ public class AudioBasicUIManager : MonoBehaviour {
         else {
             name.text = status;
         }
+    }
+    public void Exit() {
+        Application.Quit();
     }
 
     #region SetAudioStatus

@@ -8,7 +8,7 @@ public class PlayMusicList : MonoBehaviour {
     public void Update() {
         if (Input.GetKeyDown(KeyCode.Space)) {
             // Start playing the audio
-            Debug.LogError("playing");
+           // Debug.LogError("playing");
             audioList.Play();
             //audioSpeaker.Play();
         }
@@ -22,23 +22,29 @@ public class PlayMusicList : MonoBehaviour {
         else if (Input.GetKeyDown(KeyCode.S)) {
             audioList.Stop();
         }
+        if (Input.GetKeyDown(KeyCode.RightArrow)) {
 
+            audioList.Stop();
+            audioList.currentPosition++;
+            audioList.currentPosition++;
+            audioList.Play();
+        }
 
     }
 
     public void AudioStart(MonoBehaviour audioBase, Audio audio) {
-        Debug.LogError(audio.NameWoExtension);
+       // Debug.LogError(audio.NameWoExtension);
     }
 
     public void AudioStop(MonoBehaviour audioBase, Audio audio, bool hasFinishedPlaying) {
         // print(audio.NameWoExtension + " " + hasFinishedPlaying);
         if (hasFinishedPlaying) {
             // ((AudioList)audioBase).StopNextAudio();
-            Debug.LogError("finish");
+            //Debug.LogError("finish");
 
         }
         else {
-            Debug.LogError("not finish");
+           // Debug.LogError("not finish");
         }
     }
 

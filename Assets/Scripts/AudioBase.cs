@@ -111,7 +111,7 @@ public class AudioBase : MonoBehaviour {
     public string NameWoExtension { get { return audio.NameWoExtension; } }
     public TimeSpan TotalTime { get { return audio.TotalTime; } }
     public float CurrentTime => audio.CurrentTime;
-    public long Position { get { return audio.Position; } }
+    public long Position { get { return audio.Position; } set { audio.Position = value; } }
     public long Length { get { return audio.Length; } }
 
 
@@ -173,6 +173,9 @@ public class AudioBase : MonoBehaviour {
         if (audio == null) return;
         if (audio?.State == PlaybackState.Playing) {
             return;
+        }
+        if(audio?.State == PlaybackState.Stopped && Position != 0) {
+            Position = 0;
         }
 
         audio.ClearAllEvent();

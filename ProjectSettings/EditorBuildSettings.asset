@@ -8,10 +8,16 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/BasicUIScene.unity
     guid: e30911df4f7716c47b3bdc300f1afdc6
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/BuildScene.unity
     guid: e70eb8268f8402d4b957caedce88f8b0
+  - enabled: 1
+    path: Assets/Scenes/ListUIScene.unity
+    guid: 0bd01e07e85602145b1203b4bda6e70b
+  - enabled: 1
+    path: Assets/Scenes/MicrophoneUIScene.unity
+    guid: 6aebf4be4845b02429c8a670e62d0ef7
   m_configObjects: {}

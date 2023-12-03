@@ -175,6 +175,11 @@ public class AudioList : AudioBase {
             currentPosition = 0;
             position = 0;
         }
+        else if (position < 0) {
+            currentPosition = AudioCount - 1;
+            position = AudioCount - 1;
+
+        }
 
         audio = audioList[position];
 
@@ -222,20 +227,18 @@ public class AudioList : AudioBase {
         }
         audioIsPlaying = true;
         */
+
+        audioIsPlaying = true;
     }
 
     public void Play(int position) {
         if (audioIsPlaying) return;
         PlaySameList(position);
-
-        audioIsPlaying = true;
     }
 
     public void Play() {
         if (audioIsPlaying) return;
         PlaySameList(currentPosition);
-
-        audioIsPlaying = true;
     }
     public new void Pause() {
         audioIsPlaying = false;

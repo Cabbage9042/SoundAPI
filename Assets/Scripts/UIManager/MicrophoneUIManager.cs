@@ -158,7 +158,7 @@ public class MicrophoneUIManager : MonoBehaviour {
 
     public void ChoosePath() {
 
-        if (folder == null) folder = Application.dataPath;
+        if (folder == null) folder = Application.streamingAssetsPath;
 
         FileBrowser.ShowLoadDialog((paths) => { GetPathOnSuccess(paths[0]); }, () => { GetPathOnCancel(); },
           FileBrowser.PickMode.Folders, initialPath: folder);
@@ -175,7 +175,10 @@ public class MicrophoneUIManager : MonoBehaviour {
     private void GetPathOnCancel() {
         saveFileStatus.GetComponent<TextMeshProUGUI>().text = NO_FOLDER_SELECTED;
     }
+    public void Exit() {
+        Application.Quit();
+    }
 
-   
+
 
 }
