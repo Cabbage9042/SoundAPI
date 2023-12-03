@@ -26,7 +26,6 @@ public class PlayMusicList : MonoBehaviour {
 
             audioList.Stop();
             audioList.currentPosition++;
-            audioList.currentPosition++;
             audioList.Play();
         }
 

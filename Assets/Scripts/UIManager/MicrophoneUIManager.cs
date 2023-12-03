@@ -43,6 +43,8 @@ public class MicrophoneUIManager : MonoBehaviour {
 
         var inputList = new List<string>(Microphone.MicrophoneDevicesName);
         inputDropDown.AddOptions(inputList);
+
+        stopRecording.GetComponent<Button>().enabled = false;
     }
 
     public void StartCapture() {
@@ -87,7 +89,7 @@ public class MicrophoneUIManager : MonoBehaviour {
                 return;
             }
             string filename = enterFileName.GetComponent<TMP_InputField>().text;
-            if (filename == null) {
+            if (filename == null || filename.Length == 0) {
                 mainStatus.text = "Please enter your audio name!";
                 return;
             }
@@ -119,6 +121,13 @@ public class MicrophoneUIManager : MonoBehaviour {
 
         mainStatus.text = "Recording!";
 
+        saveIntoFile.enabled = false;
+        saveIntoFile.gameObject.transform.Find("Background").GetComponent<Image>().color = Color.gray;
+
+        choosePath.GetComponent<Image>().color = Color.gray;
+        choosePath.GetComponent<Button>().enabled = false;
+        enterFileName.GetComponent<Image>().color = Color.gray;
+        enterFileName.GetComponent<TMP_InputField>().enabled = false;
     }
 
     public void StopCapture() {
@@ -135,6 +144,14 @@ public class MicrophoneUIManager : MonoBehaviour {
         channelInput.GetComponent<TMP_InputField>().enabled = true;
 
         mainStatus.text = "Stop Recorded!";
+
+        saveIntoFile.enabled = true;
+        saveIntoFile.gameObject.transform.Find("Background").GetComponent<Image>().color = Color.white;
+
+        choosePath.GetComponent<Image>().color = Color.white;
+        choosePath.GetComponent<Button>().enabled = true;
+        enterFileName.GetComponent<Image>().color = Color.white;
+        enterFileName.GetComponent<TMP_InputField>().enabled = true;
 
     }
 
