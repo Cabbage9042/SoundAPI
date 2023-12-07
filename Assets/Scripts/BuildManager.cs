@@ -10,7 +10,9 @@ public class BuildManager : MonoBehaviour
 
     void Start() {
 
-        audioBasic.SetAudio(this, "C:/tarc/fyp/project/SoundAPI/SoundAPI/Assets/Audio/lorem2.wav");
+        audioBasic.SetAudio(this, Application.streamingAssetsPath + "/testing.wav");
+        audioList.SetAudio(this, Application.streamingAssetsPath + "/testing.wav",0);
+        
         audioBasic.AddOnAudioStarted(new MethodCalled(this, "OnStart"));
         /*
 

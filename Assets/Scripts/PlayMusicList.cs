@@ -32,11 +32,11 @@ public class PlayMusicList : MonoBehaviour {
     }
 
     public void AudioStart(MonoBehaviour audioBase, Audio audio) {
-       // Debug.LogError(audio.NameWoExtension);
+        print(audio.NameWoExtension);
     }
 
     public void AudioStop(MonoBehaviour audioBase, Audio audio, bool hasFinishedPlaying) {
-        // print(audio.NameWoExtension + " " + hasFinishedPlaying);
+         print(audio.NameWoExtension + " " + hasFinishedPlaying);
         if (hasFinishedPlaying) {
             // ((AudioList)audioBase).StopNextAudio();
             //Debug.LogError("finish");

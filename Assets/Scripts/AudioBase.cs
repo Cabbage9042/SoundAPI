@@ -264,7 +264,7 @@ public class AudioBase : MonoBehaviour {
     }
 
     public void SetSpeakerNumber(int id) {
-        audio.SetSpeakerNumber(id);
+        audio?.SetSpeakerNumber(id);
         SpeakerDeviceNumber = id;
     }
 
