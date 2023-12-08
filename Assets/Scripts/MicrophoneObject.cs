@@ -142,7 +142,7 @@ public class MicrophoneObject {
         */
         if (buffer.Count < 2048) return null;
 
-        amplitude = SpectrumAnalyzer.GetAmplitude(buffer.GetRange(0,2048).ToArray());
+        amplitude = SpectrumAnalyzer.GetAmplitude(buffer.GetRange(0,2048).ToArray(), WaveFormat.Channels);
         return amplitude;
     }
 

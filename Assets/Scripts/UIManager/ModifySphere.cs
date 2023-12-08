@@ -29,7 +29,7 @@ public class ModifySphere : MonoBehaviour {
             targetFrequencies[0] = targetFrequency;
         }
 
-        var amplitudes = SpectrumAnalyzer.GetAmplitude(graphManager.amplitudes, targetFrequencies, graphManager.sampleRate);
+        var amplitudes = SpectrumAnalyzer.GetAmplitude(graphManager.amplitudes, targetFrequencies, graphManager.sampleRate, graphManager.ChannelCount);
 
         material.SetFloat("_Amplitude", (float)amplitudes[(int)AmplitudeIndex.Index500]);
 

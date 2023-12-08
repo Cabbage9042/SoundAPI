@@ -92,7 +92,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _AlphaClip: 0
-    - _Amplitude: 0.047614004
+    - _Amplitude: 0
     - _Amplitude500: 0.07289766
     - _BUILTIN_QueueControl: -1
     - _BUILTIN_QueueOffset: 0

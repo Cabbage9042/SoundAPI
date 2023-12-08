@@ -2,6 +2,7 @@ using NAudio.Wave;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using NAudio;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -35,13 +36,19 @@ public class Microphone : MonoBehaviour {
     }
 
     public void StartCapture(WaveFormat waveFormat) {
-        if (saveIntoFile) {
-            microphone.StartCapture(absoluteOutputPath, waveFormat);
+        try {
+            if (saveIntoFile) {
+                microphone.StartCapture(absoluteOutputPath, waveFormat);
+            }
+            else {
+                microphone.StartCapture(waveFormat);
+            }
         }
-        else {
-            microphone.StartCapture(waveFormat);
-        }
+        catch (MmException) {
+            throw new System.ArgumentException("Your microphone does not support " + Channel + " channel(s)!");
 
+            
+        }
     }
     
 

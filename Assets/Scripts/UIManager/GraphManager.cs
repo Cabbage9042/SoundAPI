@@ -24,6 +24,8 @@ public class GraphManager : MonoBehaviour {
     public GameObject labelPrefab;
     public int labelCount;
 
+    public int ChannelCount;
+
 
     // Start is called before the first frame update
     void Start() {
@@ -63,9 +65,18 @@ public class GraphManager : MonoBehaviour {
 
         if (amplitudes == null) return;
 
-        if (audioBasicUIManager != null) sampleRate = audioBasicUIManager.audioBasic.SampleRate;
-        else if (audioListUIManager != null) sampleRate = audioListUIManager.audioList.SampleRate;
-        else sampleRate = microphoneUIManager.SampleRate;
+        if (audioBasicUIManager != null) {
+            sampleRate = audioBasicUIManager.audioBasic.SampleRate;
+            ChannelCount = audioBasicUIManager.audioBasic.ChannelCount;
+        }
+        else if (audioListUIManager != null) {
+            sampleRate = audioListUIManager.audioList.SampleRate;
+            ChannelCount = audioListUIManager.audioList.ChannelCount;
+        }
+        else {
+            sampleRate = microphoneUIManager.SampleRate;
+            ChannelCount = microphoneUIManager.microphone.WaveFormat.Channels;
+        }
 
 
         //double max=0;

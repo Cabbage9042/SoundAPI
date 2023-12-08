@@ -555,10 +555,10 @@ public class Audio {
             }*/
 
         if (targetFrequencies != null) {
-            return SpectrumAnalyzer.GetAmplitude(byteBuffer, targetFrequencies, OriginalWave.WaveFormat.SampleRate);
+            return SpectrumAnalyzer.GetAmplitude(byteBuffer, targetFrequencies, OriginalWave.WaveFormat.SampleRate,WaveFormat.Channels);
         }
         else {
-            return SpectrumAnalyzer.GetAmplitude(byteBuffer);
+            return SpectrumAnalyzer.GetAmplitude(byteBuffer, WaveFormat.Channels);
         }
     }
 

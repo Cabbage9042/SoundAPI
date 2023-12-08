@@ -116,8 +116,9 @@ public class AudioBase : MonoBehaviour {
 
 
     public int SampleRate { get { return audio.WaveFormat.SampleRate; } }
+    public int ChannelCount { get { return audio.WaveFormat.Channels; } }
 
-
+    public int Bit { get { return audio.WaveFormat.BitsPerSample; } }
 
     public double[] GetAmplitude(float offset) {
 
@@ -161,7 +162,7 @@ public class AudioBase : MonoBehaviour {
     }
 
     public double[] GetAmplitude(double[] amplitudes, int[] targetFrequencies, int sampleRate) {
-        return SpectrumAnalyzer.GetAmplitude(amplitudes, targetFrequencies, sampleRate);
+        return SpectrumAnalyzer.GetAmplitude(amplitudes, targetFrequencies, sampleRate, audio.WaveFormat.Channels);
     }
 
     public double[] GetAmplitude(int[] targetAmplitudes) {
