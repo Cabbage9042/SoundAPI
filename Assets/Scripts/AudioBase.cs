@@ -87,7 +87,7 @@ public class AudioBase : MonoBehaviour {
 
     public float PitchFactor = 1.0f;
 
-    public float volume = 1.0f;
+    public float Volume = 1.0f;
     public MethodCalled[] onAudioStartedMethod;
     public MethodCalled[] onAudioPausedMethod;
     public MethodCalled[] onAudioResumedMethod;
@@ -103,8 +103,8 @@ public class AudioBase : MonoBehaviour {
     protected float playStartedTime;
     protected bool isDelaying = false;
 
-    public static string[] speakerDevicesName { get { return Audio.speakerDevicesName; } }
-
+    public static string[] SpeakerDevicesName { get { return Audio.SpeakerDevicesName; } }
+    public static WaveOutCapabilities[] SpeakerDevices { get { return Audio.SpeakerDevices; } }
 
     public string FilePath { get { return audio.FilePath; } }
     public string Name { get { return audio.Name; } }
@@ -116,9 +116,14 @@ public class AudioBase : MonoBehaviour {
 
 
     public int SampleRate { get { return audio.WaveFormat.SampleRate; } }
-    public int ChannelCount { get { return audio.WaveFormat.Channels; } }
+    public int Channels { get { return audio.WaveFormat.Channels; } }
 
     public int Bit { get { return audio.WaveFormat.BitsPerSample; } }
+    public PlaybackState State {
+        get {
+            return audio == null ? PlaybackState.Stopped : audio.State;
+        }
+    }
 
     public double[] GetAmplitude(float offset) {
 
@@ -209,7 +214,7 @@ public class AudioBase : MonoBehaviour {
 
         audio.SetSpeakerNumber(SpeakerDeviceNumber);
         audio.ChangePitch(PitchFactor);
-        audio.Volume = volume;
+        audio.Volume = Volume;
         audio.Panning = Panning;
         audio?.Play();
         audio.equalizer = EqualizerProperty;
@@ -256,12 +261,12 @@ public class AudioBase : MonoBehaviour {
     public float GetPitch() { return PitchFactor; }
 
     public void SetVolume(float volume) {
-        this.volume = volume;
+        this.Volume = volume;
         if (audio != null) audio.Volume = volume;
     }
 
     public float GetVolume() {
-        return volume;
+        return Volume;
     }
 
     public void SetSpeakerNumber(int id) {

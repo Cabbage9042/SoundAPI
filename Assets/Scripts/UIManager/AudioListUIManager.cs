@@ -69,7 +69,7 @@ public class AudioListUIManager : MonoBehaviour {
             string enumName = ((AudioList.LoopMode)Enum.GetValues(typeof(AudioList.LoopMode)).GetValue(i)).ToString();
             loopModeList.Add(enumName);
         }
-        List<string> speakerList = new(AudioList.speakerDevicesName);
+        List<string> speakerList = new(AudioList.SpeakerDevicesName);
 
         speakerDropDown.GetComponent<TMP_Dropdown>().AddOptions(speakerList);
         loopModeDropDown.AddOptions(loopModeList);

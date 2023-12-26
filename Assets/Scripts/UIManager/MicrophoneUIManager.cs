@@ -99,13 +99,13 @@ public class MicrophoneUIManager : MonoBehaviour {
             }
             string folderPlusName = folder + "\\" + filename;
 
-            microphone.absoluteOutputPath = folderPlusName;
-            microphone.saveIntoFile = true;
+            microphone.AbsoluteOutputPath = folderPlusName;
+            microphone.SaveIntoFile = true;
             microphone.StartCapture();
         }
         else {
 
-            microphone.saveIntoFile = false;
+            microphone.SaveIntoFile = false;
             microphone.StartCapture();
         }
 

@@ -11,9 +11,8 @@ using UnityEditor;
 public class Microphone : MonoBehaviour {
     MicrophoneObject microphone = new();
 
-    public bool saveIntoFile;
-    public bool calculateAmplitude;
-    public string absoluteOutputPath;
+    public bool SaveIntoFile;
+    public string AbsoluteOutputPath;
     private int SampleRate;
     private int Bit;
     private int Channel;
@@ -36,9 +35,12 @@ public class Microphone : MonoBehaviour {
     }
 
     public void StartCapture(WaveFormat waveFormat) {
+        SampleRate = waveFormat.SampleRate;
+        Bit = waveFormat.BitsPerSample;
+        Channel = waveFormat.Channels;
         try {
-            if (saveIntoFile) {
-                microphone.StartCapture(absoluteOutputPath, waveFormat);
+            if (SaveIntoFile) {
+                microphone.StartCapture(AbsoluteOutputPath, waveFormat);
             }
             else {
                 microphone.StartCapture(waveFormat);
@@ -90,21 +92,7 @@ public class Microphone : MonoBehaviour {
         return microphone.GetSpeakerNumber;
     }
 
-    //  public void UpdateEqualizer() => microphone?.UpdateEqualizer();
-    /*   public void SetEqualizer(Equalizer equalizer) {
-           EqualizerProperty = equalizer;
-       }
-
-
-       public void SetGain(Frequency frequency, float Gain) {
-           int index = Equalizer.GetIndexByFrequency(frequency);
-           this.EqualizerProperty.equalizerBands[index].Gain = Gain;
-       }*/
-    /*    public void SetPanning(float panning) {
-            this.Panning = panning;
-     //       if(microphone != null ) microphone.Panning = panning;
-        }*/
-
+   
     public void OnDestroy() {
         microphone.StopCapture();
     }
@@ -114,25 +102,14 @@ public class Microphone : MonoBehaviour {
     public class MicrophoneEditor : Editor {
         public Microphone microphone;
         public SerializedProperty SaveIntoFile;
-        public SerializedProperty CalculateAmplitude;
         public SerializedProperty absoluteOutputPath;
-        /*private SerializedProperty equalizer;
-        private SerializedProperty Panning;
-        private bool equalizerIsExpanded;
 
-        private string[] frequencyList = {
-            "31Hz","63Hz","125Hz","250Hz","500Hz","1kHz","2kHz","4kHz","8kHz","16kHz"
-        };
-        */
         private void OnEnable() {
             microphone = (Microphone)target;
 
-            SaveIntoFile = serializedObject.FindProperty("saveIntoFile");
-            CalculateAmplitude = serializedObject.FindProperty("calculateAmplitude");
-            absoluteOutputPath = serializedObject.FindProperty("absoluteOutputPath");
+            SaveIntoFile = serializedObject.FindProperty("SaveIntoFile");
+            absoluteOutputPath = serializedObject.FindProperty("AbsoluteOutputPath");
         
-           // equalizer = serializedObject.FindProperty("privateEqualizer");
-            //Panning = serializedObject.FindProperty("Panning");
         }
 
         public override void OnInspectorGUI() {
@@ -171,60 +148,9 @@ public class Microphone : MonoBehaviour {
                 if (Application.isPlaying) microphone.StopCapture();
             }
 
-        /*     float lastFramePanning = Panning.floatValue;
-
-           EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("Panning",  GUILayout.Width(EditorGUIUtility.labelWidth));
-            Panning.floatValue = EditorGUILayout.Slider(Panning.floatValue, -1.0f, 1.0f);
-            EditorGUILayout.EndHorizontal();
-
-            if (lastFramePanning != Panning.floatValue) {
-                microphone.SetPanning(Panning.floatValue);
-
-            }
-      */
-            //PrintEqualizer();
-
             serializedObject.ApplyModifiedProperties();
         }
 
-   /*     private void PrintEqualizer() {
-            equalizerIsExpanded = EditorGUILayout.Foldout(equalizerIsExpanded, "Equalizer");
-            if (!equalizerIsExpanded) return;
-
-
-            for (int i = 0; i < frequencyList.Length; i++) {
-                EditorGUILayout.BeginHorizontal();
-                var gain = equalizer.FindPropertyRelative("equalizerBands").GetArrayElementAtIndex(i).FindPropertyRelative("Gain");
-                var oriGain = gain.floatValue;
-                EditorGUILayout.LabelField(frequencyList[i], GUILayout.Width(50));
-                gain.floatValue = EditorGUILayout.Slider(gain.floatValue, Equalizer.MIN_GAIN, Equalizer.MAX_GAIN);
-                if (oriGain != gain.floatValue) {
-                    microphone.EqualizerProperty.equalizerBands[i].Gain = gain.floatValue;
-
-                    microphone.UpdateEqualizer();
-
-                    //audioBasic.GetMonoOrStereoAudio()?.ChangeGain(frequency, gain.floatValue);
-                }
-                EditorGUILayout.EndHorizontal();
-            }
-
-            //reset button
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.FlexibleSpace();
-
-            bool resetIsPressed = GUILayout.Button("Reset To Default", GUILayout.Width(EditorGUIUtility.currentViewWidth / 2));
-
-            EditorGUILayout.EndHorizontal();
-            if (resetIsPressed) {
-                for (int i = 0; i < frequencyList.Length; i++) {
-                    microphone.EqualizerProperty.equalizerBands[i].Gain = 0.0f;
-                }
-                microphone.UpdateEqualizer();
-
-            }
-
-        }*/
     }
 
 #endif

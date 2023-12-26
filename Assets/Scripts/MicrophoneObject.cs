@@ -8,7 +8,7 @@ public class MicrophoneObject {
     private WaveInEvent waveIn;
     private WaveFileWriter waveWriter;
     private BufferedWaveProvider bufferedWaveProvider;
-    //private ModifiedAudio modifiedAudio;
+
     public bool IsPlaying { get; private set; }
 
     private bool SaveIntoFile { get; set; }
@@ -18,19 +18,6 @@ public class MicrophoneObject {
     private List<byte> buffer = new();
     public WaveFormat WaveFormat => waveIn.WaveFormat;
     public int GetSpeakerNumber => waveIn.DeviceNumber;
-
-   /* public Equalizer equalizer {
-        get { return modifiedAudio.equalizer; }
-        set {
-            modifiedAudio.equalizer = value;
-            UpdateEqualizer();
-        }
-    }
-
-    public float Panning {
-        get { return modifiedAudio != null ? modifiedAudio.Panning : 0.0f; }
-        set { if (modifiedAudio != null) modifiedAudio.Panning = value; }
-    }*/
 
     public static WaveInCapabilities[] GetMicrophoneDevices() {
 
@@ -72,8 +59,6 @@ public class MicrophoneObject {
         bufferedWaveProvider = new(waveIn.WaveFormat);
         bufferedWaveProvider.DiscardOnBufferOverflow = true;
 
-        //modifiedAudio = new(bufferedWaveProvider.ToSampleProvider());
-
 
         waveIn.StartRecording();
         IsPlaying = true;
@@ -109,9 +94,6 @@ public class MicrophoneObject {
 
 
 
-
-  //  public void UpdateEqualizer() => modifiedAudio?.UpdateEqualizer();
-
     private void WaveIn_DataAvailable(object sender, WaveInEventArgs e) {
 
 
@@ -128,18 +110,6 @@ public class MicrophoneObject {
         if (!IsPlaying)
             return null;
 
-        /*
-        int frameSize = 2048;
-        byte[] buffer = new byte[frameSize];
-        //bufferedWaveProvider.Read(buffer, 0, frameSize);
-
-
-        if (buffer.Length == 0)
-            return null;
-        if (buffer[frameSize - 2] == 0)
-            return null;
-
-        */
         if (buffer.Count < 2048) return null;
 
         amplitude = SpectrumAnalyzer.GetAmplitude(buffer.GetRange(0,2048).ToArray(), WaveFormat.Channels);

@@ -46,19 +46,7 @@ public class SpectrumAnalyzer {
                 fftReal[i + 1] = values[i].Magnitude;
             }
         }
-        /*
-        int n = values.Length / 2;
-        for (int i = 0; i < targetFrequencies.Length; i++) {
-            int targerFrequency = targetFrequencies[i];
-            int indexInValues = (int)(targerFrequency * n / sampleRate);
 
-        }
-        float max=-1;
-        float maxIndex = 0;
-        for(int i = 0; i < values.Length; i++) {
-            if (values[i].X > max) { max = values[i].X; maxIndex = i; }
-        }
-        */
 
         return fftReal;
     }
@@ -73,11 +61,11 @@ public class SpectrumAnalyzer {
     /// <returns></returns>
     public static double[] GetAmplitude(byte[] buffer, int[] targetFrequencies, int sampleRate, int channelCount) {
 
-        var fft = GetAmplitude(buffer,channelCount);
+        var fft = GetAmplitude(buffer, channelCount);
         double[] returnedFFT = new double[targetFrequencies.Length];
         for (int i = 0; i < returnedFFT.Length; i++) {
             //+0.5 is to make the float round up or down depends on the demical point
-            int index = (int)((targetFrequencies[i] * (fft.Length) / (double)sampleRate) + 0.5) * channelCount;
+            int index = GetIndex(fft.Length, targetFrequencies[i], sampleRate, channelCount);
             returnedFFT[i] = fft[index];
         }
         return returnedFFT;
@@ -92,9 +80,14 @@ public class SpectrumAnalyzer {
         double[] returnedFFT = new double[targetFrequencies.Length];
         for (int i = 0; i < returnedFFT.Length; i++) {
             //+0.5 is to make the float round up or down depends on the demical point
-            int index = ((int)((targetFrequencies[i] * (amplitudes.Length) / (double)sampleRate) + 0.5)) * 2 * channelCount;
+            int index = GetIndex(amplitudes.Length, targetFrequencies[i],sampleRate, channelCount);
             returnedFFT[i] = amplitudes[index];
         }
         return returnedFFT;
+    }
+
+    public static int GetIndex(int amplitudeArrayLength, int targetFrequency, int sampleRate, int channelCount) {
+        int index = ((int)((targetFrequency * (amplitudeArrayLength) / (double)sampleRate) + 0.5)) * 2 * channelCount;
+        return index;
     }
 }

@@ -67,11 +67,11 @@ public class GraphManager : MonoBehaviour {
 
         if (audioBasicUIManager != null) {
             sampleRate = audioBasicUIManager.audioBasic.SampleRate;
-            ChannelCount = audioBasicUIManager.audioBasic.ChannelCount;
+            ChannelCount = audioBasicUIManager.audioBasic.Channels;
         }
         else if (audioListUIManager != null) {
             sampleRate = audioListUIManager.audioList.SampleRate;
-            ChannelCount = audioListUIManager.audioList.ChannelCount;
+            ChannelCount = audioListUIManager.audioList.Channels;
         }
         else {
             sampleRate = microphoneUIManager.SampleRate;

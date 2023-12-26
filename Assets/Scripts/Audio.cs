@@ -17,7 +17,7 @@ public class Audio {
 
     private WaveStream OriginalWave;
     private ModifiedAudio ModifiedWave;
-    private MonoBehaviour audioBase;
+    private MonoBehaviour monoBehaviour;
 
 
     public WaveFormat WaveFormat => OriginalWave.WaveFormat;
@@ -83,8 +83,8 @@ public class Audio {
 
 
     #region Device
-    public static WaveOutCapabilities[] speakerDevices { get { return Speaker.GetSpeakerDevices(); } }
-    public static string[] speakerDevicesName { get { return Speaker.GetSpeakerDevicesName(); } }
+    public static WaveOutCapabilities[] SpeakerDevices { get { return Speaker.GetSpeakerDevices(); } }
+    public static string[] SpeakerDevicesName { get { return Speaker.GetSpeakerDevicesName(); } }
 
     public float CurrentTime { get { return Position / (float) OriginalWave.WaveFormat.AverageBytesPerSecond; } }
     public bool SetSpeakerNumber(int id) {
@@ -204,13 +204,12 @@ public class Audio {
     OnEnable serializedObject.FindProperty();*/
 
 
-    public Audio(string filePath, MonoBehaviour audioBase) {
+    public Audio(string filePath, MonoBehaviour monoBehaviour) {
         speaker = new Speaker();
         OriginalWave = GetFileInWAV(filePath);
-        //EqualizedWave = OriginalWave.ToSampleProvider();
         ModifiedWave = new(OriginalWave.ToSampleProvider());
         FilePath = filePath;
-        this.audioBase = audioBase;
+        this.monoBehaviour = monoBehaviour;
     }
 
 
@@ -220,22 +219,18 @@ public class Audio {
     /// <summary>
     /// Play the audio. If the audio is playing, do nothing
     /// </summary>
-    /// <param name="checkStopped">Check is the audio stopped or not</param>
+    /// <param name="checkStopped">To check is the audio stopped or not</param>
     public void Play(bool checkStopped = true, bool sameAsRestart = false) {
-
-
 
         //add onAudioStopped if start to play at the beginning
         if (speaker.PlaybackState == PlaybackState.Stopped) {
             speaker.PlaybackStopped += Speaker_PlaybackStopped;
-            OnAudioStarted?.Invoke(audioBase, this);
+            OnAudioStarted?.Invoke(monoBehaviour, this);
         }
         //resume
         else if (speaker.PlaybackState == PlaybackState.Paused) {
-            OnAudioResumed?.Invoke(audioBase, this);
+            OnAudioResumed?.Invoke(monoBehaviour, this);
         }
-
-        //equalizer
 
 
         if (speaker.PlaybackState != PlaybackState.Paused) {
@@ -250,16 +245,7 @@ public class Audio {
             }
         }
 
-        //change volume
-        /*try {
-            speaker.Volume = volume;
-        }
-        catch (ArgumentOutOfRangeException e) {
-            errorOccuredAndStopped = true;
-            speaker.Stop();
 
-            throw e;
-        }*/
         speaker.Play();
         AudioHasFinished = false;
 
@@ -269,7 +255,7 @@ public class Audio {
     }
 
 
-    /// <summary>
+    /// <summary>S
     /// Restart the playing audio. If the audio is stopped, play from beginning
     /// </summary>
     public void Restart() {
@@ -283,7 +269,7 @@ public class Audio {
         AudioHasFinished = false;
 
         //same as play == true in basic.play
-        OnAudioRestarted?.Invoke(audioBase, this, sameAsPlay);
+        OnAudioRestarted?.Invoke(monoBehaviour, this, sameAsPlay);
     }
 
     /// <summary>
@@ -292,7 +278,7 @@ public class Audio {
     public void Pause() {
         if (speaker.PlaybackState == PlaybackState.Playing) {
             speaker.Pause();
-            OnAudioPaused?.Invoke(audioBase, this);
+            OnAudioPaused?.Invoke(monoBehaviour, this);
         }
     }
 
@@ -315,7 +301,7 @@ public class Audio {
 
     private void Speaker_PlaybackStopped(object sender, StoppedEventArgs e) {
         if (IgnoreAudioOnStopped == false) {
-            OnAudioStopped?.Invoke(audioBase, this, AudioHasFinished);
+            OnAudioStopped?.Invoke(monoBehaviour, this, AudioHasFinished);
 
             //remove the onAudioStopped
             speaker.PlaybackStopped -= Speaker_PlaybackStopped;
@@ -447,6 +433,12 @@ public class Audio {
 
     #endregion
 
+    /// <summary>
+    /// Get WaveStream by absolute filepath
+    /// </summary>
+    /// <param name="filePath">Absolute path to the audio</param>
+    /// <returns></returns>
+    /// <exception cref="Exception">File extension is not .wav or .mp3</exception>
     public static WaveStream GetFileInWAV(string filePath) {
         WaveFileReader OriginalWave;
 
@@ -548,11 +540,6 @@ public class Audio {
 
         OriginalWave.Read(byteBuffer, 0, frameSize);
         OriginalWave.Position = oriPosition;
-        /*    float[] floats = new float[frameSize / sizeof(float)];
-            for (int i = 0; i < floats.Length; i++) {
-                if (i % 2 == 0) floats[i] = BitConverter.ToSingle(byteBuffer, i * 4);
-
-            }*/
 
         if (targetFrequencies != null) {
             return SpectrumAnalyzer.GetAmplitude(byteBuffer, targetFrequencies, OriginalWave.WaveFormat.SampleRate,WaveFormat.Channels);

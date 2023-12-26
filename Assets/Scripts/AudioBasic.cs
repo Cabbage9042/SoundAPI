@@ -28,11 +28,6 @@ public class AudioBasic : AudioBase {
 
 
 
-    public PlaybackState State {
-        get {
-            return audio == null ? PlaybackState.Stopped : audio.State;
-        }
-    }
 
 
 
@@ -167,7 +162,7 @@ public class AudioBasic : AudioBase {
             loop = serializedObject.FindProperty("Loop");
             SpeakerDeviceNumber = serializedObject.FindProperty("SpeakerDeviceNumber");
             pitchFactor = serializedObject.FindProperty("PitchFactor");
-            volume = serializedObject.FindProperty("volume");
+            volume = serializedObject.FindProperty("Volume");
 
             Panning = serializedObject.FindProperty("Panning");
             equalizer = serializedObject.FindProperty("privateEqualizer");
@@ -266,7 +261,7 @@ public class AudioBasic : AudioBase {
 
             //select speaker device
             int oriSpeakerMono = SpeakerDeviceNumber.intValue;
-            SpeakerDeviceNumber.intValue = EditorGUILayout.Popup("Speaker Device", SpeakerDeviceNumber.intValue, speakerDevicesName);
+            SpeakerDeviceNumber.intValue = EditorGUILayout.Popup("Speaker Device", SpeakerDeviceNumber.intValue, SpeakerDevicesName);
             if (oriSpeakerMono != SpeakerDeviceNumber.intValue) {
                 audioBasic.audio?.SetSpeakerNumber(SpeakerDeviceNumber.intValue);
             }
@@ -307,7 +302,7 @@ public class AudioBasic : AudioBase {
 
             if (volume.floatValue != lastFrameVolume) {
 
-                audioBasic.SetVolume(audioBasic.volume);
+                audioBasic.SetVolume(audioBasic.Volume);
 
             }
 

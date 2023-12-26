@@ -1,0 +1,171 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Audio">
+    <Position X="9.75" Y="7.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>mgUkmIQBASRFQCD4AAAACAxAEAAIAAGEoANAhAIAECI=</HashCode>
+      <FileName>Assets\Scripts\Audio.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MethodCalled" Collapsed="true">
+    <Position X="7" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAEAAAAAAAAAEAgAIAAAAAAAAAgIAAAAAAAEAAAAA=</HashCode>
+      <FileName>Assets\Scripts\AudioBase.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AudioBase" Collapsed="true">
+    <Position X="0.5" Y="0.75" Width="2.25" />
+    <NestedTypes>
+      <Class Name="AudioBase.AudioBaseEditor" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Assets\Scripts\AudioBase.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>HARhBTEBAAIAFkwwCAACAQxBsgCASEGFoAJCjAMEkRY=</HashCode>
+      <FileName>Assets\Scripts\AudioBase.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AudioBasic">
+    <Position X="3" Y="1.75" Width="1.5" />
+    <NestedTypes>
+      <Class Name="AudioBasic.AudioBasicEditor" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Assets\Scripts\AudioBasic.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>EQABAAAIACAQABAAAAAAAAACAAABAAAAgAAAAAEAADA=</HashCode>
+      <FileName>Assets\Scripts\AudioBasic.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AudioBasicManager" Collapsed="true">
+    <Position X="7" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\Scripts\AudioBasicManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AudioList" Collapsed="true">
+    <Position X="0.5" Y="3" Width="2.25" />
+    <NestedTypes>
+      <Enum Name="AudioList.LoopMode" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Assets\Scripts\AudioList.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Class Name="AudioList.AudioListEditor" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Assets\Scripts\AudioList.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>EUAhMEAAAKABAAAAIQAAAIASkAjBAAIAoYEQigAIUJA=</HashCode>
+      <FileName>Assets\Scripts\AudioList.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AudioPlayer" Collapsed="true">
+    <Position X="8.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\Scripts\AudioPlayer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BuildManager" Collapsed="true">
+    <Position X="10.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAACABAAAAEAgAAAAAAAAAAAAAAEAAAAAAAAA=</HashCode>
+      <FileName>Assets\Scripts\BuildManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Equalizer">
+    <Position X="9.75" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAAACCAAAAABAgAABAgAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\Scripts\Equalizer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microphone">
+    <Position X="4.25" Y="6" Width="2.25" />
+    <NestedTypes>
+      <Class Name="Microphone.MicrophoneEditor" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Assets\Scripts\Microphone.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>DCABUAAwBCAAACCACCAAAAEAAAAEAAAEAxAIAQAACAA=</HashCode>
+      <FileName>Assets\Scripts\Microphone.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MicrophoneObject">
+    <Position X="7" Y="5.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>ACQAEAAIAAAAkQBAACAQAAAEAAUAAAAEABBAAAAAAQA=</HashCode>
+      <FileName>Assets\Scripts\MicrophoneObject.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ModifiedAudio" BaseTypeListCollapsed="true">
+    <Position X="1" Y="5.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>CAEAEAgAAAAAAAAAAAAAUAAgEAAABAEAAQAAAEAgAAA=</HashCode>
+      <FileName>Assets\Scripts\ModifiedAudio.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="PlayMusic" Collapsed="true">
+    <Position X="7" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AASAAAAAABAAAAhAEAAAAAABAAAAAAAAAEAAAREAAAA=</HashCode>
+      <FileName>Assets\Scripts\PlayMusic.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PlayMusicList" Collapsed="true">
+    <Position X="8.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAACABAAAAAAAAAAACAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\Scripts\PlayMusicList.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Speaker" Collapsed="true">
+    <Position X="10.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAQAAAAAAAAAAAAQAAAAAAAAAAAAACAAAAAAA=</HashCode>
+      <FileName>Assets\Scripts\Speaker.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SpectrumAnalyzer" Collapsed="true">
+    <Position X="5.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAQAAAAAAABAAAAAAAEAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\Scripts\SpectrumAnalyzer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EqualizerBand">
+    <Position X="11.75" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAACAAEAAAgAAAAAgAEBAAAAAQEAAAAAAAA=</HashCode>
+      <FileName>Assets\Scripts\EqualizerBand.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="EventName" Collapsed="true">
+    <Position X="5.25" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEBAAAAAQAAAQAAAAAAAAAoAAAAAA=</HashCode>
+      <FileName>Assets\Scripts\AudioBase.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="Frequency" Collapsed="true">
+    <Position X="7" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAEAQAAAIAAAAAAAQAAAEAAAAAAACAAAAAAQBAAQ=</HashCode>
+      <FileName>Assets\Scripts\ModifiedAudio.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

@@ -50,7 +50,7 @@ public class AudioBasicUIManager : MonoBehaviour {
         return audioBasic?.GetAmplitude(amplitudes, targetFrequencies, sampleRate);
     }
     private void Start() {
-        List<string> speakerList = new(AudioBasic.speakerDevicesName);
+        List<string> speakerList = new(AudioBasic.SpeakerDevicesName);
 
         monoDropDown.GetComponent<TMP_Dropdown>().AddOptions(speakerList);
 

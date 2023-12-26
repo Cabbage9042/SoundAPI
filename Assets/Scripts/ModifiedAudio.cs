@@ -41,12 +41,8 @@ public class ModifiedAudio : ISampleProvider {
             this.sampleProvider = sampleProvider;
         }
 
-
-
         filter = new BiQuadFilter[equalizer.Length];
         CreateFilter();
-
-
     }
 
 
